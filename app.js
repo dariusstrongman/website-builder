@@ -6,3 +6,14 @@ document.getElementById('brief-form')?.addEventListener('submit',event=>{event.p
 document.querySelectorAll('.direction-card').forEach(card=>card.querySelector('.choose')?.addEventListener('click',()=>{document.querySelectorAll('.direction-card').forEach(item=>{item.classList.remove('selected');item.querySelector('.choose').textContent='Choose'});card.classList.add('selected');card.querySelector('.choose').textContent='Selected ✓';document.getElementById('chosen-name').textContent=card.dataset.direction;window.setTimeout(()=>{furthest=Math.max(furthest,3);show('build')},450)}));
 document.getElementById('simulate-build')?.addEventListener('click',()=>{furthest=4;show('delivery')});document.getElementById('restart')?.addEventListener('click',()=>{furthest=1;document.getElementById('brief-form')?.reset();document.querySelectorAll('.direction-card').forEach(card=>card.classList.remove('selected'));show('brief')});
 document.querySelectorAll('.faq-question').forEach(button=>button.addEventListener('click',()=>{const item=button.closest('.faq-item');const open=item.classList.toggle('open');button.setAttribute('aria-expanded',String(open))}));
+const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(!reduceMotion){
+  document.body.classList.add('motion-ready');
+  const targets=document.querySelectorAll('main > section:not(.hero), .why-grid article, .stages article, .case, .gates article, .price-grid article');
+  targets.forEach(target=>target.classList.add('reveal'));
+  const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('seen');observer.unobserve(entry.target)}}),{threshold:.08,rootMargin:'0px 0px -40px'});
+  targets.forEach(target=>observer.observe(target));
+  const stage=document.querySelector('[data-parallax]');
+  stage?.addEventListener('pointermove',event=>{const box=stage.getBoundingClientRect();stage.style.setProperty('--px',`${(event.clientX-box.left)/box.width-.5}`);stage.style.setProperty('--py',`${(event.clientY-box.top)/box.height-.5}`)});
+  stage?.addEventListener('pointerleave',()=>{stage.style.setProperty('--px','0');stage.style.setProperty('--py','0')});
+}
