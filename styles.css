@@ -30,3 +30,66 @@ body{font-size:16px}.topbar nav a,footer nav a{font-size:14px}.eyebrow,.brand sm
 .demo-forge{background:#111416;color:#edf0f0;font-family:Manrope,Arial,sans-serif}.demo-forge>header{border-bottom:1px solid #394044}.demo-forge .demo-cta{background:#ff5a23;border-color:#ff5a23;color:#111}.forge-hero{padding:4vw;display:grid;grid-template-columns:.85fr 1.15fr;gap:3vw;min-height:650px;align-items:center}.forge-hero>div>p,.forge-close small{font:11px DM Mono;color:#ff6b35;text-transform:uppercase}.forge-hero h1{font-size:clamp(58px,7vw,110px);margin:30px 0}.forge-hero h1 span{color:#ff6b35}.forge-hero a,.forge-close a{color:#ff7949;font-weight:700}.forge-hero figure{margin:0;position:relative}.forge-hero img{width:100%;height:510px;object-fit:cover;filter:saturate(.8) contrast(1.08)}.forge-hero figcaption{display:grid;grid-template-columns:1fr 1fr 1fr;background:#ff5a23;color:#111;padding:12px;font:10px DM Mono}.forge-flow{padding:80px 6vw;background:#e7e9e6;color:#111}.forge-flow>small{font:11px DM Mono;color:#d74614}.forge-flow>div{display:grid;grid-template-columns:60px 1fr auto;padding:24px 0;border-bottom:1px solid #aeb3b0}.forge-flow em{font-style:normal;color:#555}.forge-proof{padding:120px 6vw}.forge-proof>p{color:#ff6b35}.forge-proof h2{font-size:clamp(55px,8vw,120px)}.forge-proof>div{display:grid;grid-template-columns:repeat(3,1fr);margin-top:70px}.forge-proof article{padding:30px;border:1px solid #394044}.forge-proof b,.forge-proof span{display:block}.forge-proof b{font-size:48px;color:#ff6b35}.forge-proof span{color:#9ba1a3}.forge-close{padding:120px 6vw;background:#ff5a23;color:#111}.forge-close small,.forge-close a{color:#111}.forge-close h2{font-size:clamp(55px,8vw,120px)}@keyframes float{50%{transform:translateY(-14px)}}
 @media(max-width:950px){.live-case,.live-case.reverse{grid-template-columns:1fr}.live-case.reverse .live-case-copy{order:0}.live-case-copy{position:static}.walkthrough{grid-template-columns:1fr;padding-top:80px}.price-ledger{left:24px;right:24px}.arc-hero,.forge-hero{grid-template-columns:1fr}.arc-projects,.forge-proof>div{grid-template-columns:1fr}.form-method>div{grid-template-columns:1fr}}
 @media(max-width:620px){.proof-controls span{display:none}.live-showcases{padding:65px 14px;gap:80px}.live-case-copy{padding-inline:8px}.demo-browser iframe{height:590px}.walkthrough{padding:60px 14px;background:#f7f5f1}.walkthrough-intro{padding-inline:8px}.build-experience{box-shadow:10px 10px 0 rgba(109,55,255,.22)}.experience-body{grid-template-columns:1fr}.experience-body>nav{display:flex;overflow:auto;border-right:0;border-bottom:1px solid #3b3a44}.experience-body>nav button{min-width:95px}.experience-stage{padding:24px;min-height:500px}.research-lines{grid-template-columns:1fr}.route-cards{grid-template-columns:1fr}.qa-grid{grid-template-columns:1fr 1fr}.experience-controls span{display:none}.handoff-story{padding:80px 22px;grid-template-columns:1fr}.pricing-hero{padding-bottom:370px}.price-ledger{grid-template-columns:1fr}.price-ledger span{border-right:0;border-bottom:1px solid #484650}.price-ledger span:last-child{border-bottom:0}.demo-site>header{padding:0 18px}.demo-site>header nav{display:none}.arc-hero,.forge-hero{padding:45px 18px}.arc-hero{min-height:auto}.arc-hero img{min-height:430px}.arc-statement,.arc-close,.form-method,.form-close,.forge-proof,.forge-close{padding:80px 22px}.arc-projects div{padding:35px}.form-hero{padding:70px 20px}.form-hero h1{font-size:27vw}.form-orbit{width:110px;right:12px;top:80px}.form-orbit span{font-size:40px}.form-orbit small{display:none}.form-schedule{grid-template-columns:1fr}.form-schedule>div,.form-schedule>a{border-right:0;border-bottom:1px solid #3c3c3f;padding:30px}.forge-hero img{height:390px}.forge-hero figcaption{grid-template-columns:1fr}.forge-flow{padding:60px 22px}.forge-flow>div{grid-template-columns:38px 1fr}.forge-flow em{grid-column:2}.demo-site .demo-disclaimer{font-size:9px}}
+
+/* Core brand discipline: ink, paper, violet, and a restrained orange signal. */
+.brand-mark i:nth-child(3){background:var(--ink)}
+.stage-glow{background:conic-gradient(from 180deg,var(--violet),#9c73ff,var(--orange),var(--violet))}
+.page-hero:after{background:conic-gradient(var(--violet),var(--orange),var(--violet))}
+.value-strip span:before{color:var(--orange)}
+.kinetic-band{background:var(--violet);color:white;border-color:var(--violet)}
+.kinetic-band i{color:white;opacity:.55}
+.build-card .primary{background:white;color:var(--ink)}
+.delivery-mark{background:var(--violet);color:white}
+.cta-band{background:var(--violet);color:white}
+.cta-band .eyebrow{color:#d8ccff}
+.cta-band .primary{background:white;color:var(--ink)}
+.process-hero{background:linear-gradient(135deg,#f8f6f2 58%,#e6ddff)}
+.process-console li.done{border-color:var(--violet)}
+.stages article>b,.gates b{color:#a98cff}
+
+/* Pricing uses the same core system instead of a separate collection of accents. */
+.price-ledger em{color:#c9baff}
+.price-grid .featured li:before{color:white}
+.price-grid .featured .primary{background:white;color:var(--violet)}
+.included{background:white}
+.included-grid{background:#d8d3ca}
+.included-grid article{background:var(--paper)}
+
+/* Working examples: the selected device changes both viewport and explanation. */
+.proof-hero:after{background:var(--violet);filter:blur(55px);opacity:.42}
+.proof-controls button.active{background:var(--violet);border-color:var(--violet);color:white}
+.demo-browser-bar i:nth-child(3){background:var(--violet)}
+.demo-browser{transition:width .45s cubic-bezier(.2,.8,.2,1),height .45s cubic-bezier(.2,.8,.2,1)}
+.demo-browser iframe{transform-origin:top left;max-width:none;transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.device-note{padding:14px 0 0;border-top:1px solid #cbc7be;font-size:13px!important;color:var(--violet)!important;font-weight:700}
+.live-showcases.mobile-mode .live-case{grid-template-columns:minmax(280px,1fr) 390px;max-width:1080px;width:100%;margin-inline:auto}
+.live-showcases.mobile-mode .live-case.reverse .live-case-copy{order:0}
+
+/* How it works keeps the interaction and removes the unrelated lime art direction. */
+.walkthrough{background:radial-gradient(circle at 88% 12%,#e7deff 0,transparent 30%),var(--paper)}
+.experience-top b,.research-lines span b,.production-list .done:before,.qa-grid b{color:#a98cff}
+
+/* A static release record replaces the decorative orbit. */
+.quality-hero{background:white;padding-bottom:300px}
+.quality-record{position:absolute;left:clamp(24px,7vw,110px);right:clamp(24px,7vw,110px);bottom:55px;z-index:2;background:var(--ink);color:white;border:1px solid #3f3e47;box-shadow:18px 18px 0 rgba(109,55,255,.2)}
+.quality-record-head,.quality-record-row,.quality-record-foot{display:grid;grid-template-columns:1fr auto;align-items:center;padding:15px 20px;border-bottom:1px solid #41404a}
+.quality-record-head span,.quality-record-head b,.quality-record-row em,.quality-record-foot span{font:10px DM Mono;text-transform:uppercase;letter-spacing:.06em}
+.quality-record-head b{color:var(--orange)}
+.quality-record-row span{font-weight:700}
+.quality-record-row em{font-style:normal;color:#aaa}
+.quality-record-foot{border-bottom:0;background:var(--violet)}
+.quality-record-foot b{font-size:20px}
+.quality-record-foot span{color:#ded5ff}
+
+@media(max-width:950px){
+  .live-showcases.mobile-mode .live-case{grid-template-columns:1fr;max-width:720px}
+  .live-showcases.mobile-mode .demo-browser{width:min(390px,100%)}
+}
+@media(max-width:620px){
+  .quality-hero{padding-bottom:70px}
+  .quality-record{position:relative;left:auto;right:auto;bottom:auto;width:100%;margin-top:42px;box-shadow:8px 8px 0 rgba(109,55,255,.2)}
+  .quality-record-row{grid-template-columns:1fr}
+  .quality-record-row em{margin-top:4px}
+  .proof-controls{flex-wrap:wrap}
+  .proof-controls span{display:block;width:100%;margin:8px 0 0}
+}
