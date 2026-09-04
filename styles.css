@@ -93,3 +93,69 @@ body{font-size:16px}.topbar nav a,footer nav a{font-size:14px}.eyebrow,.brand sm
   .proof-controls{flex-wrap:wrap}
   .proof-controls span{display:block;width:100%;margin:8px 0 0}
 }
+
+/* Experience-led demo: image, atmosphere, booking. It intentionally rejects the
+   oversized-type template used by the previous wellness study. */
+.demo-form{background:#f4efe9;color:#261b29}
+.demo-form>header{background:#f4efe9;border-bottom:1px solid #cfc4c8}
+.demo-form .demo-cta{background:#261b29;color:#fff;border:0}
+.form-hero-v2{position:relative;min-height:720px;padding:28px 4vw 48px;display:grid;grid-template-columns:.72fr 1.28fr;gap:3vw;align-items:stretch;background:#f4efe9}
+.form-copy{display:flex;flex-direction:column;justify-content:center;padding:42px 0}
+.form-copy>p:first-child{font:11px DM Mono;text-transform:uppercase;letter-spacing:.1em;color:#7a4a64}
+.form-copy h1{font:500 clamp(58px,7vw,112px)/.88 Playfair Display,serif;letter-spacing:-.065em;margin:42px 0 30px}
+.form-copy h1 i{color:#bd395f;font-style:italic}
+.form-copy .form-lede{max-width:460px;font-size:19px;color:#675a62}
+.form-copy>a{display:flex;justify-content:space-between;align-items:center;width:min(100%,430px);margin-top:45px;padding:18px 0;border-block:1px solid #a99ca3;text-decoration:none;font-weight:700}
+.form-copy>a span{font-size:24px;color:#bd395f}
+.form-hero-v2 figure{position:relative;margin:0;min-height:620px;overflow:hidden}
+.form-hero-v2 img{width:100%;height:100%;object-fit:cover;filter:saturate(.72) contrast(1.04)}
+.form-hero-v2 figcaption{position:absolute;inset:auto 0 0;display:flex;justify-content:space-between;gap:20px;padding:18px 22px;background:rgba(38,27,41,.88);color:white;font:10px DM Mono}
+.form-hero-v2 aside{position:absolute;right:3vw;top:60px;width:145px;aspect-ratio:1;background:#bd395f;color:white;border-radius:50%;display:flex;flex-direction:column;justify-content:center;align-items:center;box-shadow:0 18px 45px rgba(74,21,49,.25)}
+.form-hero-v2 aside small{font:9px DM Mono}.form-hero-v2 aside strong{font:600 52px Playfair Display}.form-hero-v2 aside span{font-size:11px}
+.form-method-v2{padding:120px 6vw;background:#261b29;color:white}
+.form-method-v2>p{max-width:1050px;font:500 clamp(45px,6.5vw,92px)/1 Playfair Display,serif;letter-spacing:-.045em}
+.form-method-v2>div{display:grid;grid-template-columns:repeat(3,1fr);margin-top:90px;border-top:1px solid #6d5d6c}
+.form-method-v2 article{padding:28px 36px 20px 0;border-right:1px solid #6d5d6c;min-height:280px}
+.form-method-v2 article+article{padding-left:36px}.form-method-v2 article:last-child{border-right:0}
+.form-method-v2 article>span{font:11px DM Mono;color:#ef7798}.form-method-v2 h2{font:500 46px Playfair Display;margin:70px 0 18px}.form-method-v2 article p{color:#c0b4bd}
+.form-schedule-v2{display:grid;grid-template-columns:1fr .8fr .65fr;background:#d8efea;color:#17332f}
+.form-schedule-v2>div,.form-schedule-v2>a{padding:70px 5vw;border-right:1px solid #8eb5ac}
+.form-schedule-v2 small{font:10px DM Mono}.form-schedule-v2 h2{font:500 58px Playfair Display;margin:32px 0 14px}.form-schedule-v2 p{color:#45665f}
+.form-schedule-v2>div:nth-child(2){display:grid;align-content:center;gap:15px}.form-schedule-v2>div:nth-child(2) span{padding-bottom:13px;border-bottom:1px solid #8eb5ac;font-weight:700}
+.form-schedule-v2>a{display:grid;place-items:center;background:#bd395f;color:white;text-align:center;text-decoration:none;font-weight:800}
+.form-close-v2{padding:90px 5vw 110px;background:#f4efe9}
+.form-close-v2>span{font:11px DM Mono;color:#7a4a64}.form-close-v2>div{display:flex;justify-content:space-between;align-items:end;gap:50px;margin-top:70px}
+.form-close-v2 p{font:500 clamp(50px,7vw,105px)/.95 Playfair Display,serif;margin:0}.form-close-v2 a{padding-bottom:9px;border-bottom:1px solid;text-decoration:none;font-weight:700;white-space:nowrap}
+
+/* Editorial service pricing: three offers read as a considered scope, not SaaS cards. */
+.pricing-intro{padding:120px clamp(24px,7vw,110px) 100px;background:var(--ink);color:white;display:grid;grid-template-columns:1.25fr .75fr;gap:8vw;align-items:end}
+.pricing-intro h1{margin:0}.pricing-intro>div:last-child{padding-bottom:10px}.pricing-intro>div:last-child p{font-size:20px;color:#c4c2cc}.pricing-intro>div:last-child span{display:block;padding-top:20px;border-top:1px solid #4b4953;font:11px DM Mono;color:#aaa}
+.offer-stack{padding:0 clamp(24px,7vw,110px);background:white}
+.offer-stack article{display:grid;grid-template-columns:55px 1.15fr .45fr 1fr auto;gap:32px;align-items:start;padding:55px 0;border-bottom:1px solid var(--ink)}
+.offer-stack article.featured{margin-inline:calc(clamp(24px,7vw,110px)*-1);padding-inline:clamp(24px,7vw,110px);background:var(--violet);color:white;border:0}
+.offer-index,.offer-name small,.offer-price small{font:11px DM Mono;letter-spacing:.08em}.offer-index{color:var(--violet)}.offer-stack .featured .offer-index{color:#d8ccff}
+.offer-name h2{font-size:clamp(34px,4vw,58px);margin:24px 0 14px}.offer-name p{max-width:510px;color:var(--muted)}.offer-stack .featured .offer-name p{color:#ddd5ff}
+.offer-price{display:grid;gap:14px}.offer-price strong{font-size:clamp(38px,4vw,62px);letter-spacing:-.06em}
+.offer-stack ul{list-style:none;padding:0;margin:0;display:grid;gap:12px}.offer-stack li:before{content:'✓';margin-right:10px;color:var(--violet)}.offer-stack .featured li:before{color:white}
+.offer-stack article>a{align-self:end;padding-bottom:8px;border-bottom:1px solid;text-decoration:none;font-weight:800;white-space:nowrap}
+
+/* Quality hero is normal document flow, so it cannot overlap or collapse. */
+.quality-hero-v2{padding:110px clamp(24px,7vw,110px);background:white;display:grid;grid-template-columns:1.05fr .95fr;gap:7vw;align-items:center;min-height:720px}
+.quality-hero-v2 h1{font-size:clamp(54px,6.5vw,98px)}.quality-hero-v2>div:first-child>p:last-child{max-width:620px;font-size:20px;color:var(--muted)}
+.quality-board{background:var(--ink);color:white;border:1px solid #3f3e47;box-shadow:22px 22px 0 rgba(109,55,255,.18)}
+.quality-board>div,.quality-board li,.quality-board>footer{padding:22px 24px;border-bottom:1px solid #41404a}
+.quality-board>div,.quality-board>footer{display:flex;justify-content:space-between;gap:20px;font:10px DM Mono}.quality-board>div b{color:#b49cff}
+.quality-board ol{list-style:none;padding:0;margin:0}.quality-board li{display:grid;grid-template-columns:70px 1fr;gap:20px;min-height:92px;align-items:center}.quality-board li span{font:10px DM Mono;color:#a98cff}.quality-board li b{font-size:17px}
+.quality-board>footer{border-bottom:0;background:var(--violet);align-items:center}.quality-board>footer strong{font-size:13px}
+
+.demo-site.preview-force-desktop>header nav{display:flex!important}
+@media(max-width:950px){
+  .pricing-intro,.quality-hero-v2{grid-template-columns:1fr}
+  .offer-stack article{grid-template-columns:40px 1fr .45fr}.offer-stack ul{grid-column:2/4}.offer-stack article>a{grid-column:2/4;justify-self:start}
+  .form-hero-v2{grid-template-columns:1fr}.form-hero-v2 figure{min-height:520px}.form-method-v2>div{grid-template-columns:1fr}.form-method-v2 article,.form-method-v2 article+article{padding:30px 0;border-right:0;border-bottom:1px solid #6d5d6c;min-height:auto}.form-method-v2 h2{margin-top:38px}.form-schedule-v2{grid-template-columns:1fr}.form-schedule-v2>div,.form-schedule-v2>a{border-right:0;border-bottom:1px solid #8eb5ac}.form-close-v2>div{display:block}.form-close-v2 a{display:inline-block;margin-top:45px}
+}
+@media(max-width:620px){
+  .pricing-intro,.quality-hero-v2{padding:80px 22px}.offer-stack{padding-inline:22px}.offer-stack article{grid-template-columns:32px 1fr;padding:42px 0}.offer-stack article.featured{margin-inline:-22px;padding-inline:22px}.offer-price{grid-column:2}.offer-stack ul,.offer-stack article>a{grid-column:2}.offer-name h2{font-size:38px}
+  .quality-board{box-shadow:10px 10px 0 rgba(109,55,255,.18)}.quality-board li{grid-template-columns:52px 1fr;padding:18px}.quality-board>footer{display:grid}
+  .form-hero-v2{padding:25px 18px 40px}.form-copy h1{font-size:56px}.form-hero-v2 figure{min-height:430px}.form-hero-v2 aside{width:110px;right:8px;top:430px}.form-hero-v2 aside strong{font-size:38px}.form-method-v2{padding:80px 22px}.form-method-v2>p{font-size:47px}.form-schedule-v2>div,.form-schedule-v2>a{padding:45px 22px}.form-close-v2{padding:70px 22px}.form-close-v2 p{font-size:50px}
+}
