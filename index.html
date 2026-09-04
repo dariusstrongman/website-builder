@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Website Builder — Concept Studio</title>
+  <meta name="description" content="Explore three custom website directions before your full site is built.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="Website Builder home">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span>Website Builder</span>
+      <small>prototype</small>
+    </a>
+    <nav aria-label="Primary navigation">
+      <a href="#process">How it works</a>
+      <a href="#studio">Concept studio</a>
+      <button class="nav-cta" data-scroll="studio">Start a website</button>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Premium websites, built around your business</p>
+        <h1>See three directions.<br><span>Choose the one that feels like you.</span></h1>
+        <p class="lede">Give us the business, the goal and the feeling. We turn that into three original website directions before the full build begins.</p>
+        <div class="hero-actions">
+          <button class="primary" data-scroll="studio">Create my directions <span>→</span></button>
+          <a href="#process">See the process</a>
+        </div>
+        <div class="trust-row" aria-label="Service principles">
+          <span>Custom direction</span><span>Desktop + mobile</span><span>Three revision rounds</span>
+        </div>
+      </div>
+
+      <div class="hero-stage" aria-label="Example website direction selector">
+        <div class="stage-glow"></div>
+        <div class="window main-window">
+          <div class="window-bar"><span></span><span></span><span></span><b>Direction 02A</b></div>
+          <div class="mock-nav"><strong>ARC / HOME</strong><i></i><i></i><button>Book a visit</button></div>
+          <div class="mock-hero"><small>Architecture that makes room for life</small><h2>Built for the way<br>you want to live.</h2><div class="mock-image"><em>Project 04</em></div></div>
+        </div>
+        <div class="window alt-window">
+          <div class="alt-color"></div><div><small>DIRECTION 02</small><strong>Warm precision</strong><span>Editorial · Human · Quiet</span></div>
+        </div>
+        <div class="cursor-note"><b>Selected</b><span>Bold, but still trustworthy</span></div>
+      </div>
+    </section>
+
+    <section class="process" id="process">
+      <div class="section-head"><p class="eyebrow">A better way to commission a website</p><h2>You approve the direction<br>before we build the whole thing.</h2></div>
+      <ol>
+        <li><b>01</b><h3>Tell us about the business</h3><p>Answer a focused brief. No design language required.</p></li>
+        <li><b>02</b><h3>Explore three directions</h3><p>Compare real desktop, mobile and motion previews.</p></li>
+        <li><b>03</b><h3>Choose and shape it</h3><p>Pick one, reject details and tell us what feels right.</p></li>
+        <li><b>04</b><h3>Watch the full build</h3><p>Follow progress, request revisions and approve delivery.</p></li>
+      </ol>
+    </section>
+
+    <section class="studio" id="studio">
+      <div class="studio-intro">
+        <p class="eyebrow">Interactive proof of concept</p>
+        <h2>Start with a real brief.</h2>
+        <p>This prototype creates sample directions locally. The production version will research the business, benchmarks, buyers and competitors before creating anything visual.</p>
+      </div>
+
+      <div class="studio-shell">
+        <div class="stepper" aria-label="Website creation progress">
+          <button class="active" data-step-target="brief"><span>1</span> Brief</button>
+          <button data-step-target="directions"><span>2</span> Directions</button>
+          <button data-step-target="build"><span>3</span> Build</button>
+          <button data-step-target="delivery"><span>4</span> Delivery</button>
+        </div>
+
+        <section class="panel active" id="brief-panel">
+          <form id="brief-form">
+            <div class="form-heading"><div><p class="eyebrow">Your business</p><h3>What are we designing?</h3></div><span>About 2 minutes</span></div>
+            <div class="field-grid">
+              <label>Business name<input id="business" name="business" value="Northline Studio" required></label>
+              <label>Type of business<select id="industry" name="industry"><option>Professional services</option><option>Technology product</option><option>Home and construction</option><option>Health and wellness</option><option>Ecommerce</option><option>Hospitality</option></select></label>
+            </div>
+            <label>What should the website accomplish?<textarea id="goal" name="goal" rows="3" required>Make the company feel established, explain the service quickly and turn qualified visitors into booked consultations.</textarea></label>
+            <fieldset><legend>How should it feel?</legend><div class="chips" id="feelings"><label><input type="checkbox" value="Confident" checked><span>Confident</span></label><label><input type="checkbox" value="Warm"><span>Warm</span></label><label><input type="checkbox" value="Bold" checked><span>Bold</span></label><label><input type="checkbox" value="Technical"><span>Technical</span></label><label><input type="checkbox" value="Editorial"><span>Editorial</span></label><label><input type="checkbox" value="Minimal"><span>Minimal</span></label></div></fieldset>
+            <label>Anything we should avoid?<input id="avoid" name="avoid" placeholder="Example: generic gradients, corporate stock photos..."></label>
+            <div class="form-footer"><p>Your answers become the design brief. Nothing is published yet.</p><button class="primary" type="submit">Create three directions <span>→</span></button></div>
+          </form>
+        </section>
+
+        <section class="panel" id="directions-panel">
+          <div class="form-heading"><div><p class="eyebrow">Three distinct routes</p><h3>Which direction belongs to <span id="company-label">your business</span>?</h3></div><span>Choose one to continue</span></div>
+          <div class="direction-grid">
+            <article class="direction-card" data-direction="Signal">
+              <div class="preview preview-signal"><div class="mini-nav">NORTHLINE <span>Work&nbsp;&nbsp; About&nbsp;&nbsp; Contact</span></div><div><small>Clarity compounds.</small><strong>Make the next move obvious.</strong><i></i></div></div>
+              <div class="direction-copy"><div><small>DIRECTION 01</small><h4>Signal</h4><p>Direct, high-contrast and conversion focused.</p></div><button class="choose">Choose</button></div>
+            </article>
+            <article class="direction-card" data-direction="Current">
+              <div class="preview preview-current"><div class="mini-nav">Northline® <span>Selected work ↗</span></div><div><strong>Work that<br>moves people.</strong><i></i><small>Strategy / Design / Delivery</small></div></div>
+              <div class="direction-copy"><div><small>DIRECTION 02</small><h4>Current</h4><p>Expressive, energetic and visually led.</p></div><button class="choose">Choose</button></div>
+            </article>
+            <article class="direction-card" data-direction="Ledger">
+              <div class="preview preview-ledger"><div class="mini-nav">N / 04 <span>EST. 2018</span></div><div><small>Independent advisory</small><strong>Judgment you can build on.</strong><p>Practical answers for consequential decisions.</p></div></div>
+              <div class="direction-copy"><div><small>DIRECTION 03</small><h4>Ledger</h4><p>Measured, editorial and authority driven.</p></div><button class="choose">Choose</button></div>
+            </article>
+          </div>
+          <div class="preference-box"><strong>Not quite right?</strong><p>In the full product, you can mark what you like in each direction. The system learns from the combination instead of forcing a blind choice.</p></div>
+        </section>
+
+        <section class="panel" id="build-panel">
+          <div class="build-layout">
+            <div><p class="eyebrow">Direction approved</p><h3><span id="chosen-name">Your direction</span> is ready to build.</h3><p>The complete product would now research and write every page, create the visual system, produce responsive layouts and show progress as each stage passes review.</p><div class="build-list"><span class="done">✓ Buyer and conversion brief</span><span class="done">✓ Creative direction selected</span><span>○ Content and page architecture</span><span>○ Full visual system</span><span>○ Responsive build and quality review</span></div></div>
+            <div class="build-card"><small>ESTIMATED BUILD</small><strong>5–10 business days</strong><p>Three revision rounds included after the first complete build.</p><button class="primary" id="simulate-build">Watch a sample build <span>→</span></button></div>
+          </div>
+        </section>
+
+        <section class="panel" id="delivery-panel">
+          <div class="delivery"><div class="delivery-mark">✓</div><p class="eyebrow">Prototype complete</p><h3>The customer journey works.</h3><p>This temporary experience proves the flow from brief to creative selection to managed build. Payments, accounts, AI generation and actual delivery come after the design engine proves it can consistently make exceptional sites.</p><button class="primary" id="restart">Try another brief</button></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>Website Builder</span></div><p>Temporary product prototype. Final name and identity to come.</p></footer>
+  <script src="app.js"></script>
+</body>
+</html>
