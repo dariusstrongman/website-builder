@@ -43,7 +43,7 @@ const previewButtons=[...document.querySelectorAll('[data-preview-mode]')];
 let previewMode='desktop';
 function renderPreviewFrames(){
   if(!previewButtons.length)return;
-  const viewportWidth=previewMode==='mobile'?390:1200;
+  const viewportWidth=previewMode==='mobile'?390:1440;
   const viewportHeight=previewMode==='mobile'?760:720;
   document.querySelector('.live-showcases')?.classList.toggle('mobile-mode',previewMode==='mobile');
   previewButtons.forEach(button=>button.classList.toggle('active',button.dataset.previewMode===previewMode));
