@@ -55,10 +55,17 @@ function renderPreviewFrames(){
     const available=Math.max(1,frame.clientWidth);
     const scale=Math.min(1,available/viewportWidth);
     const iframe=frame.querySelector('iframe');
+    const applyFrameMode=()=>{
+      try{
+        iframe.contentDocument?.body?.classList.toggle('preview-force-desktop',previewMode==='desktop');
+      }catch(error){/* Same-origin previews are expected; the visual remains usable if unavailable. */}
+    };
     iframe.style.width=`${viewportWidth}px`;
     iframe.style.height=`${viewportHeight}px`;
     iframe.style.transform=`scale(${scale})`;
     frame.style.height=`${chromeHeight+(viewportHeight*scale)}px`;
+    applyFrameMode();
+    iframe.addEventListener('load',applyFrameMode,{once:true});
   });
 }
 previewButtons.forEach(button=>button.addEventListener('click',()=>{previewMode=button.dataset.previewMode;renderPreviewFrames()}));
