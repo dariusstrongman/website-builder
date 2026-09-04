@@ -2,7 +2,8 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root=join(dirname(fileURLToPath(import.meta.url)),'..','dist');
+const projectRoot=join(dirname(fileURLToPath(import.meta.url)),'..');
+const root=existsSync(join(projectRoot,'dist','index.html'))?join(projectRoot,'dist'):projectRoot;
 const htmlFiles=readdirSync(root).filter(name=>name.endsWith('.html'));
 const errors=[];
 const titles=new Map();
