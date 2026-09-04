@@ -40,4 +40,27 @@ document.getElementById('walk-next')?.addEventListener('click',()=>{if(walkIndex
 renderWalk(0);
 
 const previewButtons=[...document.querySelectorAll('[data-preview-mode]')];
-previewButtons.forEach(button=>button.addEventListener('click',()=>{previewButtons.forEach(item=>item.classList.toggle('active',item===button));document.querySelectorAll('.demo-browser').forEach(frame=>frame.classList.toggle('mobile',button.dataset.previewMode==='mobile'))}));
+let previewMode='desktop';
+function renderPreviewFrames(){
+  if(!previewButtons.length)return;
+  const viewportWidth=previewMode==='mobile'?390:1200;
+  const viewportHeight=previewMode==='mobile'?760:720;
+  document.querySelector('.live-showcases')?.classList.toggle('mobile-mode',previewMode==='mobile');
+  previewButtons.forEach(button=>button.classList.toggle('active',button.dataset.previewMode===previewMode));
+  const description=document.getElementById('preview-description');
+  if(description)description.textContent=previewMode==='mobile'?'Mobile view: true 390px layout, copy and conversion path.':'Desktop view: full navigation, composition and motion.';
+  document.querySelectorAll('.device-note').forEach(note=>{note.textContent=note.dataset[previewMode]});
+  document.querySelectorAll('.demo-browser').forEach(frame=>{
+    const chromeHeight=42;
+    const available=Math.max(1,frame.clientWidth);
+    const scale=Math.min(1,available/viewportWidth);
+    const iframe=frame.querySelector('iframe');
+    iframe.style.width=`${viewportWidth}px`;
+    iframe.style.height=`${viewportHeight}px`;
+    iframe.style.transform=`scale(${scale})`;
+    frame.style.height=`${chromeHeight+(viewportHeight*scale)}px`;
+  });
+}
+previewButtons.forEach(button=>button.addEventListener('click',()=>{previewMode=button.dataset.previewMode;renderPreviewFrames()}));
+window.addEventListener('resize',renderPreviewFrames);
+window.addEventListener('load',renderPreviewFrames);
