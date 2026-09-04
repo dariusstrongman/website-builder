@@ -11,6 +11,12 @@ const titles=new Map();
 for(const name of htmlFiles){
   const html=readFileSync(join(root,name),'utf8');
   const noindex=/name="robots"[^>]+content="[^"]*noindex/i.test(html);
+  if((html.match(/<h1(?:\s|>)/gi)||[]).length!==1) errors.push(`${name}: expected one h1`);
+  if(!name.startsWith('demo-')){
+    if((html.match(/class="site-header"/g)||[]).length!==1) errors.push(`${name}: shared header missing or duplicated`);
+    if(!html.includes('href="premium.css"')||!html.includes('src="site.js"')) errors.push(`${name}: shared design assets missing`);
+    if(!html.includes('id="main"')) errors.push(`${name}: skip link target missing`);
+  }
   const title=html.match(/<title>([^<]+)<\/title>/i)?.[1];
   if(!title) errors.push(`${name}: missing title`);
   else if(titles.has(title)) errors.push(`${name}: duplicate title with ${titles.get(title)}`);
@@ -25,6 +31,11 @@ for(const name of htmlFiles){
     if(href==='#') errors.push(`${name}: empty hash link`);
     const target=href.split('#')[0];
     if(target&&!/^(https?:|mailto:|tel:)/.test(target)&&!existsSync(join(root,target))) errors.push(`${name}: missing link target ${target}`);
+    const fragment=href.split('#')[1];
+    if(fragment&&!/^(https?:|mailto:|tel:)/.test(href)){
+      const targetFile=join(root,target||name);
+      if(existsSync(targetFile)&&!readFileSync(targetFile,'utf8').includes(`id="${fragment}"`)) errors.push(`${name}: missing fragment ${href}`);
+    }
   }
   for(const match of html.matchAll(/src="([^"]+)"/g)){
     const src=match[1];
@@ -32,7 +43,7 @@ for(const name of htmlFiles){
   }
 }
 
-for(const required of ['favicon.svg','robots.txt','sitemap.xml','feed.xml','styles.css','app.js']) if(!existsSync(join(root,required))) errors.push(`missing required asset ${required}`);
+for(const required of ['favicon.svg','robots.txt','sitemap.xml','feed.xml','styles.css','premium.css','app.js','site.js']) if(!existsSync(join(root,required))) errors.push(`missing required asset ${required}`);
 const sitemap=readFileSync(join(root,'sitemap.xml'),'utf8');
 for(const name of htmlFiles){
   const html=readFileSync(join(root,name),'utf8');
