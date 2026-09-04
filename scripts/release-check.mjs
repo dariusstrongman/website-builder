@@ -32,7 +32,19 @@ for(const name of htmlFiles){
   }
 }
 
-for(const required of ['favicon.svg','robots.txt','sitemap.xml','styles.css','app.js']) if(!existsSync(join(root,required))) errors.push(`missing required asset ${required}`);
+for(const required of ['favicon.svg','robots.txt','sitemap.xml','feed.xml','styles.css','app.js']) if(!existsSync(join(root,required))) errors.push(`missing required asset ${required}`);
+const sitemap=readFileSync(join(root,'sitemap.xml'),'utf8');
+for(const name of htmlFiles){
+  const html=readFileSync(join(root,name),'utf8');
+  const noindex=/name="robots"[^>]+content="[^"]*noindex/i.test(html);
+  if(name!=='404.html'&&!noindex){
+    const slug=name==='index.html'?'':name;
+    const expected=`https://website-builder-poc.dariusstroman.chatgpt.site/${slug}`;
+    if(!sitemap.includes(`<loc>${expected}</loc>`)) errors.push(`${name}: missing from sitemap`);
+  }
+}
+const feed=readFileSync(join(root,'feed.xml'),'utf8');
+if(!/<rss version="2\.0">/.test(feed)||!/<channel>/.test(feed)) errors.push('feed.xml: invalid RSS shell');
 const all=htmlFiles.map(name=>readFileSync(join(root,name),'utf8')).join('\n');
 for(const stale of ['$2,500','$5,000','$10,000+']) if(all.includes(stale)) errors.push(`stale price remains: ${stale}`);
 
