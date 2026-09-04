@@ -17,3 +17,27 @@ if(!reduceMotion){
   stage?.addEventListener('pointermove',event=>{const box=stage.getBoundingClientRect();stage.style.setProperty('--px',`${(event.clientX-box.left)/box.width-.5}`);stage.style.setProperty('--py',`${(event.clientY-box.top)/box.height-.5}`)});
   stage?.addEventListener('pointerleave',()=>{stage.style.setProperty('--px','0');stage.style.setProperty('--py','0')});
 }
+
+const walkButtons=[...document.querySelectorAll('[data-walk]')];
+const walkPanels=[...document.querySelectorAll('[data-walk-panel]')];
+let walkIndex=0;
+const walkStates=['Brief received','Research complete','Structure mapped','Direction ready','Production active','Ready for approval'];
+function renderWalk(index){
+  if(!walkButtons.length)return;
+  walkIndex=Math.max(0,Math.min(index,walkButtons.length-1));
+  walkButtons.forEach((button,i)=>button.classList.toggle('active',i===walkIndex));
+  walkPanels.forEach((panel,i)=>panel.classList.toggle('active',i===walkIndex));
+  document.getElementById('walk-number').textContent=String(walkIndex+1).padStart(2,'0');
+  document.getElementById('walk-count').textContent=`${walkIndex+1} of ${walkButtons.length}`;
+  document.getElementById('walk-status').textContent=walkStates[walkIndex];
+  document.getElementById('walk-bar').style.width=`${((walkIndex+1)/walkButtons.length)*100}%`;
+  document.getElementById('walk-back').disabled=walkIndex===0;
+  document.getElementById('walk-next').textContent=walkIndex===walkButtons.length-1?'Start my brief →':'Next stage →';
+}
+walkButtons.forEach((button,i)=>button.addEventListener('click',()=>renderWalk(i)));
+document.getElementById('walk-back')?.addEventListener('click',()=>renderWalk(walkIndex-1));
+document.getElementById('walk-next')?.addEventListener('click',()=>{if(walkIndex===walkButtons.length-1)location.href='index.html#studio';else renderWalk(walkIndex+1)});
+renderWalk(0);
+
+const previewButtons=[...document.querySelectorAll('[data-preview-mode]')];
+previewButtons.forEach(button=>button.addEventListener('click',()=>{previewButtons.forEach(item=>item.classList.toggle('active',item===button));document.querySelectorAll('.demo-browser').forEach(frame=>frame.classList.toggle('mobile',button.dataset.previewMode==='mobile'))}));
