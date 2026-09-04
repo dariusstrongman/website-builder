@@ -27,6 +27,17 @@ Reviewed 2026-09-04. These are vendor-documented capabilities, not a claim that 
 5. Adapt and test. Recolor, recrop and recompose assets to the chosen direction. Test keyboard use, slow networks, reduced motion and small screens. Do not treat a vendor's performance claim as our result.
 6. Show the work. Large usable examples, honest plan details and real interactions are stronger proof than a section saying “premium quality.”
 
+## Adopted in the v9 example rebuild
+
+- **Mobbin:** connected as a flow-research source. It is used to study complete journeys and page roles, not to copy surface styling.
+- **Motion:** used as a pinned progressive enhancement on the three portfolio studies. Content and native interactions still work if the CDN is unavailable, and `prefers-reduced-motion` disables the enhancement.
+- **Refero:** retained as the web-pattern research layer for later production runs. It is not a runtime dependency.
+- **React Bits:** intentionally not imported into this plain HTML build. Its patterns can inform prototypes, but adding React only for visual effects would increase weight and sameness.
+- **Unicorn Studio:** reserved for a truly authored signature scene after a project file and static fallback exist. No generic WebGL embed ships merely to look expensive.
+- **Pryzm:** reserved for original textures or background exports with documented licensing. It is not a substitute for art direction.
+
+The three examples now prove three different interactions: project selection, class filtering and an inspectable signal-to-decision record. None depends on invented customer proof.
+
 ## This release
 
 - New shared navigation and footer expose the product and resource pages coherently.

@@ -1,8 +1,50 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ARC House Design Study</title><meta name="robots" content="noindex"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css"></head>
-<body class="demo-site demo-arc"><div class="demo-disclaimer">Design study / fictional company / sample content</div>
-<header><a href="demo-architecture.html">ARC / HOUSE</a><nav><a href="#work">Residences</a><a href="#approach">Approach</a><a href="#contact">Studio</a></nav><a class="demo-cta" href="#contact">Begin a project</a></header>
-<main><section class="arc-hero"><div><p>Residential architecture / Austin, Texas</p><h1>Space for<br><em>the life within.</em></h1></div><figure><img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1800&q=85" alt="Warm modern living space with expansive windows"><figcaption><span>Residence study</span><span>West Lake Hills</span></figcaption></figure></section>
-<section id="approach" class="arc-statement"><small>OUR APPROACH</small><p>We design homes around the rituals that make them matter: the morning light, the long table, the door that disappears when friends arrive.</p><span>Architecture is the frame. Life is the subject.</span></section>
-<section id="work" class="arc-projects"><div><b>01</b><span>Listen before drawing</span></div><div><b>02</b><span>Design around daily life</span></div><div><b>03</b><span>Stay involved through build</span></div></section>
-<section id="contact" class="arc-close"><p>Have a place in mind?</p><h2>Let’s make room<br>for what comes next.</h2><a href="mailto:studio@example.com">Begin a conversation →</a></section></main></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ARC House Design Study</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="demo-premium.css">
+</head>
+<body class="demo-site arc-v3">
+  <div class="demo-disclaimer">Design study · fictional company · sample content</div>
+  <header class="arc-nav">
+    <a class="arc-logo" href="demo-architecture.html">ARC<span>/</span>HOUSE</a>
+    <nav aria-label="Architecture study navigation"><a href="#residences">Residences</a><a href="#practice">Practice</a><a href="#contact">Contact</a></nav>
+    <a class="arc-inquire" href="#contact">Discuss a site <span>↗</span></a>
+  </header>
+  <main>
+    <section class="arc-stage" aria-labelledby="arc-title">
+      <div class="arc-intro" data-motion-item>
+        <p>Austin · Texas Hill Country</p>
+        <h1 id="arc-title">Homes shaped<br>around <em>living.</em></h1>
+        <div><span>Residential architecture</span><span>New build + renovation</span></div>
+      </div>
+      <figure class="arc-feature" data-motion-image>
+        <img id="arc-image" src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&amp;fit=crop&amp;w=1800&amp;q=88" alt="Warm modern living space opening onto a garden">
+        <figcaption><span id="arc-place">West Lake Hills</span><span id="arc-type">Courtyard residence · 2026</span></figcaption>
+        <b id="arc-number">01</b>
+      </figure>
+      <p class="arc-note">We begin with the way a day moves through a home—then make the walls follow.</p>
+    </section>
+    <section class="arc-selector" id="residences" aria-labelledby="arc-project-title">
+      <div class="arc-selector-head"><p>Selected residences</p><h2 id="arc-project-title">Three places.<br>Three ways to belong.</h2></div>
+      <div class="arc-project-list" role="group" aria-label="Choose a residence">
+        <button class="active" aria-pressed="true" data-arc-project="0"><span>01</span><b>West Lake Courtyard</b><em>Austin · 4,800 sq ft</em></button>
+        <button aria-pressed="false" data-arc-project="1"><span>02</span><b>Juniper House</b><em>Dripping Springs · 3,200 sq ft</em></button>
+        <button aria-pressed="false" data-arc-project="2"><span>03</span><b>Quiet Ridge</b><em>Marfa · 2,600 sq ft</em></button>
+      </div>
+    </section>
+    <section class="arc-practice" id="practice">
+      <p>Our practice</p>
+      <div><h2>Architecture should make ordinary moments feel considered.</h2><p>We stay close from the first walk across the land through the last cabinet pull. One team holds the idea, the details and the build relationship together.</p></div>
+      <ol><li><span>01</span><b>Listen</b><p>Routines, light, landscape and constraints become the brief.</p></li><li><span>02</span><b>Resolve</b><p>Every beautiful move earns its place through use and construction.</p></li><li><span>03</span><b>Steward</b><p>We remain present while drawings become a place you can live in.</p></li></ol>
+    </section>
+    <section class="arc-contact" id="contact"><p>Have land, a house or the beginning of an idea?</p><h2>Let’s make room<br>for what matters.</h2><a href="mailto:studio@example.com">Begin a conversation <span>↗</span></a></section>
+  </main>
+  <script type="module" src="demo-motion.js"></script>
+</body>
+</html>

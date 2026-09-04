@@ -12,6 +12,7 @@ for(const name of htmlFiles){
   const html=readFileSync(join(root,name),'utf8');
   const noindex=/name="robots"[^>]+content="[^"]*noindex/i.test(html);
   if((html.match(/<h1(?:\s|>)/gi)||[]).length!==1) errors.push(`${name}: expected one h1`);
+  if(name.startsWith('demo-')&&(!html.includes('href="demo-premium.css"')||!html.includes('src="demo-motion.js"'))) errors.push(`${name}: premium demo assets missing`);
   if(!name.startsWith('demo-')){
     if((html.match(/class="site-header"/g)||[]).length!==1) errors.push(`${name}: shared header missing or duplicated`);
     if(!html.includes('href="premium.css"')||!html.includes('src="site.js"')) errors.push(`${name}: shared design assets missing`);
@@ -43,7 +44,7 @@ for(const name of htmlFiles){
   }
 }
 
-for(const required of ['favicon.svg','robots.txt','sitemap.xml','feed.xml','styles.css','premium.css','app.js','site.js']) if(!existsSync(join(root,required))) errors.push(`missing required asset ${required}`);
+for(const required of ['favicon.svg','robots.txt','sitemap.xml','feed.xml','styles.css','premium.css','demo-premium.css','app.js','site.js','demo-motion.js']) if(!existsSync(join(root,required))) errors.push(`missing required asset ${required}`);
 const sitemap=readFileSync(join(root,'sitemap.xml'),'utf8');
 for(const name of htmlFiles){
   const html=readFileSync(join(root,name),'utf8');

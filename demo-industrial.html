@@ -1,8 +1,39 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Forge Systems Design Study</title><meta name="robots" content="noindex"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css"></head>
-<body class="demo-site demo-forge"><div class="demo-disclaimer">Design study / fictional company / sample content</div>
-<header><a href="demo-industrial.html">FORGE / SYSTEMS</a><nav><a href="#platform">Platform</a><a href="#proof">System</a><a href="#contact">Company</a></nav><a class="demo-cta" href="#contact">Request demo</a></header>
-<main><section class="forge-hero"><div><p>Machine intelligence for the physical floor</p><h1>Every stop.<br>Every signal.<br><span>One record.</span></h1><a href="#platform">See the operating layer →</a></div><figure><img src="https://images.unsplash.com/photo-1571989928659-6da14ecfec42?auto=format&fit=crop&w=1800&q=85" alt="Orange industrial equipment inside a manufacturing facility"><figcaption><b>LINE STUDY</b><span>STATE / SAMPLE</span><span>DATA / DEMO</span></figcaption></figure></section>
-<section id="platform" class="forge-flow"><small>SAMPLE EVENT / DESIGN DEMO</small><div><b>01</b><span>Vibration threshold crossed</span><em>detected</em></div><div><b>02</b><span>Failure pattern matched</span><em>classified</em></div><div><b>03</b><span>Maintenance window proposed</span><em>awaiting approval</em></div></section>
-<section id="proof" class="forge-proof"><p>Not another dashboard.</p><h2>The decision layer<br>between signal and action.</h2><div><article><b>See</b><span>what changed</span></article><article><b>Know</b><span>why it matters</span></article><article><b>Act</b><span>with a retained record</span></article></div></section>
-<section id="contact" class="forge-close"><small>BRING ONE LINE</small><h2>See what your machines<br>have been trying to say.</h2><a href="mailto:demo@example.com">Request a technical demo →</a></section></main></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Forge Systems Design Study</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="demo-premium.css">
+</head>
+<body class="demo-site forge-v3">
+  <div class="demo-disclaimer">Design study · fictional company · sample content</div>
+  <header class="forge-nav"><a class="forge-logo" href="demo-industrial.html">FORGE<span>///</span>SYSTEMS</a><nav aria-label="Industrial study navigation"><a href="#system">System</a><a href="#record">Decision record</a><a href="#proof">Use cases</a></nav><a class="forge-demo" href="#contact">Run a line study</a></header>
+  <main>
+    <section class="forge-stage" aria-labelledby="forge-title">
+      <div class="forge-kicker"><span>OPERATIONAL INTELLIGENCE</span><span>DESIGN STUDY / 2026</span></div>
+      <div class="forge-intro" data-motion-item><h1 id="forge-title">Know why<br>the line <em>stopped.</em></h1><p>Forge turns machine signals into a retained decision record—what changed, what it means and what should happen next.</p><a href="#system">Watch one event move through the system <span>↓</span></a></div>
+      <figure class="forge-photo" data-motion-image><img src="https://images.unsplash.com/photo-1571989928659-6da14ecfec42?auto=format&amp;fit=crop&amp;w=1800&amp;q=88" alt="Industrial production equipment inside a manufacturing facility"><figcaption><span>LINE 04 / SAMPLE ENVIRONMENT</span><span>LIVE SIGNAL VIEW</span></figcaption></figure>
+      <div class="forge-live"><i></i><span>LINE 04</span><b>RUNNING</b></div>
+    </section>
+    <section class="forge-system" id="system" aria-labelledby="system-title">
+      <header><p>One event, end to end</p><h2 id="system-title">Signal becomes<br>a decision.</h2><span>Select a stage to inspect the record.</span></header>
+      <div class="forge-console">
+        <div class="forge-console-bar"><span>EVENT / 24-0716-A</span><b id="forge-state-label">01 · DETECT</b><span>SIMULATED DEMO</span></div>
+        <div class="forge-diagram" aria-live="polite">
+          <svg viewBox="0 0 900 340" role="img" aria-labelledby="diagram-title diagram-desc"><title id="diagram-title">Machine event decision flow</title><desc id="diagram-desc">Four connected stages from detection to approved action.</desc><path class="forge-line" d="M120 170 H780"></path><path id="forge-progress" d="M120 170 H780"></path><g transform="translate(120 170)"><circle r="34"></circle><text text-anchor="middle" y="5">01</text></g><g transform="translate(340 170)"><circle r="34"></circle><text text-anchor="middle" y="5">02</text></g><g transform="translate(560 170)"><circle r="34"></circle><text text-anchor="middle" y="5">03</text></g><g transform="translate(780 170)"><circle r="34"></circle><text text-anchor="middle" y="5">04</text></g></svg>
+          <div class="forge-reading"><span id="forge-reading-kicker">VIBRATION / SPINDLE B</span><strong id="forge-reading-value">+18.4%</strong><p id="forge-reading-copy">Threshold crossed for 42 seconds. The raw event is retained before interpretation.</p></div>
+        </div>
+        <div class="forge-steps" role="group" aria-label="Inspect event stages"><button class="active" aria-pressed="true" data-forge-step="0"><span>01</span><b>Detect</b><em>Raw event</em></button><button aria-pressed="false" data-forge-step="1"><span>02</span><b>Classify</b><em>Pattern match</em></button><button aria-pressed="false" data-forge-step="2"><span>03</span><b>Recommend</b><em>Window + action</em></button><button aria-pressed="false" data-forge-step="3"><span>04</span><b>Approve</b><em>Named owner</em></button></div>
+      </div>
+    </section>
+    <section class="forge-record" id="record"><div><p>The retained record</p><h2>Not another dashboard.<br>An accountable chain.</h2></div><dl><div><dt>Source</dt><dd>Sensor 04-B · original sample</dd></div><div><dt>Hypothesis</dt><dd>Bearing wear signature · 84% confidence</dd></div><div><dt>Recommendation</dt><dd>Inspect during planned window · 14:30–15:00</dd></div><div><dt>Authority</dt><dd>Approval required · maintenance lead</dd></div></dl></section>
+    <section class="forge-proof" id="proof"><p>Built for the floor</p><div><article><span>01</span><h3>See the event.</h3><p>No averaged-away anomaly. Start from the signal that actually changed.</p></article><article><span>02</span><h3>Interrogate the logic.</h3><p>Evidence, confidence and authority remain visible beside every recommendation.</p></article><article><span>03</span><h3>Close the loop.</h3><p>The outcome returns to the record so the next decision starts smarter.</p></article></div></section>
+    <section class="forge-contact" id="contact"><span>BRING ONE LINE</span><h2>See what your machines<br>have been trying to say.</h2><a href="mailto:demo@example.com">Request a technical study ↗</a></section>
+  </main>
+  <script type="module" src="demo-motion.js"></script>
+</body>
+</html>

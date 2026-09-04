@@ -1,8 +1,37 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>FORM/01 Design Study</title><meta name="robots" content="noindex"><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css"></head>
-<body class="demo-site demo-form"><div class="demo-disclaimer">Design study / fictional company / sample content</div>
-<header><a href="demo-wellness.html">FORM/01</a><nav><a href="#method">Method</a><a href="#schedule">Schedule</a><a href="#studio">Studio</a></nav><a class="demo-cta" href="#schedule">Book a class</a></header>
-<main><section class="form-hero-v2"><div class="form-copy"><p>Reformer / strength / recovery</p><h1>A stronger<br>way to <i>move.</i></h1><p class="form-lede">Small classes, exact coaching and a studio designed to make consistency feel good.</p><a href="#schedule">Find your first class <span>↘</span></a></div><figure><img src="https://images.unsplash.com/photo-1717500252709-05a73fc4f1da?auto=format&amp;fit=crop&amp;q=86&amp;w=1800" alt="Bright Pilates studio with rows of reformer equipment"><figcaption><span>FORM/01 · WEST STUDIO</span><b>10 stations / 50 minutes</b></figcaption></figure><aside><small>THIS WEEK</small><strong>06</strong><span>intro spaces</span></aside></section>
-<section id="method" class="form-method-v2"><p>Built for the hour after class—and every hour after that.</p><div><article><span>01</span><h2>Learn</h2><p>Start with equipment, breath and the movements that make everything else click.</p></article><article><span>02</span><h2>Build</h2><p>Progressive strength without crowded rooms, guesswork or anonymous coaching.</p></article><article><span>03</span><h2>Return</h2><p>A repeatable weekly practice with enough variety to keep your attention.</p></article></div></section>
-<section id="schedule" class="form-schedule-v2"><div><small>YOUR FIRST SESSION</small><h2>Intro Form</h2><p>Tuesday · 6:30 PM<br>50 minutes · All levels</p></div><div><span>Equipment orientation</span><span>Individual setup</span><span>Full-body foundation</span></div><a href="mailto:studio@example.com">Reserve this class →</a></section>
-<section id="studio" class="form-close-v2"><span>FORM/01</span><div><p>Move well enough<br>to feel it everywhere.</p><a href="#schedule">Begin with Intro Form →</a></div></section></main></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FORM/01 Design Study</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="demo-premium.css">
+</head>
+<body class="demo-site form-v3">
+  <div class="demo-disclaimer">Design study · fictional company · sample content</div>
+  <header class="form-nav"><a class="form-logo" href="demo-wellness.html">FORM<span>/01</span></a><nav aria-label="Studio study navigation"><a href="#method">Method</a><a href="#classes">Classes</a><a href="#studio">Studio</a></nav><a class="form-book" href="#classes">Book your first class</a></header>
+  <main>
+    <section class="form-stage" aria-labelledby="form-title">
+      <div class="form-wordmark" aria-hidden="true">MOVE</div>
+      <div class="form-intro" data-motion-item><p>Reformer · strength · recovery</p><h1 id="form-title">Build a body<br>you can <em>live in.</em></h1><p>Ten stations. Exact coaching. A practice designed for strength that follows you out the door.</p><a href="#classes">Find your first class <span>↓</span></a></div>
+      <figure class="form-photo-main" data-motion-image><img src="https://images.unsplash.com/photo-1717500252709-05a73fc4f1da?auto=format&amp;fit=crop&amp;w=1600&amp;q=88" alt="Sunlit Pilates studio with reformer equipment"><figcaption>FORM/01 · WEST STUDIO</figcaption></figure>
+      <figure class="form-photo-cut"><img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&amp;fit=crop&amp;w=800&amp;q=85" alt="Athlete working through a controlled floor movement"></figure>
+      <div class="form-availability"><b>06</b><span>intro spaces<br>this week</span></div>
+    </section>
+    <div class="form-ticker" aria-label="Studio principles"><span>SMALL CLASSES</span><i>✦</i><span>EXACT COACHING</span><i>✦</i><span>PROGRESS YOU FEEL</span><i>✦</i><span>NO PERFORMANCE REQUIRED</span></div>
+    <section class="form-method" id="method"><header><p>How we move</p><h2>Precision without punishment.</h2></header><div><article><span>01</span><h3>Learn your setup.</h3><p>Every body starts somewhere different. Your coach adjusts the machine, range and pace to yours.</p></article><article><span>02</span><h3>Build usable strength.</h3><p>Progressive sessions connect control, load and mobility without turning class into a spectacle.</p></article><article><span>03</span><h3>Return stronger.</h3><p>A clear weekly rhythm makes consistency simpler than motivation.</p></article></div></section>
+    <section class="form-classes" id="classes" aria-labelledby="classes-title">
+      <header><div><p>This week at West Studio</p><h2 id="classes-title">Choose your entry.</h2></div><div class="class-filters" role="group" aria-label="Filter classes"><button class="active" aria-pressed="true" data-class-filter="all">All</button><button aria-pressed="false" data-class-filter="begin">First time</button><button aria-pressed="false" data-class-filter="build">Build</button></div></header>
+      <div class="class-list">
+        <article data-class="begin"><time>Tue <b>6:30 PM</b></time><div><span>FIRST TIME</span><h3>Intro Form</h3><p>Equipment, foundations and a full-body first session.</p></div><em>3 spots</em><a href="mailto:studio@example.com">Reserve ↗</a></article>
+        <article data-class="build"><time>Wed <b>7:00 AM</b></time><div><span>LEVEL 2</span><h3>Strength / 50</h3><p>Slow load, clean transitions and deliberate intensity.</p></div><em>2 spots</em><a href="mailto:studio@example.com">Reserve ↗</a></article>
+        <article data-class="begin"><time>Sat <b>10:30 AM</b></time><div><span>ALL LEVELS</span><h3>Reset</h3><p>Mobility, control and the kind of recovery that still feels like work.</p></div><em>1 spot</em><a href="mailto:studio@example.com">Reserve ↗</a></article>
+      </div>
+    </section>
+    <section class="form-close" id="studio"><p>One room. Ten reformers.<br>No anonymous rows.</p><div><span>West Studio · sample location</span><a href="#classes">Start with Intro Form ↗</a></div></section>
+  </main>
+  <script type="module" src="demo-motion.js"></script>
+</body>
+</html>
