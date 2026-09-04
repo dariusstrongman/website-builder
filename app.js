@@ -1,0 +1,36 @@
+const panels={brief:document.querySelector('#brief-panel'),directions:document.querySelector('#directions-panel'),build:document.querySelector('#build-panel'),delivery:document.querySelector('#delivery-panel')};
+const stepButtons=[...document.querySelectorAll('[data-step-target]')];
+let furthest=1;
+
+function show(step){
+  const order=['brief','directions','build','delivery'];
+  const index=order.indexOf(step)+1;
+  if(index>furthest)return;
+  Object.entries(panels).forEach(([key,panel])=>panel.classList.toggle('active',key===step));
+  stepButtons.forEach((button,i)=>button.classList.toggle('active',i===index-1));
+  document.querySelector('.studio-shell').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+document.querySelectorAll('[data-scroll]').forEach(button=>button.addEventListener('click',()=>document.getElementById(button.dataset.scroll).scrollIntoView({behavior:'smooth'})));
+stepButtons.forEach(button=>button.addEventListener('click',()=>show(button.dataset.stepTarget)));
+
+document.getElementById('brief-form').addEventListener('submit',event=>{
+  event.preventDefault();
+  const business=document.getElementById('business').value.trim()||'your business';
+  document.getElementById('company-label').textContent=business;
+  furthest=Math.max(furthest,2);
+  show('directions');
+});
+
+document.querySelectorAll('.direction-card').forEach(card=>{
+  card.querySelector('.choose').addEventListener('click',()=>{
+    document.querySelectorAll('.direction-card').forEach(item=>{item.classList.remove('selected');item.querySelector('.choose').textContent='Choose'});
+    card.classList.add('selected');
+    card.querySelector('.choose').textContent='Selected ✓';
+    document.getElementById('chosen-name').textContent=card.dataset.direction;
+    window.setTimeout(()=>{furthest=Math.max(furthest,3);show('build')},450);
+  });
+});
+
+document.getElementById('simulate-build').addEventListener('click',()=>{furthest=4;show('delivery')});
+document.getElementById('restart').addEventListener('click',()=>{furthest=1;document.getElementById('brief-form').reset();document.querySelectorAll('.direction-card').forEach(card=>card.classList.remove('selected'));show('brief')});
