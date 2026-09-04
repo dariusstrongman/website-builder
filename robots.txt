@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://website-builder-poc.dariusstroman.chatgpt.site/sitemap.xml
