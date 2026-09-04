@@ -22,4 +22,6 @@ Those capabilities should be implemented only after the Stromation redesign prov
 
 ## Run locally
 
-Serve the `dist` directory with any static web server. No build step is required.
+The public GitHub repository keeps the static site files at its root. Serve that directory with any static web server. The Sites deployment checkout keeps the same files in `dist/`. No build step is required in either layout.
+
+Run `node scripts/release-check.mjs` before publishing. The checker supports both layouts and verifies required pages, favicon coverage, unique titles, metadata, internal links and current pricing.
