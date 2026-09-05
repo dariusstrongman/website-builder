@@ -22,7 +22,7 @@ if(!reduceMotion&&!document.body.classList.contains('premium-site')){
 const walkButtons=[...document.querySelectorAll('[data-walk]')];
 const walkPanels=[...document.querySelectorAll('[data-walk-panel]')];
 let walkIndex=0;
-const walkStates=['Brief received','Research complete','Structure mapped','Direction ready','Production active','Ready for approval'];
+const walkStates=['Brief received','Research complete','Directions ranked','Proof slice under review','Full build active','Ready for approval'];
 function renderWalk(index){
   if(!walkButtons.length)return;
   walkIndex=Math.max(0,Math.min(index,walkButtons.length-1));
@@ -30,7 +30,7 @@ function renderWalk(index){
   walkPanels.forEach((panel,i)=>panel.classList.toggle('active',i===walkIndex));
   document.getElementById('walk-number').textContent=String(walkIndex+1).padStart(2,'0');
   document.getElementById('walk-count').textContent=`${walkIndex+1} of ${walkButtons.length}`;
-  document.getElementById('walk-status').textContent=walkStates[walkIndex];
+  document.getElementById('walk-status').textContent=walkStates[walkIndex]||'';
   document.getElementById('walk-bar').style.width=`${((walkIndex+1)/walkButtons.length)*100}%`;
   document.getElementById('walk-back').disabled=walkIndex===0;
   document.getElementById('walk-next').textContent=walkIndex===walkButtons.length-1?'Start my brief →':'Next stage →';
