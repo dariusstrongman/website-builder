@@ -1,7 +1,7 @@
 const motionBehavior=window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';
-const panels={brief:document.querySelector('#brief-panel'),directions:document.querySelector('#directions-panel'),build:document.querySelector('#build-panel'),delivery:document.querySelector('#delivery-panel')};
+const panels={brief:document.querySelector('#brief-panel'),directions:document.querySelector('#directions-panel'),build:document.querySelector('#build-panel'),delivery:document.querySelector('#delivery-panel'),order:document.querySelector('#order-panel')};
 const stepButtons=[...document.querySelectorAll('[data-step-target]')];let furthest=1;
-function show(step){if(!panels.brief)return;const order=['brief','directions','build','delivery'];const index=order.indexOf(step)+1;if(index>furthest)return;Object.entries(panels).forEach(([key,panel])=>panel?.classList.toggle('active',key===step));stepButtons.forEach((button,i)=>{button.classList.toggle('active',i===index-1);button.disabled=i+1>furthest;button.setAttribute('aria-pressed',String(i===index-1))});document.querySelector('.studio-shell')?.scrollIntoView({behavior:motionBehavior,block:'start'})}
+function show(step){if(!panels.brief)return;const order=['brief','directions','build','delivery','order'];const index=order.indexOf(step)+1;if(index>furthest)return;Object.entries(panels).forEach(([key,panel])=>panel?.classList.toggle('active',key===step));stepButtons.forEach((button,i)=>{button.classList.toggle('active',i===index-1);button.disabled=i+1>furthest;button.setAttribute('aria-pressed',String(i===index-1))});document.querySelector('.studio-shell')?.scrollIntoView({behavior:motionBehavior,block:'start'})}
 document.querySelectorAll('[data-scroll]').forEach(button=>button.addEventListener('click',()=>document.getElementById(button.dataset.scroll)?.scrollIntoView({behavior:motionBehavior})));stepButtons.forEach(button=>button.addEventListener('click',()=>show(button.dataset.stepTarget)));
 document.getElementById('brief-form')?.addEventListener('submit',event=>{event.preventDefault();const business=document.getElementById('business').value.trim()||'your business';document.getElementById('company-label').textContent=business;furthest=Math.max(furthest,2);show('directions')});
 document.querySelectorAll('.direction-card').forEach(card=>card.querySelector('.choose')?.addEventListener('click',()=>{document.querySelectorAll('.direction-card').forEach(item=>{item.classList.remove('selected');item.querySelector('.choose').textContent='Choose'});card.classList.add('selected');card.querySelector('.choose').textContent='Selected ✓';document.getElementById('chosen-name').textContent=card.dataset.direction;window.setTimeout(()=>{furthest=Math.max(furthest,3);show('build')},450)}));
@@ -107,3 +107,66 @@ if(siteViewer){
   siteViewer.addEventListener('click',event=>{if(event.target===siteViewer)closeViewer()});
   siteViewer.addEventListener('close',()=>{document.body.classList.remove('viewer-open');viewerFrame.src='about:blank';viewerOpener?.focus()});
 }
+
+/* ---- Real project intake -------------------------------------------------
+   The sample journey above stays a sample. This is the only part that leaves
+   the browser, and it sends exactly what the visitor typed: no claim, no
+   metric and no business fact is inferred here or added on the way out.
+   There is no credential in this file. An internal test order cannot be
+   requested from a browser at all — it needs an operator token that is only
+   ever held server-side. -------------------------------------------------- */
+const STROMATION_INTAKE='https://stromation-production.up.railway.app/website-order';
+const orderStatus=document.getElementById('order-status');
+const orderForm=document.getElementById('order-form');
+document.getElementById('start-order')?.addEventListener('click',()=>{
+  const notes=document.getElementById('order-notes');
+  if(notes&&!notes.value.trim()){
+    /* Carry the visitor's OWN words forward rather than asking twice. These
+       are the goal and avoid fields they already filled in; nothing is
+       written for them, and the field stays editable. */
+    const goal=document.getElementById('goal')?.value.trim()||'';
+    const avoid=document.getElementById('avoid')?.value.trim()||'';
+    notes.value=[goal,avoid&&('Avoid: '+avoid)].filter(Boolean).join('\n\n');
+  }
+  furthest=Math.max(furthest,5);show('order');
+});
+orderForm?.addEventListener('submit',async event=>{
+  event.preventDefault();
+  const button=document.getElementById('order-submit');
+  const business=document.getElementById('business')?.value.trim()||'';
+  if(!business){orderStatus.textContent='Add your business name in step 1 first.';show('brief');return;}
+  const payload={
+    mode:'paid',
+    business_name:business,
+    domain:document.getElementById('order-domain').value.trim(),
+    contact_email:document.getElementById('order-email').value.trim(),
+    buyer:document.getElementById('order-buyer').value.trim(),
+    offer:document.getElementById('order-offer').value.trim(),
+    primary_action:document.getElementById('order-action').value.trim(),
+    reference_notes:document.getElementById('order-notes').value.trim(),
+    source:'website-builder/index.html'
+  };
+  button.disabled=true;orderStatus.textContent='Sending the brief…';
+  try{
+    const response=await fetch(STROMATION_INTAKE,{method:'POST',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const body=await response.json().catch(()=>({}));
+    if(response.ok&&body.ok){
+      /* Deliberately does not say a build has started, because none has: the
+         order is queued and a paid build still requires checkout. */
+      orderStatus.textContent=body.duplicate
+        ?'We already have an open brief for that domain. Nothing was duplicated.'
+        :'Brief received — reference '+String(body.id||'').slice(0,8)+
+         '. Nothing has been built and nothing has been charged. A person will '+
+         'come back to you with scope and price.';
+      button.textContent='Brief sent ✓';
+    }else{
+      orderStatus.textContent=(body.error||'That did not go through.')+
+        ' Nothing was sent — please adjust and try again.';
+      button.disabled=false;
+    }
+  }catch(error){
+    orderStatus.textContent='Could not reach us just now. Nothing was sent.';
+    button.disabled=false;
+  }
+});
