@@ -4,123 +4,133 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>How the Website Builder Works | Website Builder</title>
-  <meta name="description" content="See the approved interactive Website Builder walkthrough: compare creative directions, inspect real content views, test mobile behavior and apply a reversible revision.">
+  <meta name="description" content="See the Website Builder process as a real sample website changes through brief, creative direction, full-page expansion, mobile adaptation and revision.">
   <link rel="canonical" href="https://dariusstrongman.github.io/website-builder/how-it-works.html">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="premium.css">
   <link rel="stylesheet" href="how-it-works-v16.css">
 </head>
-<body class="v16">
+<body class="premium-site v16-page">
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <a class="brand" href="index.html" aria-label="Website Builder home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>Website Builder</span></a>
-  <button class="mobile-menu-button" aria-expanded="false" aria-controls="main-navigation">Menu</button>
-  <nav id="main-navigation" aria-label="Main navigation"><a href="how-it-works.html" aria-current="page">How it works</a><a href="examples.html">Examples</a><a href="pricing.html">Pricing</a><a href="quality.html">Quality</a><a class="nav-cta" href="index.html#studio">Start a brief ↗</a></nav>
+  <button class="mobile-menu-button" aria-expanded="false" aria-controls="main-navigation">Menu <span aria-hidden="true">☰</span></button>
+  <nav id="main-navigation" aria-label="Main navigation">
+    <details class="nav-group" open="">
+      <summary>Website <span aria-hidden="true">⌄</span></summary>
+      <div class="nav-popover"><p>Explore the experience</p><a href="how-it-works.html" aria-current="page"><b>How it works</b><small>Watch the website change with each decision</small></a><a href="examples.html"><b>Design examples</b><small>Different businesses. Different worlds.</small></a><a href="quality.html"><b>Our quality standard</b><small>What a complete build should pass</small></a></div>
+    </details>
+    <details class="nav-group">
+      <summary>Resources <span aria-hidden="true">⌄</span></summary>
+      <div class="nav-popover resources-popover"><p>Make a better website decision</p><a href="premium-website-value.html"><b>Why design matters</b><small>Where quality creates business value</small></a><a href="seo-website-design.html"><b>Search-ready foundations</b><small>What SEO included should mean</small></a><a href="custom-website-vs-ai-builder.html"><b>Beyond a single AI prompt</b><small>DIY and managed design, compared</small></a><a href="website-redesign-guide.html"><b>When to redesign</b><small>Diagnose before you rebuild</small></a><a href="resources.html" class="nav-all">View all resources →</a></div>
+    </details>
+    <a href="pricing.html">Pricing</a>
+    <a href="about.html">About</a>
+    <a class="nav-cta" href="index.html#studio">Try the prototype <span aria-hidden="true">↗</span></a>
+  </nav>
 </header>
+
 <main id="main">
-  <section class="v16-hero">
+  <section class="walk-hero">
     <div>
-      <p class="eyebrow">Interactive build walkthrough</p>
-      <h1>Watch a website<br><em>become itself.</em></h1>
-      <p>Not a slideshow of promises. This sample site actually changes as you move through the process: direction, layout, content depth, mobile behavior and a real revision.</p>
-      <div class="v16-proofline"><span>3 creative directions</span><span>4 content views</span><span>True mobile rearrangement</span><span>Reversible revision</span></div>
+      <p class="eyebrow">The process, made visible</p>
+      <h1>See the design change<br><span>when the decision changes.</span></h1>
     </div>
-    <div class="hero-visual">
-      <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1400&q=90" alt="Warm contemporary coastal residence opening to the landscape">
-      <div class="hero-badge"><b>ARC House</b>Fictional architecture design study</div>
-    </div>
+    <p>This is the part that mattered in the approved prototype: one believable website, five meaningful chapters, and controls that change the actual work instead of advancing a slideshow.</p>
   </section>
+  <div class="proof-strip" aria-label="What the walkthrough proves"><span>Real architectural imagery</span><span>3 structural directions</span><span>4 content views</span><span>True mobile rearrangement</span><span>Reversible revision</span></div>
 
-  <section class="v16-shell">
-    <div class="v16-intro">
-      <div><p class="chapter-kicker">The approved experience</p><h2>Five chapters. One site that keeps changing.</h2></div>
-      <p>The point is to make the work visible. You should be able to see what changed, why it changed and whether the chosen design still holds up outside the hero.</p>
-    </div>
+  <section class="project-lab" aria-label="Interactive ARC House sample website walkthrough">
+    <div class="lab-frame">
+      <div class="lab-topbar"><b>ARC HOUSE / SAMPLE BUILD</b><span>Residential architecture · Austin, Texas</span><span class="lab-status"><i></i><span id="lab-status-text">Brief defined</span></span></div>
+      <div class="lab-body">
+        <nav class="chapter-rail" aria-label="Walkthrough chapters">
+          <button class="active" data-v16-chapter="0"><b>01</b>Brief</button>
+          <button data-v16-chapter="1"><b>02</b>Direction</button>
+          <button data-v16-chapter="2"><b>03</b>Build</button>
+          <button data-v16-chapter="3"><b>04</b>Mobile</button>
+          <button data-v16-chapter="4"><b>05</b>Revision</button>
+        </nav>
 
-    <div class="chapter-nav" role="group" aria-label="Walkthrough chapters">
-      <button class="active" data-v16-chapter="0"><b>01</b>Brief</button>
-      <button data-v16-chapter="1"><b>02</b>Directions</button>
-      <button data-v16-chapter="2"><b>03</b>Build</button>
-      <button data-v16-chapter="3"><b>04</b>Mobile</button>
-      <button data-v16-chapter="4"><b>05</b>Revision</button>
-    </div>
+        <aside class="chapter-story">
+          <span class="story-kicker" id="story-kicker">01 / BRIEF</span>
+          <h2 id="story-title">The business decides what the design must do.</h2>
+          <p id="story-body">ARC House is for a high-value residential client. The goal is a project consultation, and the site must feel calm, established and image-led without becoming generic luxury minimalism.</p>
 
-    <div class="experience">
-      <aside class="experience-copy">
-        <p class="chapter-kicker" id="chapter-kicker">01 / BRIEF</p>
-        <h3 id="chapter-title">Start with the business, not a template.</h3>
-        <p id="chapter-body">The sample begins with a clear goal, buyer and constraints before any visual direction is selected.</p>
-        <div class="chapter-list" aria-label="Chapter shortcuts">
-          <button class="active" data-v16-side="0">01 · Understand</button>
-          <button data-v16-side="1">02 · Compare</button>
-          <button data-v16-side="2">03 · Expand</button>
-          <button data-v16-side="3">04 · Adapt</button>
-          <button data-v16-side="4">05 · Revise</button>
-        </div>
-      </aside>
+          <div class="project-facts">
+            <div><small>AUDIENCE</small><b>High-value residential client</b></div>
+            <div><small>GOAL</small><b>Book a project consultation</b></div>
+            <div><small>SYSTEM</small><b>Editorial serif, warm stone, cinematic space</b></div>
+          </div>
 
-      <div class="experience-canvas">
-        <div class="canvas-toolbar">
-          <span>ARC HOUSE / LIVE SAMPLE</span>
-          <div class="toolbar-actions"><button class="active" data-device="desktop">Desktop</button><button data-device="mobile">Mobile</button></div>
-        </div>
+          <div class="chapter-control" data-chapter-control="1" hidden>
+            <p class="control-title">Compare creative directions</p>
+            <div class="control-stack">
+              <button class="active" data-direction="signal">Signal<span>Direct / decisive</span></button>
+              <button data-direction="current">Current<span>Expressive / kinetic</span></button>
+              <button data-direction="ledger">Ledger<span>Editorial / assured</span></button>
+            </div>
+            <p class="revision-status" id="direction-readout">Signal selected · direct / decisive</p>
+          </div>
 
-        <div class="instruction" id="chapter-instruction"><b>Brief locked.</b> ARC House needs to feel established, calm and architectural without falling into generic luxury minimalism.</div>
+          <div class="chapter-control" data-chapter-control="2" hidden>
+            <p class="control-title">Inspect the chosen system</p>
+            <div class="view-controls">
+              <button class="active" data-view="home">Home</button>
+              <button data-view="residences">Residences</button>
+              <button data-view="approach">Approach</button>
+              <button data-view="studio">Studio</button>
+            </div>
+          </div>
 
-        <div data-chapter-only="1" hidden>
-          <div class="direction-actions" role="group" aria-label="Creative directions">
-            <button class="active" data-direction="signal">Signal · direct</button>
-            <button data-direction="current">Current · expressive</button>
-            <button data-direction="ledger">Ledger · editorial</button>
+          <div class="chapter-control" data-chapter-control="3" hidden>
+            <p class="control-title">Responsive proof</p>
+            <div class="device-controls"><button data-device="desktop">Desktop</button><button class="active" data-device="mobile">Mobile</button></div>
+            <p class="revision-status" id="viewport-readout">390px · content reordered</p>
+          </div>
+
+          <div class="chapter-control" data-chapter-control="4" hidden>
+            <p class="control-title">Requested change</p>
+            <button class="revision-button" id="apply-revision">Apply requested headline</button>
+            <p class="revision-status" id="revision-status">Original headline · no change applied</p>
+          </div>
+        </aside>
+
+        <div class="lab-preview">
+          <div class="browser-shell">
+            <div class="browser-bar"><i></i><i></i><i></i><span>archouse.studio / concept</span></div>
+            <div class="arc-sample dir-signal">
+              <header class="arc-nav-preview"><strong>ARC HOUSE</strong><div class="arc-nav-links"><span>Residences</span><span>Approach</span><span>Studio</span></div><span class="arc-nav-cta">Begin a project</span></header>
+
+              <section class="arc-content active" data-arc-view="home">
+                <div class="arc-home">
+                  <div class="arc-copy"><div><small>Residential architecture / Austin, Texas</small><h3 id="arc-headline">Space for the life within.</h3><p>Homes shaped around light, landscape and the ordinary rituals that make a place feel lived in.</p></div><small>New build + considered renovation</small></div>
+                  <div class="arc-image"><img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&amp;fit=crop&amp;w=1600&amp;q=90" alt="Warm modern living room opening to a landscaped courtyard"><span>West Lake Courtyard · 2026</span></div>
+                </div>
+              </section>
+
+              <section class="arc-content" data-arc-view="residences"><div class="arc-section"><small>SELECTED RESIDENCES</small><h3>Three places.<br>Three ways to belong.</h3><div class="arc-grid"><article class="arc-card"><b>West Lake Courtyard</b><p>Austin · inward-facing garden plan · 4,800 sq ft</p></article><article class="arc-card"><b>Juniper House</b><p>Dripping Springs · limestone and oak · 3,200 sq ft</p></article><article class="arc-card"><b>Quiet Ridge</b><p>Marfa · desert horizon rooms · 2,600 sq ft</p></article></div></div></section>
+
+              <section class="arc-content" data-arc-view="approach"><div class="arc-section"><small>APPROACH</small><h3>Architecture should make ordinary moments feel considered.</h3><div class="arc-grid"><article class="arc-card"><b>01 · Listen</b><p>Routines, light, landscape and constraints become the brief.</p></article><article class="arc-card"><b>02 · Resolve</b><p>Every beautiful move earns its place through use and construction.</p></article><article class="arc-card"><b>03 · Steward</b><p>One team keeps the idea intact through drawings and build.</p></article></div></div></section>
+
+              <section class="arc-content" data-arc-view="studio"><div class="arc-section"><small>STUDIO</small><h3>One idea.<br>Held all the way through.</h3><div class="arc-contact"><div><p>We stay close from the first walk across the site through the last material decision. The relationship between concept and construction is part of the design.</p><div class="arc-grid"><article class="arc-card"><b>Austin, Texas</b><p>Residential architecture and renovation</p></article><article class="arc-card"><b>Project fit</b><p>Start with a 30-minute conversation</p></article><article class="arc-card"><b>Ownership</b><p>Drawings, decisions and handoff stay clear</p></article></div></div><aside>Make room for what matters.</aside></div></div></section>
+            </div>
           </div>
         </div>
-
-        <div data-chapter-only="2" hidden>
-          <div class="content-tabs" role="group" aria-label="Sample site content views">
-            <button class="active" data-view="home">Home</button>
-            <button data-view="residences">Residences</button>
-            <button data-view="practice">Practice</button>
-            <button data-view="contact">Contact</button>
-          </div>
-        </div>
-
-        <div data-chapter-only="4" hidden>
-          <div class="revision-actions"><button id="apply-revision">Apply headline revision</button><span id="revision-status">Original copy</span></div>
-        </div>
-
-        <div class="browser">
-          <div class="browser-chrome"><i></i><i></i><i></i><span style="margin-left:auto" id="device-label">Desktop composition</span></div>
-          <div class="sample-site direction-signal">
-            <div class="sample-nav"><b>ARC / HOUSE</b><div class="sample-links"><span>Residences</span><span>Practice</span><span>Contact</span></div><span>Discuss a site ↗</span></div>
-
-            <section class="content-view active" data-content-view="home">
-              <div class="sample-hero">
-                <div class="sample-copy"><div><small>Austin · Texas Hill Country</small><h4 id="sample-headline">Space for the life within.</h4><p>Residential architecture shaped around routines, landscape and the way a day moves through a home.</p></div><small>New build + renovation · 2026</small></div>
-                <div class="sample-image"><img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1600&q=90" alt="Modern warm residence opening to a landscaped courtyard"><span>West Lake Courtyard · Austin</span></div>
-              </div>
-            </section>
-
-            <section class="content-view" data-content-view="residences"><div class="content-panel"><small>SELECTED RESIDENCES</small><h4>Three places.<br>Three ways to belong.</h4><div class="content-grid"><div class="content-card"><b>West Lake Courtyard</b><span>Austin · 4,800 sq ft · inward-facing garden plan</span></div><div class="content-card"><b>Juniper House</b><span>Dripping Springs · 3,200 sq ft · limestone and oak</span></div><div class="content-card"><b>Quiet Ridge</b><span>Marfa · 2,600 sq ft · desert horizon rooms</span></div></div></div></section>
-
-            <section class="content-view" data-content-view="practice"><div class="content-panel"><small>OUR PRACTICE</small><h4>Ordinary moments,<br>carefully considered.</h4><div class="content-grid"><div class="content-card"><b>01 · Listen</b><span>Routines, light, landscape and constraints become the brief.</span></div><div class="content-card"><b>02 · Resolve</b><span>Every beautiful move earns its place through use and construction.</span></div><div class="content-card"><b>03 · Steward</b><span>One team holds the idea through drawings, details and build.</span></div></div></div></section>
-
-            <section class="content-view" data-content-view="contact"><div class="content-panel"><small>BEGIN A CONVERSATION</small><h4>Have land, a house<br>or the beginning of an idea?</h4><p style="max-width:520px;color:#69635c;line-height:1.65">Share the site, the way you live and what you want the project to change. The first conversation is about fit, not a sales pitch.</p><div class="content-grid"><div class="content-card"><b>Project type</b><span>New residence / renovation</span></div><div class="content-card"><b>Location</b><span>Central Texas and select remote projects</span></div><div class="content-card"><b>Next step</b><span>30-minute project-fit conversation</span></div></div></div></section>
-
-            <div class="site-footerline"><span>ARC House · fictional design study</span><span>Architecture for daily life</span></div>
-          </div>
-        </div>
-        <div class="revision-note" id="revision-note">Revision applied to the real sample headline. Use the same control to return to the original copy.</div>
       </div>
     </div>
+    <div class="lab-next"><p>The surrounding product stays controlled violet-and-white. The customer project is allowed to have its own visual world. That separation is the point.</p><button id="next-chapter">Next chapter →</button></div>
   </section>
 
-  <section class="v16-end">
-    <p class="chapter-kicker">The point of the proof</p>
-    <h2>The customer should see the design thinking happen.</h2>
-    <p>This is the baseline the Website Builder now has to beat: distinctive art direction, visible choices, real responsive behavior and a review process that changes the actual work instead of decorating a progress bar.</p>
-    <a href="index.html#studio">Start a brief →</a>
+  <section class="walk-close">
+    <div><p class="eyebrow">What the production system now has to preserve</p><h2>The direction is approved before the whole site multiplies it.</h2></div>
+    <div><p>The live customer flow is stricter now: research first, 2–3 divergent rendered directions, independent ranking, proof slice, full build, browser evidence, independent review and owner approval.</p><a class="primary" href="index.html#studio">Try the design experience →</a></div>
   </section>
 </main>
-<footer class="site-footer"><span>© 2026 Stromation · Website Builder prototype</span><span>ARC House is fictional. No customer claims.</span></footer>
-<script src="how-it-works-v16.js"></script>
+
+<footer class="site-footer"><div class="footer-main"><div class="footer-brand"><a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>Website Builder</span></a><p>A considered website.<br>A clearer way to get there.</p><span>Product prototype by Stromation</span></div><div><h2>Explore</h2><a href="how-it-works.html">How it works</a><a href="examples.html">Design examples</a><a href="pricing.html">Pricing</a><a href="quality.html">Quality standard</a></div><div><h2>Learn</h2><a href="premium-website-value.html">Why design matters</a><a href="seo-website-design.html">SEO foundations</a><a href="custom-website-vs-ai-builder.html">AI vs managed design</a><a href="website-redesign-guide.html">Redesign guide</a></div><div><h2>Company</h2><a href="about.html">Our story</a><a href="faq.html">Questions & answers</a><a href="resources.html">All resources</a><a href="feed.xml">RSS feed</a></div></div><div class="footer-bottom"><span>© 2026 Stromation. Temporary product name.</span><span>ARC House is a fictional design study. No customer claims.</span></div></footer>
+<script src="site.js" defer></script>
+<script src="how-it-works-v16.js" defer></script>
 </body>
 </html>
