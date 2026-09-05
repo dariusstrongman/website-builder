@@ -1,16 +1,16 @@
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const arcProjects = [
-  {src:'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1800&q=88',alt:'Warm modern living space opening onto a garden',place:'West Lake Hills',type:'Courtyard residence · 2026',number:'01'},
-  {src:'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1800&q=88',alt:'Minimal home with a sheltered outdoor living area',place:'Dripping Springs',type:'Juniper House · 2025',number:'02'},
-  {src:'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1800&q=88',alt:'Contemporary home set against a quiet landscape',place:'Marfa',type:'Quiet Ridge · 2024',number:'03'}
+  {src:'assets/arc-house.webp',alt:'Wide view of a Texas Hill Country residence at sunset',place:'Hill Country',type:'Landscape view · design study',number:'01',position:'50% 50%'},
+  {src:'assets/arc-house.webp',alt:'Close view of the stone and glass threshold of a Texas Hill Country residence',place:'Stone + glass',type:'Threshold view · design study',number:'02',position:'72% 50%'},
+  {src:'assets/arc-house.webp',alt:'Interior gathering area inside a Texas Hill Country residence',place:'Living + dining',type:'Interior view · design study',number:'03',position:'92% 50%'}
 ];
 document.querySelectorAll('[data-arc-project]').forEach(button=>button.addEventListener('click',()=>{
   const project=arcProjects[Number(button.dataset.arcProject)];
   const image=document.getElementById('arc-image');
   if(!project||!image)return;
   document.querySelectorAll('[data-arc-project]').forEach(item=>{const active=item===button;item.classList.toggle('active',active);item.setAttribute('aria-pressed',String(active))});
-  const apply=()=>{image.src=project.src;image.alt=project.alt;document.getElementById('arc-place').textContent=project.place;document.getElementById('arc-type').textContent=project.type;document.getElementById('arc-number').textContent=project.number};
+  const apply=()=>{image.src=project.src;image.alt=project.alt;image.style.objectPosition=project.position;document.getElementById('arc-place').textContent=project.place;document.getElementById('arc-type').textContent=project.type;document.getElementById('arc-number').textContent=project.number};
   if(document.startViewTransition&&!reducedMotion)document.startViewTransition(apply);else apply();
 }));
 
@@ -37,9 +37,15 @@ document.querySelectorAll('[data-forge-step]').forEach(button=>button.addEventLi
 }));
 
 if(!reducedMotion){
-  import('https://cdn.jsdelivr.net/npm/motion@11.11.13/+esm').then(({animate,inView})=>{
+  import('https://cdn.jsdelivr.net/npm/motion@11.11.13/+esm').then(({animate,inView,scroll})=>{
     document.querySelectorAll('[data-motion-item]').forEach(item=>animate(item,{opacity:[0,1],y:[24,0]},{duration:.8,ease:[.22,1,.36,1]}));
     document.querySelectorAll('[data-motion-image]').forEach(item=>animate(item,{opacity:[0,1],scale:[1.025,1]},{duration:1.1,ease:[.22,1,.36,1]}));
-    inView('main > section:not(:first-child)',element=>{animate(element,{opacity:[.55,1],y:[18,0]},{duration:.65,ease:[.22,1,.36,1]})},{margin:'0px 0px -10% 0px'});
+    inView('.arc-selector-head, .form-method>header, .forge-system>header',element=>{animate(element,{opacity:[.45,1],y:[28,0]},{duration:.72,ease:[.22,1,.36,1]})},{margin:'0px 0px -12% 0px'});
+    const arcImage=document.querySelector('.arc-feature img');
+    const formWordmark=document.querySelector('.form-wordmark');
+    const forgeImage=document.querySelector('.forge-photo img');
+    if(arcImage)scroll(animate(arcImage,{scale:[1,1.07]},{ease:'linear'}),{target:arcImage,offset:['start end','end start']});
+    if(formWordmark)scroll(animate(formWordmark,{x:['-2%','10%']},{ease:'linear'}),{target:document.querySelector('.form-stage'),offset:['start start','end start']});
+    if(forgeImage)scroll(animate(forgeImage,{scale:[1.03,1.11],x:['0%','-2%']},{ease:'linear'}),{target:forgeImage,offset:['start end','end start']});
   }).catch(()=>{});
 }

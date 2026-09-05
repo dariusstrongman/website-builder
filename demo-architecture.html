@@ -13,8 +13,8 @@
   <div class="demo-disclaimer">Design study · fictional company · sample content</div>
   <header class="arc-nav">
     <a class="arc-logo" href="demo-architecture.html">ARC<span>/</span>HOUSE</a>
-    <nav aria-label="Architecture study navigation"><a href="#residences">Residences</a><a href="#practice">Practice</a><a href="#contact">Contact</a></nav>
-    <a class="arc-inquire" href="#contact">Discuss a site <span>↗</span></a>
+    <nav aria-label="Architecture study navigation"><a href="demo-arc-residences.html">Residences</a><a href="demo-arc-practice.html">Practice</a><a href="demo-arc-inquiry.html">Inquiry</a></nav>
+    <a class="arc-inquire" href="demo-arc-inquiry.html">Discuss a site <span>↗</span></a>
   </header>
   <main>
     <section class="arc-stage" aria-labelledby="arc-title">
@@ -24,7 +24,7 @@
         <div><span>Residential architecture</span><span>New build + renovation</span></div>
       </div>
       <figure class="arc-feature" data-motion-image>
-        <img id="arc-image" src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&amp;fit=crop&amp;w=1800&amp;q=88" alt="Warm modern living space opening onto a garden">
+        <img id="arc-image" src="assets/arc-house.webp" alt="Texas Hill Country residence opening toward the sunset landscape">
         <figcaption><span id="arc-place">West Lake Hills</span><span id="arc-type">Courtyard residence · 2026</span></figcaption>
         <b id="arc-number">01</b>
       </figure>
@@ -33,9 +33,9 @@
     <section class="arc-selector" id="residences" aria-labelledby="arc-project-title">
       <div class="arc-selector-head"><p>Selected residences</p><h2 id="arc-project-title">Three places.<br>Three ways to belong.</h2></div>
       <div class="arc-project-list" role="group" aria-label="Choose a residence">
-        <button class="active" aria-pressed="true" data-arc-project="0"><span>01</span><b>West Lake Courtyard</b><em>Austin · 4,800 sq ft</em></button>
-        <button aria-pressed="false" data-arc-project="1"><span>02</span><b>Juniper House</b><em>Dripping Springs · 3,200 sq ft</em></button>
-        <button aria-pressed="false" data-arc-project="2"><span>03</span><b>Quiet Ridge</b><em>Marfa · 2,600 sq ft</em></button>
+        <button class="active" aria-pressed="true" data-arc-project="0"><span>01</span><b>The landscape</b><em>Hill Country · wide view</em></button>
+        <button aria-pressed="false" data-arc-project="1"><span>02</span><b>The threshold</b><em>Stone, glass · close view</em></button>
+        <button aria-pressed="false" data-arc-project="2"><span>03</span><b>The gathering room</b><em>Living, dining · interior view</em></button>
       </div>
     </section>
     <section class="arc-practice" id="practice">
@@ -46,5 +46,5 @@
     <section class="arc-contact" id="contact"><p>Have land, a house or the beginning of an idea?</p><h2>Let’s make room<br>for what matters.</h2><a href="mailto:studio@example.com">Begin a conversation <span>↗</span></a></section>
   </main>
   <script type="module" src="demo-motion.js"></script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a365dd5a4e3366e3',t:'MTc4ODYxNzkyMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

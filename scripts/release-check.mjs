@@ -51,7 +51,7 @@ for(const name of htmlFiles){
   const noindex=/name="robots"[^>]+content="[^"]*noindex/i.test(html);
   if(name!=='404.html'&&!noindex){
     const slug=name==='index.html'?'':name;
-    const expected=`https://website-builder-poc.dariusstroman.chatgpt.site/${slug}`;
+    const expected=`https://dariusstrongman.github.io/website-builder/${slug}`;
     if(!sitemap.includes(`<loc>${expected}</loc>`)) errors.push(`${name}: missing from sitemap`);
   }
 }

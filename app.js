@@ -19,27 +19,6 @@ if(!reduceMotion&&!document.body.classList.contains('premium-site')){
   stage?.addEventListener('pointerleave',()=>{stage.style.setProperty('--px','0');stage.style.setProperty('--py','0')});
 }
 
-const walkButtons=[...document.querySelectorAll('[data-walk]')];
-const walkPanels=[...document.querySelectorAll('[data-walk-panel]')];
-let walkIndex=0;
-const walkStates=['Brief received','Research complete','Directions ranked','Proof slice under review','Full build active','Ready for approval'];
-function renderWalk(index){
-  if(!walkButtons.length)return;
-  walkIndex=Math.max(0,Math.min(index,walkButtons.length-1));
-  walkButtons.forEach((button,i)=>{button.classList.toggle('active',i===walkIndex);button.setAttribute('aria-pressed',String(i===walkIndex))});
-  walkPanels.forEach((panel,i)=>panel.classList.toggle('active',i===walkIndex));
-  document.getElementById('walk-number').textContent=String(walkIndex+1).padStart(2,'0');
-  document.getElementById('walk-count').textContent=`${walkIndex+1} of ${walkButtons.length}`;
-  document.getElementById('walk-status').textContent=walkStates[walkIndex]||'';
-  document.getElementById('walk-bar').style.width=`${((walkIndex+1)/walkButtons.length)*100}%`;
-  document.getElementById('walk-back').disabled=walkIndex===0;
-  document.getElementById('walk-next').textContent=walkIndex===walkButtons.length-1?'Start my brief →':'Next stage →';
-}
-walkButtons.forEach((button,i)=>button.addEventListener('click',()=>renderWalk(i)));
-document.getElementById('walk-back')?.addEventListener('click',()=>renderWalk(walkIndex-1));
-document.getElementById('walk-next')?.addEventListener('click',()=>{if(walkIndex===walkButtons.length-1)location.href='index.html#studio';else renderWalk(walkIndex+1)});
-renderWalk(0);
-
 const previewButtons=[...document.querySelectorAll('[data-preview-mode]')];
 let previewMode='desktop';
 function renderPreviewFrames(){
@@ -74,3 +53,57 @@ window.addEventListener('resize',renderPreviewFrames);
 window.addEventListener('load',renderPreviewFrames);
 renderPreviewFrames();
 stepButtons.forEach((button,i)=>{button.disabled=i>0;button.setAttribute('aria-pressed',String(i===0))});
+
+const workButtons=[...document.querySelectorAll('[data-work-route]')];
+const workPanels=[...document.querySelectorAll('[data-work-panel]')];
+function showWork(route,moveFocus=false){
+  workButtons.forEach(button=>{const active=button.dataset.workRoute===route;button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active))});
+  workPanels.forEach(panel=>{const active=panel.dataset.workPanel===route;panel.hidden=!active;if(active&&moveFocus)panel.focus({preventScroll:true})});
+}
+workButtons.forEach(button=>button.addEventListener('click',()=>showWork(button.dataset.workRoute,true)));
+workButtons.forEach((button,index)=>button.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight'].includes(event.key))return;event.preventDefault();const next=(index+(event.key==='ArrowRight'?1:-1)+workButtons.length)%workButtons.length;workButtons[next].focus();showWork(workButtons[next].dataset.workRoute)}));
+if(workButtons.length){const requested=location.hash.replace('#','');showWork(workButtons.some(button=>button.dataset.workRoute===requested)?requested:'architecture')}
+
+const siteViewer=document.querySelector('#site-viewer');
+if(siteViewer){
+  const viewerFrame=siteViewer.querySelector('#site-viewer-frame');
+  const viewerTitle=siteViewer.querySelector('#site-viewer-title');
+  const viewerLink=siteViewer.querySelector('#site-viewer-new-tab');
+  const viewerPages=[...siteViewer.querySelectorAll('[data-viewer-page]')];
+  const viewerDevices=[...siteViewer.querySelectorAll('[data-viewer-device]')];
+  const previewSites={
+    architecture:{title:'ARC House',labels:['Home','Residences','Practice','Inquiry'],urls:['demo-architecture.html','demo-arc-residences.html','demo-arc-practice.html','demo-arc-inquiry.html']},
+    wellness:{title:'FORM/01',labels:['Home','Method','Classes','Join'],urls:['demo-wellness.html','demo-form-method.html','demo-form-classes.html','demo-form-join.html']},
+    industrial:{title:'Forge Systems',labels:['Home','Platform','Decision record','Request study'],urls:['demo-industrial.html','demo-forge-platform.html','demo-forge-record.html','demo-forge-study.html']}
+  };
+  let activeSite='architecture';
+  let activePage=0;
+  let viewerOpener;
+  const renderViewer=()=>{
+    const site=previewSites[activeSite];
+    const url=site.urls[activePage];
+    viewerTitle.textContent=site.title;
+    viewerFrame.title=`${site.title}, ${site.labels[activePage]} page preview`;
+    viewerFrame.src=url;
+    viewerLink.href=url;
+    viewerPages.forEach((button,index)=>{button.textContent=site.labels[index];button.classList.toggle('active',index===activePage);button.setAttribute('aria-pressed',String(index===activePage))});
+  };
+  document.querySelectorAll('[data-preview-site]').forEach(button=>button.addEventListener('click',()=>{
+    activeSite=button.dataset.previewSite;
+    activePage=0;
+    viewerOpener=button;
+    renderViewer();
+    document.body.classList.add('viewer-open');
+    siteViewer.showModal();
+  }));
+  viewerPages.forEach((button,index)=>button.addEventListener('click',()=>{activePage=index;renderViewer()}));
+  viewerDevices.forEach(button=>button.addEventListener('click',()=>{
+    const mobile=button.dataset.viewerDevice==='mobile';
+    siteViewer.classList.toggle('mobile-preview',mobile);
+    viewerDevices.forEach(item=>{const active=item===button;item.classList.toggle('active',active);item.setAttribute('aria-pressed',String(active))});
+  }));
+  const closeViewer=()=>siteViewer.close();
+  siteViewer.querySelector('.viewer-close').addEventListener('click',closeViewer);
+  siteViewer.addEventListener('click',event=>{if(event.target===siteViewer)closeViewer()});
+  siteViewer.addEventListener('close',()=>{document.body.classList.remove('viewer-open');viewerFrame.src='about:blank';viewerOpener?.focus()});
+}
