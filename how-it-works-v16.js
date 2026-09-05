@@ -1,46 +1,91 @@
 const chapters=[
-  {k:'01 / BRIEF',title:'Start with the business, not a template.',body:'The sample begins with a clear goal, buyer and constraints before any visual direction is selected.'},
-  {k:'02 / DIRECTIONS',title:'Compare three real creative routes.',body:'Each direction changes layout, typography and visual behavior, not just the accent color.'},
-  {k:'03 / BUILD',title:'Expand the chosen route into real pages.',body:'Move through multiple content views to see how one system holds together beyond the hero.'},
-  {k:'04 / MOBILE',title:'Responsive means rearranged, not cropped.',body:'Switch to a true mobile composition. Content changes order and density instead of disappearing behind a crop.'},
-  {k:'05 / REVISION',title:'Change something meaningful, then change it back.',body:'A revision updates the actual sample website so the customer sees exactly what feedback changes before delivery.'}
+  {k:'01 / BRIEF',title:'The business decides what the design must do.',body:'ARC House is for a high-value residential client. The goal is a project consultation, and the site must feel calm, established and image-led without becoming generic luxury minimalism.'},
+  {k:'02 / DIRECTION',title:'Three routes change the actual system.',body:'Signal is direct, Current is expressive, Ledger is editorial. Pick one and the live sample changes composition and typography, not just its color.'},
+  {k:'03 / BUILD',title:'The chosen idea has to survive real pages.',body:'Move through Home, Residences, Approach and Studio. A direction is only useful if it still feels coherent once the hero is no longer doing all the work.'},
+  {k:'04 / MOBILE',title:'Mobile is recomposed, not cropped.',body:'The same website rearranges its hierarchy for a narrow viewport. Text, imagery and navigation move intentionally instead of disappearing behind a desktop crop.'},
+  {k:'05 / REVISION',title:'Feedback changes the work you are looking at.',body:'Apply a real headline revision, inspect the result and reverse it. The customer should see exactly what a revision changes before the site is approved.'}
 ];
-let chapter=0;let direction='signal';let mobile=false;let revised=false;
+let chapter=0;
+let direction='signal';
+let view='home';
+let mobile=false;
+let revised=false;
 const chapterButtons=[...document.querySelectorAll('[data-v16-chapter]')];
-const sideButtons=[...document.querySelectorAll('[data-v16-side]')];
-const frame=document.querySelector('.browser');
-const site=document.querySelector('.sample-site');
-const kicker=document.getElementById('chapter-kicker');
-const title=document.getElementById('chapter-title');
-const body=document.getElementById('chapter-body');
-const instruction=document.getElementById('chapter-instruction');
-const headline=document.getElementById('sample-headline');
+const browser=document.querySelector('.browser-shell');
+const sample=document.querySelector('.arc-sample');
+const kicker=document.getElementById('story-kicker');
+const title=document.getElementById('story-title');
+const body=document.getElementById('story-body');
+const status=document.getElementById('lab-status-text');
+const headline=document.getElementById('arc-headline');
 const originalHeadline='Space for the life within.';
-const revisedHeadline='A quieter kind of home.';
+const revisedHeadline='A quieter way to live.';
 function renderChapter(index){
   chapter=Math.max(0,Math.min(index,chapters.length-1));
-  chapterButtons.forEach((b,i)=>{b.classList.toggle('active',i===chapter);b.setAttribute('aria-pressed',String(i===chapter))});
-  sideButtons.forEach((b,i)=>b.classList.toggle('active',i===chapter));
-  const c=chapters[chapter];kicker.textContent=c.k;title.textContent=c.title;body.textContent=c.body;
-  document.querySelectorAll('[data-chapter-only]').forEach(el=>el.hidden=Number(el.dataset.chapterOnly)!==chapter);
-  const messages=[
-    '<b>Brief locked.</b> ARC House needs to feel established, calm and architectural without falling into generic luxury minimalism.',
-    '<b>Choose a route.</b> Signal is direct, Current is expressive, Ledger is editorial. The sample below actually restructures.',
-    '<b>Inspect depth.</b> Switch between Home, Residences, Practice and Contact to see whether the chosen system survives interior content.',
-    '<b>Test mobile.</b> The mobile mode changes order, scale and density instead of masking desktop content.',
-    '<b>Revise the work.</b> Apply the requested headline change, compare it, then revert it before final approval.'
-  ];instruction.innerHTML=messages[chapter];
-  if(chapter===3&&!mobile)setMobile(true);
+  chapterButtons.forEach((button,i)=>{
+    const active=i===chapter;
+    button.classList.toggle('active',active);
+    button.setAttribute('aria-pressed',String(active));
+  });
+  const current=chapters[chapter];
+  kicker.textContent=current.k;
+  title.textContent=current.title;
+  body.textContent=current.body;
+  document.querySelectorAll('[data-chapter-control]').forEach(control=>{
+    control.hidden=Number(control.dataset.chapterControl)!==chapter;
+  });
+  status.textContent=['Brief defined','Direction comparison','System building','Mobile proof','Revision review'][chapter];
+  if(chapter===0){setView('home');setMobile(false)}
+  if(chapter===1){setView('home');setMobile(false)}
+  if(chapter===2){setMobile(false)}
+  if(chapter===3){setView('home');setMobile(true)}
+  if(chapter===4){setView('home');setMobile(false)}
+  document.getElementById('next-chapter').textContent=chapter===chapters.length-1?'Back to the brief':'Next chapter →';
 }
-function setDirection(next){direction=next;site.classList.remove('direction-signal','direction-current','direction-ledger');site.classList.add(`direction-${direction}`);document.querySelectorAll('[data-direction]').forEach(b=>{const active=b.dataset.direction===direction;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))})}
-function setMobile(next){mobile=next;frame.classList.toggle('mobile',mobile);document.querySelectorAll('[data-device]').forEach(b=>{const active=(b.dataset.device==='mobile')===mobile;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});document.getElementById('device-label').textContent=mobile?'390px mobile composition':'Desktop composition'}
-function setView(next){document.querySelectorAll('[data-content-view]').forEach(p=>p.classList.toggle('active',p.dataset.contentView===next));document.querySelectorAll('[data-view]').forEach(b=>{const active=b.dataset.view===next;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))})}
-function setRevision(next){revised=next;headline.textContent=revised?revisedHeadline:originalHeadline;document.getElementById('revision-note').classList.toggle('show',revised);document.getElementById('apply-revision').textContent=revised?'Revert headline':'Apply headline revision';document.getElementById('revision-status').textContent=revised?'Revision applied · reversible':'Original copy'}
-chapterButtons.forEach((b,i)=>b.addEventListener('click',()=>renderChapter(i)));sideButtons.forEach((b,i)=>b.addEventListener('click',()=>renderChapter(i)));
-document.querySelectorAll('[data-direction]').forEach(b=>b.addEventListener('click',()=>setDirection(b.dataset.direction)));
-document.querySelectorAll('[data-device]').forEach(b=>b.addEventListener('click',()=>setMobile(b.dataset.device==='mobile')));
-document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+function setDirection(next){
+  direction=next;
+  sample.classList.remove('dir-signal','dir-current','dir-ledger');
+  sample.classList.add(`dir-${next}`);
+  document.querySelectorAll('[data-direction]').forEach(button=>{
+    const active=button.dataset.direction===next;
+    button.classList.toggle('active',active);
+    button.setAttribute('aria-pressed',String(active));
+  });
+  document.getElementById('direction-readout').textContent=next==='signal'?'Signal selected · direct / decisive':next==='current'?'Current selected · expressive / kinetic':'Ledger selected · editorial / assured';
+}
+function setView(next){
+  view=next;
+  document.querySelectorAll('[data-arc-view]').forEach(panel=>panel.classList.toggle('active',panel.dataset.arcView===next));
+  document.querySelectorAll('[data-view]').forEach(button=>{
+    const active=button.dataset.view===next;
+    button.classList.toggle('active',active);
+    button.setAttribute('aria-pressed',String(active));
+  });
+}
+function setMobile(next){
+  mobile=next;
+  browser.classList.toggle('is-mobile',mobile);
+  document.querySelectorAll('[data-device]').forEach(button=>{
+    const active=(button.dataset.device==='mobile')===mobile;
+    button.classList.toggle('active',active);
+    button.setAttribute('aria-pressed',String(active));
+  });
+  document.getElementById('viewport-readout').textContent=mobile?'390px · content reordered':'Desktop · full composition';
+}
+function setRevision(next){
+  revised=next;
+  headline.textContent=revised?revisedHeadline:originalHeadline;
+  document.getElementById('revision-status').textContent=revised?'Applied · click again to restore original':'Original headline · no change applied';
+  document.getElementById('apply-revision').textContent=revised?'Restore original headline':'Apply requested headline';
+}
+chapterButtons.forEach((button,i)=>button.addEventListener('click',()=>renderChapter(i)));
+document.querySelectorAll('[data-direction]').forEach(button=>button.addEventListener('click',()=>setDirection(button.dataset.direction)));
+document.querySelectorAll('[data-view]').forEach(button=>button.addEventListener('click',()=>setView(button.dataset.view)));
+document.querySelectorAll('[data-device]').forEach(button=>button.addEventListener('click',()=>setMobile(button.dataset.device==='mobile')));
 document.getElementById('apply-revision')?.addEventListener('click',()=>setRevision(!revised));
-document.getElementById('next-chapter')?.addEventListener('click',()=>renderChapter((chapter+1)%chapters.length));
-document.querySelector('.mobile-menu-button')?.addEventListener('click',()=>{const nav=document.getElementById('main-navigation');const open=nav.classList.toggle('open');nav.style.display=open?'flex':''});
-setDirection('signal');setMobile(false);setView('home');setRevision(false);renderChapter(0);
+document.getElementById('next-chapter')?.addEventListener('click',()=>renderChapter(chapter===chapters.length-1?0:chapter+1));
+setDirection('signal');
+setView('home');
+setMobile(false);
+setRevision(false);
+renderChapter(0);
