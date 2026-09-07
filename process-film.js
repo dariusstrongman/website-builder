@@ -9,11 +9,58 @@
   const notes = [...film.querySelectorAll('[data-note]')];
   const chapters = [...film.querySelectorAll('[data-chapter]')];
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const pinned = window.matchMedia('(min-width: 1100px) and (min-height: 800px) and (prefers-reduced-motion: no-preference)');
+  const scrollMotion = window.matchMedia('(prefers-reduced-motion: no-preference)');
   let chapter = 0;
   let revised = false;
   let framePending = false;
   const running = new Set();
+
+  const responsiveScrollStyles = document.createElement('style');
+  responsiveScrollStyles.dataset.processFilmResponsive = 'true';
+  responsiveScrollStyles.textContent = `
+    @media (max-width:1099px) and (prefers-reduced-motion:no-preference){
+      .build-film.is-enhanced{height:460svh}
+      .is-enhanced .film-pin{position:sticky;top:84px;height:calc(100svh - 84px);box-sizing:border-box;display:flex;flex-direction:column;overflow:hidden}
+      .is-enhanced .film-workspace{flex:1;min-height:0}
+      .is-enhanced .film-canvas{min-height:0}
+      .is-enhanced .film-browser{min-height:0;max-height:none}
+      .is-enhanced .arc-home{min-height:100%}
+      .is-enhanced .arc-preview[data-direction=panorama] .arc-home{min-height:100%}
+      .is-enhanced .film-chapters{flex-shrink:0}
+    }
+    @media (max-width:760px) and (prefers-reduced-motion:no-preference){
+      .is-enhanced .film-pin{padding:10px 14px 0}
+      .is-enhanced .film-topline{display:none}
+      .is-enhanced .film-heading{padding:6px 0 8px;flex-shrink:0}
+      .premium-site .is-enhanced .film-heading h1{font-size:25px;line-height:1.02}
+      .is-enhanced .film-heading>p{display:none}
+      .is-enhanced .film-chapters{position:relative;top:auto;order:2;margin:0 0 8px;min-height:46px}
+      .is-enhanced .film-chapters button{min-height:46px;padding:8px 0;font-size:9px;gap:3px}
+      .is-enhanced .film-chapters button span{font-size:9px}
+      .is-enhanced .film-workspace{order:3;gap:8px;overflow:hidden}
+      .is-enhanced .film-notes{flex:0 0 auto;max-height:205px;overflow:auto;padding-right:2px}
+      .premium-site .is-enhanced .film-note h2{font-size:23px;margin-bottom:8px}
+      .is-enhanced .film-note>p{font-size:12px;line-height:1.45;margin-bottom:10px}
+      .is-enhanced .film-note dl{gap:6px}
+      .is-enhanced .film-note dl>div{padding:6px 0}
+      .is-enhanced .film-note dt{font-size:10px}
+      .is-enhanced .film-note dd{font-size:11px}
+      .is-enhanced .film-direction-controls{gap:4px}
+      .is-enhanced .film-direction-controls button{padding:8px 10px;min-height:36px}
+      .is-enhanced .film-page-controls,.is-enhanced .film-device-controls{margin:6px 0;gap:5px}
+      .is-enhanced .film-page-controls button,.is-enhanced .film-device-controls button{min-height:36px;padding:7px 10px;font-size:11px}
+      .is-enhanced .film-revision{padding:10px 12px;font-size:12px}
+      .is-enhanced .film-canvas{flex:1;height:auto;min-height:0;margin-bottom:0;padding-bottom:17px}
+      .is-enhanced .film-browser{height:100%;min-height:0}
+      .is-enhanced .film-canvas-caption{font-size:8px}
+    }
+    @media (max-width:760px) and (max-height:700px) and (prefers-reduced-motion:no-preference){
+      .is-enhanced .film-heading{display:none}
+      .is-enhanced .film-notes{max-height:170px}
+      .is-enhanced .film-chapters{margin-bottom:5px}
+    }
+  `;
+  document.head.appendChild(responsiveScrollStyles);
 
   function animate(element, frames, duration = 550) {
     if (reduce.matches || typeof element.animate !== 'function') return;
@@ -90,7 +137,7 @@
   }
   function navigateChapter(next) {
     setChapter(next);
-    if (pinned.matches) {
+    if (scrollMotion.matches) {
       const {start,distance} = geometry();
       // Jump directly to the selected chapter; don't animate through intermediates.
       window.scrollTo({top:Math.max(0,start + distance * ((next+.12)/notes.length)),behavior:'instant'});
@@ -98,7 +145,7 @@
   }
   function syncScroll() {
     framePending = false;
-    if (!pinned.matches) return;
+    if (!scrollMotion.matches) return;
     const {start,distance} = geometry();
     const progress = Math.max(0,Math.min(1,(window.scrollY-start)/distance));
     setChapter(Math.min(notes.length-1,Math.floor(progress*notes.length)));
@@ -135,9 +182,9 @@
   });
   document.getElementById('arc-sample-form').querySelector('fieldset').disabled = false;
   function configure() {film.classList.add('is-enhanced'); if(reduce.matches) stopAnimations(); syncScroll();}
-  window.addEventListener('scroll',() => {if(!framePending && pinned.matches){framePending=true;window.requestAnimationFrame(syncScroll);}}, {passive:true});
+  window.addEventListener('scroll',() => {if(!framePending && scrollMotion.matches){framePending=true;window.requestAnimationFrame(syncScroll);}}, {passive:true});
   window.addEventListener('resize',() => {if(!framePending){framePending=true;window.requestAnimationFrame(syncScroll);}}, {passive:true});
-  pinned.addEventListener('change',configure);
+  scrollMotion.addEventListener('change',configure);
   reduce.addEventListener('change',configure);
   setChapter(0);
   configure();
