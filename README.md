@@ -51,3 +51,16 @@ See `DESIGN_STANDARD.md` and `BENCHMARK_LIBRARY.md` for the current quality doct
 The public GitHub repository keeps the static site files at its root. Serve that directory with any static web server. The Sites deployment checkout keeps the same files in `dist/`. No build step is required in either layout.
 
 Run `node scripts/release-check.mjs` before publishing. The checker supports both layouts and verifies required pages, favicon coverage, unique titles, metadata, internal links and current pricing.
+
+
+## Customer workspace preview
+
+`project.html` is the customer working surface. It is separate from the marketing walkthrough and `motion-lab.html`. The homepage links to it from the studio section.
+
+Implemented: local brief drafts, explicit brief review, existing public intake submission, a separate fictional Northline sample with three rendered layouts, direction notes and confirmation, version browsing, desktop/mobile previews, section feedback, explicit sample handoff approval, and downloadable sample HTML/project records. Real and sample drafts survive reload independently. No automatic generation timers or simulated percentage counters are used.
+
+Real briefs stop at scope review after the existing `/website-order` receipt. Sample controls load prepared records; they never call Sol or publish a customer website. A prepared revision variant illustrates the review loop and does not claim to implement freeform feedback. The sample business brief is fixed so every concept represents the same business.
+
+Before the new end-to-end Sol test: connect authenticated customer project reads, artifact URLs, direction/feedback/approval writes and durable version-specific decisions to the fulfillment system. The current runtime intake handler records orders; it does not expose those customer workspace endpoints. Keep operator tokens and provider credentials server-side. Existing internal proof jobs are separate from a test of this customer flow.
+
+Validation: `node --test workspace/model.test.mjs`, `node scripts/release-check.mjs`, `node scripts/interaction-check.mjs`. Desktop/mobile browser checks exercised sample selection, preview sizes, two build milestones, revision request and explicit approval. No real order was submitted during workspace QA.
