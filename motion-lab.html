@@ -3,132 +3,65 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Premium Motion Lab — Website Builder</title>
-<meta name="description" content="A phone-first motion proof for the Website Builder premium motion contract.">
-<style>
-:root{
-  --ink:#111214;--paper:#f5f4ef;--fog:#e8e7e1;--line:rgba(17,18,20,.13);
-  --blue:#2458ff;--orange:#ff6a3d;--deep:#0d1118;--muted:#71747a;
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth;background:var(--paper);color:var(--ink)}
-body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--paper);color:var(--ink);overflow-x:hidden}
-button,a{font:inherit}
-img{display:block;max-width:100%}
-.topbar{position:fixed;inset:0 0 auto 0;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;z-index:50;background:rgba(245,244,239,.82);backdrop-filter:blur(18px);border-bottom:1px solid rgba(17,18,20,.08)}
-.brand{display:flex;gap:10px;align-items:center;font-size:13px;font-weight:700;letter-spacing:-.01em}.mark{width:22px;height:22px;border:1.5px solid var(--ink);border-radius:50%;position:relative}.mark:before,.mark:after{content:"";position:absolute;inset:4px;border:1.5px solid var(--ink);border-radius:50%}.mark:after{inset:8px}
-.mode{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-main{padding-top:58px}
-.hero{min-height:92svh;padding:11vh 18px 7vh;display:grid;align-content:space-between;position:relative;overflow:hidden}
-.hero-kicker{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--blue)}
-.hero h1{font-size:clamp(50px,16vw,112px);line-height:.88;letter-spacing:-.075em;margin:18px 0 0;max-width:8.6ch;font-weight:650}
-.hero h1 em{font-style:normal;color:var(--blue);display:block}
-.hero-bottom{display:grid;grid-template-columns:1fr;gap:28px;align-items:end}.hero-copy{max-width:33rem;font-size:17px;line-height:1.5;color:#42454b;margin:0}.hero-meta{display:flex;gap:20px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
-.hero-orbit{position:absolute;width:52vw;aspect-ratio:1;border:1px solid rgba(36,88,255,.25);border-radius:50%;right:-16vw;top:25%;pointer-events:none}.hero-orbit:before,.hero-orbit:after{content:"";position:absolute;border:1px solid rgba(36,88,255,.16);border-radius:50%;inset:16%}.hero-orbit:after{inset:33%}
-.scene{height:210svh;position:relative;border-top:1px solid var(--line)}
-.scene-sticky{position:sticky;top:58px;height:calc(100svh - 58px);overflow:hidden;isolation:isolate;background:var(--paper)}
-.scene-label{position:absolute;left:18px;top:18px;z-index:8;display:flex;align-items:center;gap:10px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}.scene-label b{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;border:1px solid currentColor;font-size:10px}
-.progress{position:absolute;left:18px;right:18px;bottom:16px;height:2px;background:rgba(255,255,255,.22);z-index:10;overflow:hidden}.progress i{display:block;height:100%;width:100%;transform-origin:left center;transform:scaleX(var(--p,0));background:currentColor}
-.scene-copy{position:absolute;left:18px;right:18px;bottom:46px;z-index:9;pointer-events:none}.scene-copy .eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin:0 0 10px;opacity:.66}.scene-copy h2{font-size:clamp(40px,12vw,86px);line-height:.92;letter-spacing:-.06em;margin:0;max-width:9ch;font-weight:650}.scene-copy p{font-size:15px;line-height:1.45;max-width:31rem;margin:16px 0 0;opacity:.78}
-
-/* Scene 1 */
-#scene-brief .scene-sticky{background:#f1f0eb;color:var(--ink)}
-.brief-photo{position:absolute;inset:0;background:#c8c6bd;overflow:hidden}
-.brief-photo img{width:100%;height:100%;object-fit:cover;filter:saturate(.78) contrast(.94);transform:scale(calc(1.08 - var(--p)*.08)) translate3d(0,calc(var(--p)*-2%),0)}
-.brief-photo:after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(10,12,14,.75),rgba(10,12,14,.05) 55%,rgba(10,12,14,.16));opacity:calc(.18 + var(--p)*.52)}
-.brief-stack{position:absolute;inset:12% 7% auto 7%;height:42%;z-index:5;perspective:1000px}
-.brief-card{position:absolute;inset:auto 0 0 0;margin:auto;width:min(92%,560px);background:rgba(247,246,241,.96);border:1px solid rgba(17,18,20,.12);box-shadow:0 24px 80px rgba(4,8,18,.22);padding:18px;border-radius:20px;transform:translate3d(0,calc((1 - var(--p))*44px),0) scale(calc(.92 + var(--p)*.08));opacity:calc(.25 + var(--p)*.75)}
-.brief-card-head{display:flex;justify-content:space-between;align-items:center;font-size:10px;text-transform:uppercase;letter-spacing:.13em;color:#65676c;border-bottom:1px solid #dddcd6;padding-bottom:12px;margin-bottom:14px}.brief-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.brief-chip{border:1px solid #d5d4ce;border-radius:14px;padding:12px;min-height:72px}.brief-chip span{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:#7a7d83;margin-bottom:6px}.brief-chip b{font-size:14px;line-height:1.2}.brief-chip.accent{background:#111214;color:white;border-color:#111214}.brief-chip.accent span{color:#aeb1b7}
-#scene-brief .scene-copy{color:white;text-shadow:0 2px 30px rgba(0,0,0,.25)}#scene-brief .progress{color:white}
-
-/* Scene 2 */
-#scene-direction .scene-sticky{background:var(--deep);color:#f6f6f3}
-.direction-stage{position:absolute;inset:0;overflow:hidden}
-.direction-word{position:absolute;left:5vw;top:12vh;font-size:clamp(74px,22vw,220px);line-height:.8;letter-spacing:-.08em;font-weight:650;white-space:nowrap;opacity:.9;transform:translate3d(calc((.5 - var(--p))*14vw),0,0);color:#f6f6f3}
-.direction-word span{color:var(--orange)}
-.direction-photo{position:absolute;right:-9vw;top:17%;width:78vw;height:54%;border-radius:28px;overflow:hidden;transform:translate3d(calc((1 - var(--p))*22vw),calc((.5 - var(--p))*7vh),0) rotate(calc((1 - var(--p))*5deg)) scale(calc(.82 + var(--p)*.18));box-shadow:0 30px 110px rgba(0,0,0,.45)}
-.direction-photo img{width:100%;height:100%;object-fit:cover;transform:scale(calc(1.08 + var(--p)*.06));filter:saturate(.72) contrast(1.06)}
-.direction-frame{position:absolute;left:18px;right:18px;top:22%;height:47%;border:1px solid rgba(255,255,255,.22);border-radius:26px;transform:scale(calc(.92 + var(--p)*.08));opacity:calc(.3 + var(--p)*.7)}
-.direction-frame:before{content:"ARC / HOUSE";position:absolute;left:16px;top:14px;font-size:10px;letter-spacing:.14em}.direction-frame:after{content:"A quieter kind of extraordinary.";position:absolute;left:16px;bottom:18px;width:8ch;font-size:clamp(26px,8vw,46px);line-height:.92;letter-spacing:-.05em}
-.direction-dot{position:absolute;width:11px;height:11px;border-radius:50%;background:var(--orange);right:17%;top:15%;box-shadow:0 0 0 calc(var(--p)*38px) rgba(255,106,61,.09);transform:scale(calc(.7 + var(--p)*1.3))}
-#scene-direction .progress{color:var(--orange)}
-
-/* Scene 3 */
-#scene-fit .scene-sticky{background:#ece9e2;color:var(--ink)}
-.fit-stage{position:absolute;inset:0;display:grid;place-items:center;padding:10vh 16px 19vh}
-.desktop-shell{position:absolute;width:min(92vw,980px);aspect-ratio:16/10;background:#16171a;border-radius:18px;padding:7px;box-shadow:0 26px 90px rgba(16,18,25,.2);transform:translate3d(0,calc(var(--p)*-9vh),0) scale(calc(1 - var(--p)*.18));opacity:calc(1 - var(--p)*.55)}
-.desktop-screen{height:100%;border-radius:13px;overflow:hidden;position:relative;background:white}.desktop-screen img{width:100%;height:100%;object-fit:cover}.desktop-screen:after{content:"ARC / HOUSE";position:absolute;left:16px;top:14px;color:white;font-size:10px;letter-spacing:.14em;text-shadow:0 2px 12px rgba(0,0,0,.4)}
-.phone-shell{position:absolute;width:min(56vw,300px);aspect-ratio:9/19;background:#101114;border:1px solid #33363d;border-radius:34px;padding:7px;box-shadow:0 38px 120px rgba(20,24,34,.28);transform:translate3d(calc((1 - var(--p))*34vw),calc((1 - var(--p))*18vh),0) rotate(calc((1 - var(--p))*12deg)) scale(calc(.78 + var(--p)*.22));opacity:calc(.12 + var(--p)*.88);z-index:4}
-.phone-screen{height:100%;border-radius:27px;overflow:hidden;position:relative;background:#f6f4ed}.phone-screen img{width:100%;height:57%;object-fit:cover}.phone-copy{padding:18px 15px}.phone-copy small{font-size:8px;letter-spacing:.13em;text-transform:uppercase;color:#6e7076}.phone-copy h3{margin:8px 0 8px;font-size:26px;line-height:.95;letter-spacing:-.055em}.phone-copy p{font-size:10px;line-height:1.4;color:#64666b;margin:0}.fit-lines{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent 49.8%,rgba(17,18,20,.08) 50%,transparent 50.2%)}
-#scene-fit .progress{color:var(--blue);background:rgba(17,18,20,.12)}
-
-.after{min-height:96svh;background:#111214;color:white;padding:12vh 18px 8vh;display:grid;align-content:space-between}.after .eyebrow{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#9fa4af}.after h2{font-size:clamp(48px,14vw,104px);line-height:.9;letter-spacing:-.07em;margin:16px 0 0;max-width:8ch}.after h2 span{color:#6f8cff}.after-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:54px}.after-card{border-top:1px solid rgba(255,255,255,.18);padding:16px 0}.after-card b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px}.after-card p{margin:0;color:#b9bdc6;font-size:14px;line-height:1.5}.note{font-size:11px;color:#8f939c;margin-top:34px;max-width:38rem;line-height:1.5}
-@media(min-width:760px){.topbar{padding:0 28px}.hero{padding-left:4vw;padding-right:4vw}.hero-bottom{grid-template-columns:1fr auto}.scene-label{left:4vw}.scene-copy{left:4vw;right:auto;bottom:6vh;max-width:44vw}.progress{left:4vw;right:4vw}.brief-stack{inset:15% 42% auto 5%;height:48%}.direction-photo{width:54vw;right:4vw}.direction-frame{left:5vw;right:48vw}.phone-shell{width:min(28vw,320px)}.after{padding-left:4vw;padding-right:4vw}.after-grid{grid-template-columns:repeat(3,1fr);gap:24px}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.scene{height:auto}.scene-sticky{position:relative;top:0;height:84svh}.brief-photo img,.brief-card,.direction-word,.direction-photo,.direction-frame,.direction-dot,.desktop-shell,.phone-shell{transform:none!important}.brief-card,.direction-frame,.direction-photo,.phone-shell,.desktop-shell{opacity:1!important}.progress{display:none}}
-</style>
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="From a first idea to a website of your own. An experimental Website Builder motion study.">
+<title>From idea to experience — Website Builder Motion Lab</title>
+<link rel="icon" href="favicon.svg">
+<link rel="preload" as="image" href="assets/arc-coast-process.webp">
+<link rel="stylesheet" href="motion-lab/style.css">
+<script type="module" src="motion-lab/main.mjs"></script>
 </head>
 <body>
-<header class="topbar"><div class="brand"><span class="mark" aria-hidden="true"></span><span>Website Builder / Motion Lab</span></div><div class="mode">Phone-first proof</div></header>
-<main>
-<section class="hero">
-  <div><div class="hero-kicker">Narrative motion / proof of direction</div><h1>Motion should <em>carry the idea.</em></h1></div>
-  <div class="hero-bottom"><p class="hero-copy">Not more animation. Better choreography. This prototype shows the kind of scroll-directed, scene-to-scene motion the Website Builder should be capable of when the story actually benefits from it.</p><div class="hero-meta"><span>Native scroll</span><span>Mobile adapted</span><span>Reduced motion</span></div></div>
-  <div class="hero-orbit" aria-hidden="true"></div>
+<a class="skip" href="#overview">Skip the animation</a>
+<header class="lab-header">
+<a class="brand" href="#start" aria-label="Website Builder, back to start"><span class="brand-mark" aria-hidden="true">W<span>/</span></span><span>Website<br>Builder</span></a>
+<span class="preview-label">Motion study / 02</span>
+<button class="motion-toggle" type="button" hidden aria-pressed="false">Reduce motion</button>
+</header>
+<main id="main">
+<div class="story" id="start" data-stro-motion-scene="idea-to-experience">
+<div class="stage" data-stro-motion-subject="shared-composition">
+<div class="grid-lines" aria-hidden="true"></div>
+<div class="media" data-stro-motion-subject="persistent-image">
+<div class="browser-bar" aria-hidden="true"><span>● ● ●</span><span>arc.house</span><span>↗</span></div>
+<div class="media-photo"><img src="assets/arc-coast-process.webp" width="1672" height="941" alt="A coastal house extending over the rocky shoreline" fetchpriority="high"><div class="image-shade"></div></div>
+<div class="site-brand" aria-hidden="true"><span>ARC / HOUSE</span><span>Architecture<br>with perspective.</span></div>
+<div class="site-content" aria-hidden="true"><span>RESIDENTIAL ARCHITECTURE</span><strong>Room to<br>live differently.</strong><p>A considered home.<br>A closer connection to the coast.</p><div class="site-rule"></div></div>
+<div class="phone-island" aria-hidden="true"></div>
+</div>
+<div class="curtain curtain-a" aria-hidden="true"></div>
+<div class="curtain curtain-b" aria-hidden="true"></div>
+<div class="opening scene-copy" data-copy="0">
+<p class="eyebrow">A website, from the inside out.</p>
+<h1><span>An idea.</span><span>A world.</span><span><em>Your website.</em></span></h1>
+<div class="opening-bottom"><p>One idea. Carried all the way through.</p><a href="#brief" data-jump="0.23">Scroll to begin <span aria-hidden="true">↓</span></a></div>
+</div>
+<section class="brief scene-copy" data-copy="1" id="brief" aria-labelledby="brief-title">
+<p class="eyebrow">01 / Find the point of view</p>
+<h2 id="brief-title"><span>Start with</span><span>what <em>matters.</em></span></h2>
+<p class="body-copy">A home shaped by its surroundings.<br>A website shaped by the same idea.</p>
+<div class="brief-facts"><div><span>The feeling</span><strong>Space. Light. Perspective.</strong></div><div><span>The purpose</span><strong>Begin a project conversation.</strong></div></div>
 </section>
-
-<section class="scene" id="scene-brief" data-stro-motion-scene="brief-condense">
-  <div class="scene-sticky">
-    <div class="scene-label"><b>01</b><span>The brief condenses</span></div>
-    <div class="brief-photo"><img src="https://raw.githubusercontent.com/dariusstrongman/website-builder/main/assets/arc-coast-process.webp" alt="Coastal architecture concept"></div>
-    <div class="brief-stack" aria-hidden="true"><div class="brief-card"><div class="brief-card-head"><span>Design intelligence</span><span>01 / input</span></div><div class="brief-grid"><div class="brief-chip"><span>Buyer</span><b>People planning a considered home</b></div><div class="brief-chip"><span>Goal</span><b>Turn admiration into a project conversation</b></div><div class="brief-chip"><span>Truth</span><b>No fabricated projects, awards, or outcomes</b></div><div class="brief-chip accent"><span>Signature idea</span><b>Let the architecture carry the first impression</b></div></div></div></div>
-    <div class="scene-copy"><p class="eyebrow">Story beat 01</p><h2>Raw input becomes direction.</h2><p>The page does not simply fade in. The business facts visually gather into the design decision that drives the next scene.</p></div>
-    <div class="progress"><i></i></div>
-  </div>
+<section class="direction scene-copy" data-copy="2" id="direction" aria-labelledby="direction-title">
+<p class="eyebrow">02 / Build the world</p>
+<h2 id="direction-title"><span>Let the idea</span><span>take <em>up space.</em></span></h2>
+<p class="body-copy">A clear point of view.<br>In every image, word and proportion.</p>
 </section>
-
-<section class="scene" id="scene-direction" data-stro-motion-scene="direction-world">
-  <div class="scene-sticky">
-    <div class="scene-label"><b>02</b><span>Direction becomes a world</span></div>
-    <div class="direction-stage" aria-hidden="true"><div class="direction-word">ARC<span>/</span></div><div class="direction-photo"><img src="https://raw.githubusercontent.com/dariusstrongman/website-builder/main/assets/arc-house.webp" alt=""></div><div class="direction-frame"></div><div class="direction-dot"></div></div>
-    <div class="scene-copy"><p class="eyebrow">Story beat 02</p><h2>Composition changes with the idea.</h2><p>Type, image, depth, and framing move as one system. The scene inherits momentum from the brief instead of resetting into another card section.</p></div>
-    <div class="progress"><i></i></div>
-  </div>
+<section class="fit scene-copy" data-copy="3" id="fit" aria-labelledby="fit-title">
+<p class="eyebrow">03 / Make it belong</p>
+<h2 id="fit-title"><span>Different screen.</span><span><em>Same character.</em></span></h2>
+<p class="body-copy">The composition changes.<br>The idea stays with you.</p>
+<span class="device-caption" aria-hidden="true">A new perspective</span>
 </section>
-
-<section class="scene" id="scene-fit" data-stro-motion-scene="device-recompose">
-  <div class="scene-sticky">
-    <div class="scene-label"><b>03</b><span>The experience recomposes</span></div>
-    <div class="fit-stage" aria-hidden="true"><div class="fit-lines"></div><div class="desktop-shell"><div class="desktop-screen"><img src="https://raw.githubusercontent.com/dariusstrongman/website-builder/main/assets/arc-coast-process.webp" alt=""></div></div><div class="phone-shell"><div class="phone-screen"><img src="https://raw.githubusercontent.com/dariusstrongman/website-builder/main/assets/arc-house.webp" alt=""><div class="phone-copy"><small>Residential architecture</small><h3>Made for the way you actually live.</h3><p>The same identity, recomposed for a smaller field of view.</p></div></div></div></div>
-    <div class="scene-copy"><p class="eyebrow">Story beat 03</p><h2>Mobile is a new composition.</h2><p>The desktop experience gives way to a phone layout without losing the visual story. That adaptation is part of the choreography, not a breakpoint afterthought.</p></div>
-    <div class="progress"><i></i></div>
-  </div>
+<div class="stage-bottom" aria-hidden="true"><span class="stage-label">THE FIRST IDEA</span><span class="stage-count">00 — 03</span></div>
+<div class="scroll-progress" aria-hidden="true"><i></i></div>
+</div>
+</div>
+<section class="outro" id="overview" tabindex="-1">
+<p class="eyebrow">Website Builder / Experimental preview</p>
+<h2>One idea.<br><em>All the way through.</em></h2>
+<div class="outro-bottom"><p>Architecture imagery and ARC / HOUSE are concept material.</p><a href="#start">Back to the beginning <span aria-hidden="true">↑</span></a></div>
 </section>
-
-<section class="after"><div><div class="eyebrow">What the builder stage should enforce</div><h2>Premium motion is <span>art direction.</span></h2></div><div><div class="after-grid"><div class="after-card"><b>Continuity</b><p>Each scene inherits a subject, rhythm, or spatial idea from the last instead of starting from zero.</p></div><div class="after-card"><b>Purpose</b><p>Motion clarifies the product or story. If stillness communicates better, stillness wins.</p></div><div class="after-card"><b>Device craft</b><p>Desktop, phone, and reduced-motion states are intentionally composed and reviewed as separate experiences.</p></div></div><p class="note">This is an experimental visual proof for the new Website Builder motion contract. It is not a claim that every customer site should look or move like this.</p></div></section>
 </main>
-<script>
-(()=>{
-  const reduce=matchMedia('(prefers-reduced-motion: reduce)');
-  const scenes=[...document.querySelectorAll('.scene')];
-  let ticking=false;
-  const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
-  function render(){
-    ticking=false;
-    if(reduce.matches){scenes.forEach(s=>s.style.setProperty('--p',1));return}
-    const vh=innerHeight;
-    for(const scene of scenes){
-      const r=scene.getBoundingClientRect();
-      const travel=Math.max(1,r.height-vh);
-      const p=clamp((-r.top)/travel);
-      scene.style.setProperty('--p',p.toFixed(4));
-    }
-  }
-  function onScroll(){if(!ticking){ticking=true;requestAnimationFrame(render)}}
-  addEventListener('scroll',onScroll,{passive:true});
-  addEventListener('resize',onScroll,{passive:true});
-  reduce.addEventListener?.('change',render);
-  render();
-})();
-</script>
 </body>
 </html>
