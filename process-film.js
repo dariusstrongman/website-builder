@@ -10,6 +10,20 @@
   const preview = document.getElementById('arc-preview');
   const notes = [...film.querySelectorAll('[data-note]')];
   const chapters = [...film.querySelectorAll('[data-chapter]')];
+  film.querySelectorAll('.film-note h2 br').forEach(br=>br.after(document.createTextNode(' ')));
+  const initialHeadline = document.getElementById('arc-headline');
+  initialHeadline.querySelector('br')?.after(document.createTextNode(' '));
+  const sampleNav = preview.querySelector('.arc-nav');
+  const menuButton = document.createElement('button');
+  menuButton.className = 'arc-mobile-menu';
+  menuButton.textContent = 'Menu +';
+  menuButton.setAttribute('aria-expanded','false');
+  sampleNav.querySelector('nav').id = 'arc-mobile-navigation';
+  menuButton.setAttribute('aria-controls','arc-mobile-navigation');
+  sampleNav.insertBefore(menuButton,sampleNav.querySelector('nav'));
+  function closeMenu(){sampleNav.dataset.menuOpen='false';menuButton.setAttribute('aria-expanded','false');menuButton.textContent='Menu +';}
+  menuButton.addEventListener('click',()=>{const open=sampleNav.dataset.menuOpen!=='true';sampleNav.dataset.menuOpen=String(open);menuButton.setAttribute('aria-expanded',String(open));menuButton.textContent=open?'Close −':'Menu +';});
+  sampleNav.addEventListener('keydown',event=>{if(event.key==='Escape'){closeMenu();menuButton.focus();}});
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   let chapter = 0;
@@ -117,6 +131,7 @@
 
   function setPage(page) {
     if (!['home','work','studio','contact'].includes(page)) return;
+    closeMenu();
     preview.dataset.page = page;
     film.querySelectorAll('[data-preview-page]').forEach(panel => {
       panel.hidden = panel.dataset.previewPage !== page;
@@ -131,6 +146,7 @@
 
   function setDevice(device) {
     if (!['desktop','mobile'].includes(device)) return;
+    closeMenu();
     browser.dataset.device = device;
     document.getElementById('film-size-label').textContent = device === 'mobile' ? 'Mobile' : 'Desktop';
     film.querySelectorAll('[data-device]').forEach(button => {
@@ -233,7 +249,7 @@
     headline.append(
       document.createTextNode(revised ? 'Coastal homes.' : 'A quieter'),
       document.createElement('br'),
-      document.createTextNode(revised ? 'Considered for life.' : 'kind of extraordinary.')
+      document.createTextNode(revised ? ' Considered for life.' : ' kind of extraordinary.')
     );
     const button = document.getElementById('apply-revision');
     button.textContent = revised ? 'Compare with original ↗' : 'Apply this revision ↗';

@@ -82,3 +82,32 @@
 @media(max-width:760px){.film-pin{padding:22px 18px 0}.film-topline{font-size:10px;gap:12px;flex-wrap:wrap}.film-topline a{display:none}.film-heading{display:block;padding:24px 0}.premium-site .film-heading h1{font-size:35px}.film-heading>p{max-width:440px;margin:16px 0 0;font-size:14px}.film-workspace{display:flex;flex-direction:column;gap:22px;min-height:0}.film-notes{padding:0;align-self:stretch;min-height:0}.film-index{margin:0 0 12px}.premium-site .film-note h2{font-size:27px;margin:0 0 12px}.film-note h2 br{display:none}.film-note>p{margin-bottom:16px;max-width:580px}.film-note dl{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0}.film-note dl>div:last-child{grid-column:1/-1}.film-note dd{font-size:13px}.film-hint{display:none}.film-direction-controls{grid-template-columns:1fr;gap:6px}.film-direction-controls button{padding:11px 13px}.film-direction-controls button span{display:inline;margin-left:8px;font-size:11px}.film-direction-controls button b{display:inline;font-size:12px}.film-page-controls,.film-device-controls{margin:10px 0}.film-note .film-small{margin:12px 0 0}.film-canvas{height:540px;padding-bottom:23px}.film-browser{height:100%;min-height:0;max-height:none}.film-browser-bar{font-size:8px;padding:0 12px}.film-chapters{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:22px}.film-chapters button{flex-direction:column;align-items:start;gap:6px;font-size:10px;line-height:1.3;padding:15px 0}.film-chapters button span{font-size:10px}.film-canvas-caption{font-size:9px}.process-summary{grid-template-columns:1fr;gap:32px;padding:65px 22px}.premium-site .process-summary h2{font-size:34px}.process-summary li{gap:12px}.film-next-link{margin-top:12px}}
 @media(max-width:760px){.film-pin{display:flex;flex-direction:column}.film-topline{order:0}.film-heading{order:1}.film-chapters{order:2;position:sticky;top:84px;z-index:10;background:#f7f8fc;margin:0 0 22px;padding:0;border-bottom:1px solid #dce0eb}.film-workspace{order:3}.film-chapters button{min-height:56px}.film-canvas{margin-bottom:28px}}
 @media(prefers-reduced-motion:reduce){.film-browser,.is-enhanced .arc-home-copy,.is-enhanced .arc-nav{transition:none}.build-film{height:auto!important}.film-pin{position:relative!important;height:auto!important}.film-workspace{min-height:560px}.film-canvas{min-height:530px}}
+
+/* The film owns scrolling; preview pages have no visible nested scrollbars. */
+.arc-preview{scrollbar-width:none;container-type:size}
+.arc-preview::-webkit-scrollbar{display:none;width:0;height:0}
+.arc-preview[data-page=home]{overflow:hidden}
+.build-film.is-enhanced .arc-preview .arc-home{min-height:0;height:calc(100% - 58px)}
+.build-film.is-enhanced .arc-preview[data-direction=panorama] .arc-home{min-height:0;height:100%}
+.arc-home-copy{min-height:0;height:100%;padding:clamp(18px,5cqh,42px);padding-bottom:48px}
+.premium-site .arc-home-copy h2{font-size:clamp(28px,min(6.3cqw,12cqh),76px);margin:12px 0}
+.arc-home-copy .arc-action{margin-bottom:8px}
+.arc-mobile-menu{display:none}
+/* A phone gets a photo-led opening followed by a separate reading surface. */
+.film-browser[data-device=mobile] .arc-nav{position:relative;inset:auto;height:44px;padding:0 18px;background:#f8f8f5;color:#1a2326}
+.film-browser[data-device=mobile] .arc-mobile-menu{display:block;font-size:12px}
+.film-browser[data-device=mobile] .arc-nav nav{display:none;position:absolute;top:44px;left:0;right:0;background:#f8f8f5;padding:12px 18px;border-bottom:1px solid #d2d8d8;justify-content:space-between}
+.film-browser[data-device=mobile] .arc-nav[data-menu-open=true] nav{display:flex}
+.build-film.is-enhanced .film-browser[data-device=mobile] .arc-preview .arc-home{display:grid;grid-template-rows:minmax(60px,.9fr) minmax(0,1.1fr) auto;height:calc(100% - 44px);min-height:0;padding:0;gap:0;background:#f8f8f5}
+.film-browser[data-device=mobile] .arc-home:after{display:none}
+.film-browser[data-device=mobile] .arc-preview .arc-hero-photo{position:relative;inset:auto;grid-column:1;grid-row:1;min-height:0;height:100%;width:100%;object-position:72% 55%;z-index:0}
+.film-browser[data-device=mobile] .arc-preview .arc-home-copy{grid-column:1;grid-row:2;display:flex;justify-content:center;align-items:start;min-height:0;height:auto;padding:12px 20px;color:#1a2326}
+.premium-site .film-browser[data-device=mobile] .arc-home-copy h2{font-family:Georgia,serif;font-weight:400;font-size:clamp(24px,min(9cqw,8cqh),36px);line-height:1.02;max-width:100%;margin:8px 0;letter-spacing:-.045em;text-wrap:balance}
+.film-browser[data-device=mobile] .arc-home-copy h2 br{display:none}
+.film-browser[data-device=mobile] .arc-home-copy p{display:block;font-size:12px;line-height:1.5;margin:0 0 5px;max-width:100%}
+.film-browser[data-device=mobile] .arc-overline{font-size:8px;letter-spacing:.1em}
+.film-browser[data-device=mobile] .arc-home-copy .arc-action{display:flex;font-size:11px;min-height:32px;padding:6px 0;margin:0;gap:25px}
+.film-browser[data-device=mobile] .arc-preview .arc-photo-caption{position:static;grid-column:1;grid-row:3;padding:7px 20px;display:block;background:#f8f8f5;color:#53606a;border-top:1px solid #d2d8d8;font-size:8px}
+.film-browser[data-device=mobile] .arc-photo-caption span:last-child{display:none}
+
+.film-notes{scrollbar-width:none}.film-notes::-webkit-scrollbar{display:none}
