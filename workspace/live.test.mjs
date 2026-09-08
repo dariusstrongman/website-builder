@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {safePreviewURL,normalizeProject,createProjectMonitor} from './live.mjs';
+import {safePreviewURL,normalizeProject,createProjectMonitor,renderDraftPreviews} from './live.mjs';
 const project=(extra={})=>({ok:true,stage:'research',message:'Reviewing the existing website',...extra});
 const response=(data,status=200)=>({ok:status<400,status,json:async()=>data});
 function harness(fetcher,extra={}){
@@ -45,4 +45,13 @@ test('selection requires an available real choice and sends only scoped action',
 test('cleanup aborts pending transport and never publishes a late response',async()=>{
  let release,signal;const h=harness(async(url,options)=>{signal=options.signal;await new Promise(resolve=>release=resolve);return response(project());});
  const pending=h.monitor.start();h.monitor.stop();assert.equal(signal.aborted,true);release();await pending;assert.equal(h.updates.length,0);assert.equal(h.timers.size,0);
+});
+test('real draft screenshots are labeled pending and never become selectable choices',async()=>{
+ const data=normalizeProject(project({draft_previews:[{direction_id:'draft-a',name:'<script>bad</script>',caption:'Not approved',featured_previews:[{viewport:'desktop',url:'https://preview.example/draft.png'}]},{direction_id:'unsafe',featured_previews:[{url:'javascript:alert(1)'}]}],can_select:true}));
+ assert.equal(data.draft_previews.length,1);assert.deepEqual(data.choices,[]);
+ const html=renderDraftPreviews(data.draft_previews);assert.match(html,/Work in progress — review pending/);assert.match(html,/&lt;script&gt;/);assert.doesNotMatch(html,/<script>|data-live-select|<button/);
+ const h=harness(async()=>response(data));await h.monitor.start();assert.equal(await h.monitor.select('draft-a'),false);h.monitor.stop();
+});
+test('expired access instructions do not send the customer back to the same expired link',async()=>{
+ const h=harness(async()=>response({},401));await h.monitor.start();assert.match(h.errors[0].message,/fresh project access link/);assert.doesNotMatch(h.errors[0].message,/Reopen your saved/);h.monitor.stop();
 });

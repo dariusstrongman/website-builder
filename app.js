@@ -219,6 +219,10 @@ document.getElementById('restart')?.addEventListener('click',setProjectMode);
 setProjectMode();
 
 let liveWorkspaceCleanup;
+document.addEventListener('project-access-expired-reset',async()=>{
+  const {clearSession}=await import('./workspace/session.mjs');
+  liveWorkspaceCleanup?.();clearSession();location.reload();
+});
 async function openLiveWorkspace(session){
   const panel=document.getElementById('order-panel');if(!panel)return;
   const {mountLiveProject}=await import('./workspace/live.mjs');
