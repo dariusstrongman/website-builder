@@ -148,6 +148,11 @@
     if (!['desktop','mobile'].includes(device)) return;
     closeMenu();
     browser.dataset.device = device;
+    workspace.dataset.previewDevice = device;
+    const fitNote = notes[3];
+    fitNote.querySelector('h2').textContent = device === 'mobile' ? 'Made for the way you move.' : 'Room to see the whole picture.';
+    fitNote.querySelector('h2 + p').textContent = device === 'mobile' ? 'A closer view. The image leads, the story follows, and the next step sits within reach.' : 'A wide canvas gives the architecture room to speak, with the story and navigation in view.';
+    fitNote.querySelector('.film-small').textContent = device === 'mobile' ? 'Compact navigation. Clearer reading. A layout built for a smaller screen.' : 'Switch to mobile and watch this entire scene find a new balance.';
     document.getElementById('film-size-label').textContent = device === 'mobile' ? 'Mobile' : 'Desktop';
     film.querySelectorAll('[data-device]').forEach(button => {
       if (button.tagName === 'BUTTON') button.setAttribute('aria-pressed', String(button.dataset.device === device));

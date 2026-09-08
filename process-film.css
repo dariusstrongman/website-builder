@@ -111,3 +111,11 @@
 .film-browser[data-device=mobile] .arc-photo-caption span:last-child{display:none}
 
 .film-notes{scrollbar-width:none}.film-notes::-webkit-scrollbar{display:none}
+
+/* The explanation and device compose one scene, including during a resize. */
+@media(min-width:761px){
+ .film-workspace{width:100%;margin-inline:auto;transition:width .75s cubic-bezier(.76,0,.24,1),grid-template-columns .75s cubic-bezier(.76,0,.24,1)}
+ .film-workspace[data-film-step="3"][data-preview-device=mobile]{width:min(100%,840px);grid-template-columns:minmax(230px,1fr) minmax(0,1fr)}
+ .film-workspace[data-film-step="3"] .film-notes{max-width:350px}
+}
+@media(prefers-reduced-motion:reduce){.film-workspace{transition:none}}
