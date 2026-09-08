@@ -61,3 +61,12 @@ The earlier short-viewport fallback was wrong for a motion preview. It disabled 
 - Resize only remeasures geometry; it cannot disable motion or reset scroll.
 - Added entry-module event/layout regression tests, including 390×580, 844×390, 320×568, OS preference override, and crossing the old 620px threshold. Eleven tests pass; running the six new tests against the prior commit reproduces five failures.
 - Browser-checked the active sequence at 390×580, including the brief and final phone composition, plus the landscape layout. No physical-device claim is made.
+
+
+## Gesture-driven playback — revised to match the requested interaction
+
+The prior revision intentionally retained scroll scrubbing; user feedback clarified that this was the wrong input model. A small wheel gesture or vertical swipe now requests the entire next transition, which finishes in roughly 1.3–1.5 seconds even when input stops. Stops are 0%, 24%, 56%, and 100%. An upward gesture completes the previous transition.
+
+The choreography still uses native page position underneath, but a bounded animation advances it automatically. Trackpad inertia is consumed until the triggering gesture goes quiet, preventing accidental multi-chapter jumps. A claimed touch swipe can request only one scene; a fresh swipe is required for the next. PageDown/ArrowDown/Space and reverse keys work too; Escape cancels. Browser zoom, form controls, links, reduced-motion reading, and normal page scrolling outside the story retain their normal behavior. At the last stop, scrolling continues into the footer.
+
+Verified a small browser wheel input moving from 0% to a settled 24% with no further input. Automated navigation tests cover completion, momentum, reverse, exit, cancellation, and complete forward/backward traversal; the entry-module fixture also exercises touch claiming and full completion. This is not physical iOS device verification.

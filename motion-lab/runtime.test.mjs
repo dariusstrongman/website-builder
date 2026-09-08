@@ -4,14 +4,15 @@ import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
 import {composition,progressFor,clamp,cue} from './timeline.mjs';
+import {createSceneNavigator} from './navigation.mjs';
 
 // Run the actual entry module against a minimal layout/event fixture. This catches
 // mode gating and resize regressions that pure interpolation tests cannot see.
 const source=(process.env.MOTION_TEST_BASELINE
  ?execFileSync('git',['show','7cbc2ea125b8879f98000b1cc2d3d056a264db5d:motion-lab/main.mjs'],{encoding:'utf8'})
- :readFileSync(new URL('./main.mjs',import.meta.url),'utf8')).replace(/^import[^\n]+\n/,'');
+ :readFileSync(new URL('./main.mjs',import.meta.url),'utf8')).replace(/^import[^\n]+\n/gm,'');
 function page(width,height,osReduced=false){
- const events={},queries={},queue=new Map();let id=0;
+ const events={},queries={},queue=new Map();let id=0,time=0;
  class Element{
   constructor(){this.style={};this.attrs={};this.events={};this.inert=false;this.classes=new Set();this.classList={toggle:(c,on)=>on?this.classes.add(c):this.classes.delete(c),remove:c=>this.classes.delete(c),contains:c=>this.classes.has(c)};this.dataset={};this.disabled=false}
   addEventListener(n,fn){this.events[n]=fn}setAttribute(k,v){this.attrs[k]=v}removeAttribute(k){delete this.attrs[k];if(k==='style')this.style={}}querySelectorAll(){return []}
@@ -19,12 +20,12 @@ function page(width,height,osReduced=false){
  }
  const el=s=>queries[s]??(queries[s]=new Element());const copies=Array.from({length:4},()=>new Element());
  const reduced={matches:osReduced,addEventListener:(n,fn)=>events.os=fn};
- const ctx=vm.createContext({composition,progressFor,clamp,cue,innerWidth:width,innerHeight:height,scrollY:0,
+ const ctx=vm.createContext({composition,progressFor,clamp,cue,createSceneNavigator,performance:{now:()=>time},innerWidth:width,innerHeight:height,scrollY:0,
  document:{body:el('body'),querySelector:el,querySelectorAll:s=>s==='[data-copy]'?copies:[],addEventListener:(n,fn)=>events[n]=fn,hidden:false},
  matchMedia:q=>q.includes('prefers-reduced')?reduced:{get matches(){return ctx.innerWidth<=700}},
  addEventListener:(n,fn)=>events[n]=fn,requestAnimationFrame:fn=>{queue.set(++id,fn);return id},cancelAnimationFrame:i=>queue.delete(i),scrollTo:arg=>{ctx.scrollY=arg.top}
  });
- function flush(){const f=[...queue.values()];queue.clear();f.forEach(fn=>fn())}
+ function flush(){time+=16;const f=[...queue.values()];queue.clear();f.forEach(fn=>fn())}
  vm.runInContext(source,ctx);flush();
  return {ctx,events,el,copies,reduced,flush,scroll(y){ctx.scrollY=y;events.scroll();flush()},click(){el('.motion-toggle').events.click();flush()}};
 }
@@ -48,4 +49,19 @@ test('OS reduction is the default, but the visitor can explicitly preview motion
  assert.ok(Number(p.el('.stage').dataset.progress)>0);
  p.click();assert.equal(p.el('body').classList.contains('animated'),false);
  assert.ok(p.copies.every(e=>!e.inert&&!e.attrs['aria-hidden']));
+});
+
+
+test('a single touch swipe completes one scene and consumes the remainder of that swipe',()=>{
+ const p=page(390,580);let prevented=0;
+ p.events.touchstart({touches:[{clientX:150,clientY:300}]});
+ p.events.touchmove({touches:[{clientX:150,clientY:295}],preventDefault(){prevented++}});
+ assert.equal(prevented,1);
+ p.events.touchmove({touches:[{clientX:150,clientY:275}],preventDefault(){prevented++}});
+ for(let i=0;i<130;i++)p.flush();
+ assert.equal(p.el('.stage').dataset.progress,'0.24000');
+ p.events.touchmove({touches:[{clientX:150,clientY:200}],preventDefault(){prevented++}});
+ for(let i=0;i<130;i++)p.flush();
+ assert.equal(p.el('.stage').dataset.progress,'0.24000');assert.equal(prevented,3);
+ p.events.touchend();
 });

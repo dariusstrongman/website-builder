@@ -1,4 +1,5 @@
 import {composition,progressFor,clamp,cue} from './timeline.mjs';
+import {createSceneNavigator} from './navigation.mjs';
 const $=s=>document.querySelector(s);
 const story=$('.story'),stage=$('.stage'),media=$('.media'),photo=$('.media-photo'),img=$('.media-photo img');
 const header=$('.lab-header'),shade=$('.image-shade'),bar=$('.browser-bar'),brand=$('.site-brand'),content=$('.site-content'),island=$('.phone-island');
@@ -7,6 +8,12 @@ const reduced=matchMedia('(prefers-reduced-motion: reduce)'),narrow=matchMedia('
 const button=$('.motion-toggle');
 let userMotion=null,enabled=false,frame=0,metrics={};
 const labels=['THE FIRST IDEA','01 / POINT OF VIEW','02 / THE WORLD','03 / EVERY SCREEN'];
+const navigation=createSceneNavigator({
+  getProgress:()=>progressFor(scrollY,metrics.top,metrics.track,metrics.h),
+  seek:p=>{scrollTo({top:metrics.top+p*(metrics.track-metrics.h),behavior:'instant'});schedule()},
+  isEnabled:()=>enabled&&scrollY>=metrics.top-2&&scrollY<=metrics.top+metrics.track-metrics.h+2,
+  now:()=>performance.now(),requestFrame:fn=>requestAnimationFrame(fn),cancelFrame:id=>cancelAnimationFrame(id)
+});
 function measure(){
   if(!enabled)return;
   const r=story.getBoundingClientRect();
@@ -51,6 +58,7 @@ function draw(){
 }
 function schedule(){if(enabled&&!frame)frame=requestAnimationFrame(draw)}
 function mode(){
+  navigation.cancel();
   const oldY=scrollY,oldTop=story.getBoundingClientRect().top+scrollY;
   // Viewport size changes composition, never whether the demo runs.
   // null follows the OS; an explicit button choice can preview either mode.
@@ -76,6 +84,38 @@ addEventListener('pageshow',measure);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)measure()});
 document.querySelectorAll('[data-jump]').forEach(a=>a.addEventListener('click',e=>{
   if(!enabled)return;e.preventDefault();
-  scrollTo({top:metrics.top+Number(a.dataset.jump)*(metrics.track-metrics.h),behavior:'smooth'});
+  navigation.goTo(Number(a.dataset.jump));
 }));
+
+// Only claim vertical scene navigation; preserve browser zoom, controls, and
+// ordinary document scrolling above/below the pinned story.
+const interactive=target=>target?.closest?.('a,button,input,textarea,select,[contenteditable="true"]');
+addEventListener('wheel',e=>{
+  if(e.ctrlKey||e.metaKey||Math.abs(e.deltaX)>Math.abs(e.deltaY)||interactive(e.target))return;
+  const pixels=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?metrics.h:1);
+  if(navigation.wheel(pixels))e.preventDefault();
+},{passive:false});
+addEventListener('keydown',e=>{
+  if(e.ctrlKey||e.metaKey||e.altKey||interactive(e.target))return;
+  const direction=['ArrowDown','PageDown',' '].includes(e.key)?(e.shiftKey?-1:1):['ArrowUp','PageUp'].includes(e.key)?-1:0;
+  if(e.key==='Escape'){navigation.cancel();return}
+  if(direction&&navigation.step(direction))e.preventDefault();
+});
+let touch=null;
+addEventListener('touchstart',e=>{
+  touch=e.touches.length===1&&!interactive(e.target)?{x:e.touches[0].clientX,y:e.touches[0].clientY,claimed:false}:null;
+},{passive:true});
+addEventListener('touchmove',e=>{
+  if(!touch||e.touches.length!==1){touch=null;return}
+  if(touch.claimed){e.preventDefault();return}
+  const dx=e.touches[0].clientX-touch.x,dy=touch.y-e.touches[0].clientY;
+  if(Math.abs(dx)>Math.abs(dy))return;
+  if(Math.abs(dy)>2&&Math.abs(dy)<18&&navigation.canStep(Math.sign(dy))){e.preventDefault();return}
+  if(Math.abs(dy)>=18&&navigation.step(Math.sign(dy))){touch.claimed=true;e.preventDefault()}
+},{passive:false});
+addEventListener('touchend',()=>{touch=null},{passive:true});
+addEventListener('touchcancel',()=>{touch=null},{passive:true});
+// Explicit document jumps and tab suspension end an in-flight transition.
+addEventListener('hashchange',()=>navigation.cancel());
+document.addEventListener('visibilitychange',()=>{if(document.hidden)navigation.cancel()});
 mode();
