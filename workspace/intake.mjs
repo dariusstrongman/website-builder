@@ -26,7 +26,7 @@ export function encodedReferenceNotes(brief){
   const current=normalizeWebsiteURL(brief.current_website_url);
   notes=`Project: improve an existing website\nCurrent website: ${current.url}\nWhat should work better: ${text(brief.change_notes)}\nKeep: ${text(brief.keep_notes)||'Not specified — confirm during scope review.'}\n${notes?`Additional preferences: ${notes}\n`:''}Missing business facts must be established by reviewing the current website and confirmed if unclear. Any request label or "Not provided"/"Not specified" fields are intake placeholders, not verified customer facts. Do not invent the brand, offer, audience or visitor action.`;
  }
- if(notes.length>4000)throw Error('Your website URL, keep/change notes and design preferences together exceed 4,000 characters. Please shorten them; nothing has been sent.');
+ if(notes.length>2000)throw Error('Your website URL, keep/change notes and design preferences together exceed 2,000 characters. Please shorten them; nothing has been sent.');
  return notes;
 }
 export function briefPayload(brief,{source='website-builder/project.html'}={}){

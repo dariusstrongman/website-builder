@@ -29,12 +29,12 @@ test('existing payload carries exact keep/change instructions inside canonical r
  assert.equal(p.project_mode,undefined);assert.deepEqual(b,original);
  assert.ok(briefPayload({...b,keep_notes:''}).reference_notes.includes('Not specified'));
 });
-test('combined 4000 character boundary rejects rather than truncates',()=>{
+test('combined 2000 character boundary rejects rather than truncates',()=>{
  const b={...base,project_mode:'existing',current_website_url:'example.com',keep_notes:'Keep identity',change_notes:'Improve mobile',reference_notes:''};
  const overhead=encodedReferenceNotes({...b,reference_notes:'x'}).length-1;
- assert.equal(encodedReferenceNotes({...b,reference_notes:'x'.repeat(4000-overhead)}).length,4000);
- assert.throws(()=>briefPayload({...b,reference_notes:'x'.repeat(4001-overhead)}),/4,000/);
- assert.throws(()=>briefPayload({...base,reference_notes:'x'.repeat(4001)}),/4,000/);
+ assert.equal(encodedReferenceNotes({...b,reference_notes:'x'.repeat(2000-overhead)}).length,2000);
+ assert.throws(()=>briefPayload({...b,reference_notes:'x'.repeat(2001-overhead)}),/2,000/);
+ assert.throws(()=>briefPayload({...base,reference_notes:'x'.repeat(2001)}),/2,000/);
 });
 test('fresh real briefs default to improve existing while sample and saved new choices stay new',()=>{
  assert.equal(fresh().brief.project_mode,'existing');assert.equal(fresh(true).brief.project_mode,'new');

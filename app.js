@@ -173,7 +173,7 @@ orderForm?.addEventListener('submit',async event=>{
       button.disabled=false;
     }
   }catch(error){
-    orderStatus.textContent='Could not reach us just now. Nothing was sent.';
+    orderStatus.textContent='We could not confirm receipt. Your request may have arrived; retrying will not create a second open brief for this website.';
     button.disabled=false;
   }
 });
