@@ -5,7 +5,7 @@ const header=$('.lab-header'),shade=$('.image-shade'),bar=$('.browser-bar'),bran
 const copies=[...document.querySelectorAll('[data-copy]')],bottom=$('.stage-bottom'),progress=$('.scroll-progress i');
 const reduced=matchMedia('(prefers-reduced-motion: reduce)'),narrow=matchMedia('(max-width:700px)');
 const button=$('.motion-toggle');
-let manualReduce=false,enabled=false,frame=0,metrics={};
+let userMotion=null,enabled=false,frame=0,metrics={};
 const labels=['THE FIRST IDEA','01 / POINT OF VIEW','02 / THE WORLD','03 / EVERY SCREEN'];
 function measure(){
   if(!enabled)return;
@@ -52,11 +52,13 @@ function draw(){
 function schedule(){if(enabled&&!frame)frame=requestAnimationFrame(draw)}
 function mode(){
   const oldY=scrollY,oldTop=story.getBoundingClientRect().top+scrollY;
-  const compact=innerHeight<620||innerWidth<350;
-  enabled=!(reduced.matches||manualReduce||compact);
+  // Viewport size changes composition, never whether the demo runs.
+  // null follows the OS; an explicit button choice can preview either mode.
+  enabled=userMotion ?? !reduced.matches;
   document.body.classList.toggle('animated',enabled);
-  button.hidden=false;button.disabled=reduced.matches||compact;
-  button.textContent=reduced.matches?'Reduced motion':compact?'Reading layout':manualReduce?'Enable motion':'Reduce motion';
+  button.hidden=false;button.disabled=false;
+  button.textContent=enabled?'Pause motion':'Enable motion';
+  button.title=!enabled&&reduced.matches?'Your device prefers reduced motion. Enable it here to preview the animation.':'';
   button.setAttribute('aria-pressed',String(!enabled));
   if(!enabled){
     cancelAnimationFrame(frame);frame=0;
@@ -66,14 +68,9 @@ function mode(){
     if(oldY>oldTop)scrollTo({top:oldTop,behavior:'instant'});
   }else measure();
 }
-button.addEventListener('click',()=>{manualReduce=!manualReduce;mode()});
+button.addEventListener('click',()=>{userMotion=!enabled;mode()});
 addEventListener('scroll',schedule,{passive:true});
-let lastWidth=innerWidth,lastShort=innerHeight<620;
-addEventListener('resize',()=>{
-  const short=innerHeight<620;
-  if(lastWidth!==innerWidth||lastShort!==short){lastWidth=innerWidth;lastShort=short;mode()}
-  else measure();
-},{passive:true});
+addEventListener('resize',measure,{passive:true});
 reduced.addEventListener('change',mode);
 addEventListener('pageshow',measure);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)measure()});

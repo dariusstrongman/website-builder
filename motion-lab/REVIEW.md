@@ -50,3 +50,14 @@ Progress is relative to the actual sticky travel, not the document height.
 - Browser review: 390×844 and 375×667 portrait layouts, 1440×900 desktop, image continuity, colored-plane handoff, compact-phone copy boundaries, reduced-motion toggle and accessible chapter restoration. Desktop full-world composition and reverse return to the brief also reviewed. A short 844×390 viewport restores every chapter in document flow without horizontal overflow.
 - No console warnings/errors observed during the reviewed local sequence. Image loads from the local branch, not GitHub main.
 - Browser size simulation is not physical iOS Safari testing. OS-level reduced-motion is wired to the same fallback exercised by the control, but was not separately emulated. These technical checks do not establish aesthetic equivalence to Maman or a numeric design score.
+
+
+## Motion-disabled regression — corrected after user feedback
+
+The earlier short-viewport fallback was wrong for a motion preview. It disabled every animation at heights below 620 CSS pixels or widths below 350 pixels, disabled the enable control, and could reset scroll when browser chrome crossed that threshold. The earlier review incorrectly accepted that behavior. This is a confirmed implementation flaw; the user's exact viewport/OS preference has not been observed.
+
+- Removed dimension-based motion gating. Compact layouts now retain the timeline and simplify secondary text to fit.
+- OS reduced-motion remains the default, with an enabled, explicit `Enable motion` control for visitors who want to preview it. `Pause motion` returns to the reading layout.
+- Resize only remeasures geometry; it cannot disable motion or reset scroll.
+- Added entry-module event/layout regression tests, including 390×580, 844×390, 320×568, OS preference override, and crossing the old 620px threshold. Eleven tests pass; running the six new tests against the prior commit reproduces five failures.
+- Browser-checked the active sequence at 390×580, including the brief and final phone composition, plus the landscape layout. No physical-device claim is made.
