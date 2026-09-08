@@ -134,7 +134,7 @@ orderForm?.addEventListener('submit',async event=>{
   event.preventDefault();
   const button=document.getElementById('order-submit');
   const business=document.getElementById('business')?.value.trim()||'';
-  if(!business){orderStatus.textContent='Add your business name in step 1 first.';show('brief');return;}
+  if(!business&&document.getElementById('project-mode')?.value!=='existing'){orderStatus.textContent='Add your business name in step 1 first.';show('brief');return;}
   let payload={
     mode:'paid',
     business_name:business,
@@ -183,6 +183,15 @@ function setProjectMode(){
   const existing=document.getElementById('project-mode')?.value==='existing';
   const fields=document.getElementById('existing-site-fields');
   if(!fields)return;fields.hidden=!existing;fields.disabled=!existing;
+  const toggleField=(id,container)=>{const input=document.getElementById(id);if(!input)return;const group=container?input.closest(container):input.closest('label');group.hidden=existing;group.querySelectorAll('input,textarea,select').forEach(item=>item.disabled=existing);};
+  toggleField('business','.field-grid');toggleField('goal');toggleField('avoid');
+  const feelings=document.getElementById('feelings').closest('fieldset');feelings.hidden=existing;feelings.disabled=existing;
+  toggleField('order-buyer','.field-grid');toggleField('order-action');toggleField('order-notes');
+  const domain=document.getElementById('order-domain');domain.closest('label').hidden=existing;domain.disabled=existing;
+  const summary=document.getElementById('redesign-summary');if(summary)summary.hidden=!existing;
+  document.querySelector('#order-form h3').textContent=existing?'Where should we send the next step?':'The facts we cannot guess.';
+  document.querySelector('#order-form .form-heading + p').textContent=existing?'We’ll review your current website and the changes you requested. We’ll ask only about details we can’t establish from the site.':'These specifics go into your brief for scope review.';
+
   document.getElementById('brief-continue').textContent=existing?'Continue with this website →':'Explore sample directions →';
   document.getElementById('brief-mode-help').textContent=existing?'Next: review the redesign brief and add your reply email. Your current website is not changed.':'This sample stays in your browser. The directions are prepared examples.';
   const business=document.getElementById('business');
@@ -196,12 +205,13 @@ async function openRedesignIntake(){
     document.getElementById('order-domain').value=current.domain;
     let summary=document.getElementById('redesign-summary');
     if(!summary){summary=document.createElement('p');summary.id='redesign-summary';document.getElementById('order-form').prepend(summary);}
-    summary.textContent='Improve '+current.url+' — Keep: '+document.getElementById('keep-notes').value.trim()+' — Change: '+document.getElementById('change-notes').value.trim();
+    summary.hidden=false;summary.textContent='Improve '+current.url+' — Change: '+document.getElementById('change-notes').value.trim()+(document.getElementById('keep-notes').value.trim()?' — Keep: '+document.getElementById('keep-notes').value.trim():'');
     const goal=document.getElementById('goal').value.trim(),avoid=document.getElementById('avoid').value.trim();
-    document.getElementById('order-notes').value=[goal,avoid&&('Avoid: '+avoid)].filter(Boolean).join('\n\n');
+    document.getElementById('order-notes').value='';
     furthest=5;show('order');
   }catch(error){field.setCustomValidity(error.message||'Enter a valid public website URL.');field.reportValidity();}
 }
 document.getElementById('project-mode')?.addEventListener('change',setProjectMode);
 document.getElementById('current-website-url')?.addEventListener('input',event=>event.target.setCustomValidity(''));
+document.getElementById('restart')?.addEventListener('click',setProjectMode);
 setProjectMode();

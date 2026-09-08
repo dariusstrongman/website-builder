@@ -5,7 +5,7 @@ export const directions=[
  {id:'ledger',name:'Ledger',voice:'Measured & editorial',description:'A reading-led layout, generous margins and considered typography. Best when buyers want to understand your judgment.',tradeoff:'Quieter pacing; needs thoughtful content.',headline:'Clarity for consequential decisions.'}
 ];
 export const sampleBrief={business_name:'Northline Studio',buyer:'Founders of growing service businesses',offer:'Positioning, messaging and brand strategy',primary_action:'Request a consultation',domain:'',contact_email:'',reference_notes:'Confident, clear and human. Avoid stock business imagery and unsupported results.'};
-export function fresh(sample=false){return {schema:1,sample,stage:0,brief:sample?{...sampleBrief}:{},selected:null,directionNote:'',versions:[],feedback:[],approved:false,receipt:null,events:[]};}
+export function fresh(sample=false){return {schema:1,sample,stage:0,brief:sample?{...sampleBrief,project_mode:'new'}:{project_mode:'existing'},selected:null,directionNote:'',versions:[],feedback:[],approved:false,receipt:null,events:[]};}
 export function transition(state,event){
  const s=structuredClone(state);const log=message=>s.events.push({message,at:new Date().toISOString()});
  switch(event.type){

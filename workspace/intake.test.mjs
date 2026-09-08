@@ -6,7 +6,7 @@ import {loadProjects,saveProject} from './storage.mjs';
 const base={business_name:'Acme',buyer:'Local families',offer:'Garden design',primary_action:'Request a quote',reference_notes:'Warm editorial design',domain:'acme.com',contact_email:'owner@acme.com'};
 test('normalizes the exact existing URL and derives its domain without fetching',()=>{
  assert.deepEqual(normalizeWebsiteURL('WWW.Example.com/services?ref=old#work'),{url:'https://www.example.com/services?ref=old#work',domain:'www.example.com'});
- const b=validateBrief({...base,project_mode:'existing',current_website_url:'https://example.com/old',domain:'wrong.com'});
+ const b=validateBrief({...base,project_mode:'existing',current_website_url:'https://example.com/old',domain:'wrong.com',change_notes:'Improve mobile booking'});
  assert.equal(b.domain,'example.com');assert.equal(b.current_website_url,'https://example.com/old');
 });
 test('rejects absent, private-style and nonwebsite URL inputs',()=>{
@@ -27,14 +27,29 @@ test('existing payload carries exact keep/change instructions inside canonical r
  assert.ok(p.reference_notes.includes('https://example.com/work'));
  assert.ok(p.reference_notes.includes(b.keep_notes));assert.ok(p.reference_notes.includes(b.change_notes));
  assert.equal(p.project_mode,undefined);assert.deepEqual(b,original);
- assert.ok(briefPayload({...b,keep_notes:'',change_notes:''}).reference_notes.includes('Not specified'));
+ assert.ok(briefPayload({...b,keep_notes:''}).reference_notes.includes('Not specified'));
 });
 test('combined 4000 character boundary rejects rather than truncates',()=>{
  const b={...base,project_mode:'existing',current_website_url:'example.com',keep_notes:'Keep identity',change_notes:'Improve mobile',reference_notes:''};
- const overhead=encodedReferenceNotes(b).length;
+ const overhead=encodedReferenceNotes({...b,reference_notes:'x'}).length-1;
  assert.equal(encodedReferenceNotes({...b,reference_notes:'x'.repeat(4000-overhead)}).length,4000);
  assert.throws(()=>briefPayload({...b,reference_notes:'x'.repeat(4001-overhead)}),/4,000/);
  assert.throws(()=>briefPayload({...base,reference_notes:'x'.repeat(4001)}),/4,000/);
+});
+test('fresh real briefs default to improve existing while sample and saved new choices stay new',()=>{
+ assert.equal(fresh().brief.project_mode,'existing');assert.equal(fresh(true).brief.project_mode,'new');
+ const saved={schema:2,active:'real',real:{...fresh(),brief:{project_mode:'new'}},sample:fresh(true)};
+ assert.equal(loadProjects({getItem:()=>JSON.stringify(saved)},'test').real.brief.project_mode,'new');
+});
+test('existing intake needs only URL and improvement goal without fabricating customer facts',()=>{
+ const input={project_mode:'existing',current_website_url:'example.com',change_notes:'Make booking easier on mobile'};
+ const validated=validateBrief(input);assert.equal(validated.business_name,undefined);
+ const payload=briefPayload(input);assert.equal(payload.business_name,'Website redesign: example.com');
+ assert.match(payload.offer,/Not provided/);assert.match(payload.buyer,/Not provided/);assert.match(payload.primary_action,/Not specified/);
+ assert.match(payload.reference_notes,/not verified customer facts/);assert.match(payload.reference_notes,/Make booking easier on mobile/);
+ assert.throws(()=>validateBrief({...input,change_notes:''}),/what should work better/);
+ assert.throws(()=>validateBrief({...input,change_notes:'better'}),/at least 10/);
+ assert.throws(()=>validateBrief({project_mode:'new'}),/business/);
 });
 test('existing draft and review fields survive reload and sample switching',()=>{
  const map=new Map(),storage={getItem:k=>map.get(k),setItem:(k,v)=>map.set(k,v)};

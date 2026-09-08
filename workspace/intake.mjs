@@ -8,13 +8,15 @@ export function normalizeWebsiteURL(value){
 }
 export function validateBrief(brief){
  const result={...brief,project_mode:brief.project_mode==='existing'?'existing':'new'};
- for(const name of ['business_name','buyer','offer','primary_action','reference_notes']){
-  result[name]=text(brief[name]);if(!result[name])throw Error('Add your business, offer, audience, visitor action and design preferences.');
- }
  if(result.project_mode==='existing'){
   const current=normalizeWebsiteURL(brief.current_website_url);
   result.current_website_url=current.url;result.domain=current.domain;
   result.keep_notes=text(brief.keep_notes);result.change_notes=text(brief.change_notes);
+  if(result.change_notes.length<10)throw Error('Tell us what should work better in at least 10 characters, such as making it easier to book on mobile.');
+ }else{
+  for(const name of ['business_name','buyer','offer','primary_action','reference_notes']){
+   result[name]=text(brief[name]);if(!result[name])throw Error('Add your business, offer, audience, visitor action and design preferences.');
+  }
  }
  encodedReferenceNotes(result);return result;
 }
@@ -22,7 +24,7 @@ export function encodedReferenceNotes(brief){
  let notes=text(brief.reference_notes);
  if(brief.project_mode==='existing'){
   const current=normalizeWebsiteURL(brief.current_website_url);
-  notes=`Project: improve an existing website\nCurrent website: ${current.url}\nKeep: ${text(brief.keep_notes)||'Not specified — confirm during scope review.'}\nChange: ${text(brief.change_notes)||'Not specified — confirm during scope review.'}\nDesign preferences: ${notes}`;
+  notes=`Project: improve an existing website\nCurrent website: ${current.url}\nWhat should work better: ${text(brief.change_notes)}\nKeep: ${text(brief.keep_notes)||'Not specified — confirm during scope review.'}\n${notes?`Additional preferences: ${notes}\n`:''}Missing business facts must be established by reviewing the current website and confirmed if unclear. Any request label or "Not provided"/"Not specified" fields are intake placeholders, not verified customer facts. Do not invent the brand, offer, audience or visitor action.`;
  }
  if(notes.length>4000)throw Error('Your website URL, keep/change notes and design preferences together exceed 4,000 characters. Please shorten them; nothing has been sent.');
  return notes;
@@ -30,6 +32,12 @@ export function encodedReferenceNotes(brief){
 export function briefPayload(brief,{source='website-builder/project.html'}={}){
  const b=validateBrief(brief),payload={};
  for(const name of ['business_name','buyer','offer','primary_action','domain','contact_email'])payload[name]=text(b[name]);
+ if(b.project_mode==='existing'){
+  payload.business_name ||= `Website redesign: ${b.domain}`;
+  payload.buyer ||= 'Not provided — review the current website and confirm if unclear.';
+  payload.offer ||= 'Not provided — review the current website and confirm if unclear.';
+  payload.primary_action ||= 'Not specified — establish the visitor action from the existing site and confirm.';
+ }
  payload.reference_notes=encodedReferenceNotes(b);
  return {...payload,mode:'paid',source};
 }
