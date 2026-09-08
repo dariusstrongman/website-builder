@@ -3,7 +3,7 @@ const panels={brief:document.querySelector('#brief-panel'),directions:document.q
 const stepButtons=[...document.querySelectorAll('[data-step-target]')];let furthest=1;
 function show(step){if(!panels.brief)return;const order=['brief','directions','build','delivery','order'];const index=order.indexOf(step)+1;if(index>furthest)return;Object.entries(panels).forEach(([key,panel])=>panel?.classList.toggle('active',key===step));stepButtons.forEach((button,i)=>{button.classList.toggle('active',i===index-1);button.disabled=i+1>furthest;button.setAttribute('aria-pressed',String(i===index-1))});document.querySelector('.studio-shell')?.scrollIntoView({behavior:motionBehavior,block:'start'})}
 document.querySelectorAll('[data-scroll]').forEach(button=>button.addEventListener('click',()=>document.getElementById(button.dataset.scroll)?.scrollIntoView({behavior:motionBehavior})));stepButtons.forEach(button=>button.addEventListener('click',()=>show(button.dataset.stepTarget)));
-document.getElementById('brief-form')?.addEventListener('submit',event=>{event.preventDefault();const business=document.getElementById('business').value.trim()||'your business';document.getElementById('company-label').textContent=business;furthest=Math.max(furthest,2);show('directions')});
+document.getElementById('brief-form')?.addEventListener('submit',async event=>{event.preventDefault();if(document.getElementById('project-mode')?.value==='existing'){await openRedesignIntake();return;}const business=document.getElementById('business').value.trim()||'your business';document.getElementById('company-label').textContent=business;furthest=Math.max(furthest,2);show('directions')});
 document.querySelectorAll('.direction-card').forEach(card=>card.querySelector('.choose')?.addEventListener('click',()=>{document.querySelectorAll('.direction-card').forEach(item=>{item.classList.remove('selected');item.querySelector('.choose').textContent='Choose'});card.classList.add('selected');card.querySelector('.choose').textContent='Selected ✓';document.getElementById('chosen-name').textContent=card.dataset.direction;window.setTimeout(()=>{furthest=Math.max(furthest,3);show('build')},450)}));
 document.getElementById('simulate-build')?.addEventListener('click',()=>{furthest=4;show('delivery')});document.getElementById('restart')?.addEventListener('click',()=>{furthest=1;document.getElementById('brief-form')?.reset();document.querySelectorAll('.direction-card').forEach(card=>{card.classList.remove('selected');card.querySelector('.choose').textContent='Choose'});show('brief')});
 document.querySelectorAll('.faq-question').forEach(button=>button.addEventListener('click',()=>{const item=button.closest('.faq-item');const open=item.classList.toggle('open');button.setAttribute('aria-expanded',String(open))}));
@@ -135,7 +135,7 @@ orderForm?.addEventListener('submit',async event=>{
   const button=document.getElementById('order-submit');
   const business=document.getElementById('business')?.value.trim()||'';
   if(!business){orderStatus.textContent='Add your business name in step 1 first.';show('brief');return;}
-  const payload={
+  let payload={
     mode:'paid',
     business_name:business,
     domain:document.getElementById('order-domain').value.trim(),
@@ -146,6 +146,13 @@ orderForm?.addEventListener('submit',async event=>{
     reference_notes:document.getElementById('order-notes').value.trim(),
     source:'website-builder/index.html'
   };
+  try{
+    const {briefPayload}=await import('./workspace/intake.mjs?v=existing-site-1');
+    payload=briefPayload({...payload,project_mode:document.getElementById('project-mode')?.value||'new',
+      current_website_url:document.getElementById('current-website-url')?.value||'',
+      keep_notes:document.getElementById('keep-notes')?.value||'',
+      change_notes:document.getElementById('change-notes')?.value||''},{source:'website-builder/index.html'});
+  }catch(error){orderStatus.textContent=error.message||'Please review your brief.';return;}
   button.disabled=true;orderStatus.textContent='Sending the brief…';
   try{
     const response=await fetch(STROMATION_INTAKE,{method:'POST',
@@ -170,3 +177,31 @@ orderForm?.addEventListener('submit',async event=>{
     button.disabled=false;
   }
 });
+
+// Existing websites enter real intake directly; prepared concepts remain a sample.
+function setProjectMode(){
+  const existing=document.getElementById('project-mode')?.value==='existing';
+  const fields=document.getElementById('existing-site-fields');
+  if(!fields)return;fields.hidden=!existing;fields.disabled=!existing;
+  document.getElementById('brief-continue').textContent=existing?'Continue with this website →':'Explore sample directions →';
+  document.getElementById('brief-mode-help').textContent=existing?'Next: review the redesign brief and add your reply email. Your current website is not changed.':'This sample stays in your browser. The directions are prepared examples.';
+  const business=document.getElementById('business');
+  if(existing&&business.value==='Northline Studio'){business.value='';business.placeholder='Your business name';}
+}
+async function openRedesignIntake(){
+  const field=document.getElementById('current-website-url');
+  try{
+    const {normalizeWebsiteURL}=await import('./workspace/intake.mjs?v=existing-site-1');
+    const current=normalizeWebsiteURL(field.value);field.setCustomValidity('');field.value=current.url;
+    document.getElementById('order-domain').value=current.domain;
+    let summary=document.getElementById('redesign-summary');
+    if(!summary){summary=document.createElement('p');summary.id='redesign-summary';document.getElementById('order-form').prepend(summary);}
+    summary.textContent='Improve '+current.url+' — Keep: '+document.getElementById('keep-notes').value.trim()+' — Change: '+document.getElementById('change-notes').value.trim();
+    const goal=document.getElementById('goal').value.trim(),avoid=document.getElementById('avoid').value.trim();
+    document.getElementById('order-notes').value=[goal,avoid&&('Avoid: '+avoid)].filter(Boolean).join('\n\n');
+    furthest=5;show('order');
+  }catch(error){field.setCustomValidity(error.message||'Enter a valid public website URL.');field.reportValidity();}
+}
+document.getElementById('project-mode')?.addEventListener('change',setProjectMode);
+document.getElementById('current-website-url')?.addEventListener('input',event=>event.target.setCustomValidity(''));
+setProjectMode();
