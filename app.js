@@ -159,14 +159,16 @@ orderForm?.addEventListener('submit',async event=>{
       headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const body=await response.json().catch(()=>({}));
     if(response.ok&&body.ok){
-      /* Deliberately does not say a build has started, because none has: the
-         order is queued and a paid build still requires checkout. */
-      orderStatus.textContent=body.duplicate
-        ?'We already have an open brief for that domain. Nothing was duplicated.'
-        :'Brief received — reference '+String(body.id||'').slice(0,8)+
-         '. Nothing has been built and nothing has been charged. A person will '+
-         'come back to you with scope and price.';
-      button.textContent='Brief sent ✓';
+      if(body.project_token){
+        const {saveSession}=await import('./workspace/session.mjs');
+        const session=saveSession(body);
+        if(session)await openLiveWorkspace(session);
+      }else{
+        orderStatus.textContent=body.duplicate
+          ?'An open project already exists. Open it in the browser where you started it; this submission has not created another project.'
+          :'Your brief is saved, but its live workspace could not be opened. Keep reference '+String(body.id||'').slice(0,8)+'.';
+        button.textContent='Brief saved ✓';
+      }
     }else{
       orderStatus.textContent=(body.error||'That did not go through.')+
         ' Nothing was sent — please adjust and try again.';
@@ -189,8 +191,8 @@ function setProjectMode(){
   toggleField('order-buyer','.field-grid');toggleField('order-action');toggleField('order-notes');
   const domain=document.getElementById('order-domain');domain.closest('label').hidden=existing;domain.disabled=existing;
   const summary=document.getElementById('redesign-summary');if(summary)summary.hidden=!existing;
-  document.querySelector('#order-form h3').textContent=existing?'Where should we send the next step?':'The facts we cannot guess.';
-  document.querySelector('#order-form .form-heading + p').textContent=existing?'We’ll review your current website and the changes you requested. We’ll ask only about details we can’t establish from the site.':'These specifics go into your brief for scope review.';
+  document.querySelector('#order-form h3').textContent=existing?'Ready to open your project?':'The facts we cannot guess.';
+  document.querySelector('#order-form .form-heading + p').textContent=existing?'Your project opens here after submission. It shows recorded progress and available previews. Add your email for project contact.':'These specifics go into your brief for scope review.';
 
   document.getElementById('brief-continue').textContent=existing?'Continue with this website →':'Explore sample directions →';
   document.getElementById('brief-mode-help').textContent=existing?'Next: review the redesign brief and add your reply email. Your current website is not changed.':'This sample stays in your browser. The directions are prepared examples.';
@@ -215,3 +217,21 @@ document.getElementById('project-mode')?.addEventListener('change',setProjectMod
 document.getElementById('current-website-url')?.addEventListener('input',event=>event.target.setCustomValidity(''));
 document.getElementById('restart')?.addEventListener('click',setProjectMode);
 setProjectMode();
+
+let liveWorkspaceCleanup;
+async function openLiveWorkspace(session){
+  const panel=document.getElementById('order-panel');if(!panel)return;
+  const {mountLiveProject}=await import('./workspace/live.mjs');
+  liveWorkspaceCleanup?.();
+  furthest=5;show('order');
+  document.querySelector('.studio-shell .stepper').hidden=true;
+  orderForm.hidden=true;
+  let surface=document.getElementById('live-project');
+  if(!surface){surface=document.createElement('div');surface.id='live-project';panel.appendChild(surface);}
+  liveWorkspaceCleanup=mountLiveProject(surface,session);
+}
+if(orderForm){
+  import('./workspace/session.mjs').then(({loadSession,consumeSessionFragment})=>{
+    const session=consumeSessionFragment()||loadSession();if(session)return openLiveWorkspace(session);
+  }).catch(()=>{orderStatus.textContent='The project workspace could not load. Refresh to reconnect.';});
+}

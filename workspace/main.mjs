@@ -1,3 +1,5 @@
+import {mountLiveProject} from './live.mjs';
+import {saveSession,loadSession,consumeSessionFragment,clearSession} from './session.mjs';
 import {stages,directions,fresh,transition} from './model.mjs';
 import {conceptHTML,escapeHTML as e} from './concepts.mjs';
 import {loadProjects,saveProject} from './storage.mjs';
@@ -7,6 +9,7 @@ let state=fresh(),view=0,previewDirection=null,previewVersion=null,busy=false,st
 let projects={schema:2,active:'real',real:fresh(),sample:fresh(true)};
 try{projects=loadProjects(localStorage,key);state=projects[projects.active]||projects.real;}catch{storageOK=false;}
 view=state.stage;
+let liveSession=consumeSessionFragment()||loadSession(),liveCleanup;
 function save(){try{saveProject(localStorage,key,projects,state);storageOK=true;}catch{storageOK=false;}$('#save-state').textContent=storageOK?'Saved on this device':'Storage unavailable — keep this tab open';}
 function act(event){try{state=transition(state,event);view=state.stage;save();render();$('#main').focus();}catch(error){notice(error.message);}}
 function notice(message){$('#notice').textContent=message;}
@@ -37,6 +40,14 @@ function handoff(){return intro('06 / Handoff','Your decision is recorded.','You
 function activity(){return `<ol class="timeline">${state.events.slice().reverse().map(x=>`<li><small>${e(new Date(x.at).toLocaleString())}</small>${e(x.message)}</li>`).join('')}</ol>`;}
 const thumbnailObserver=new ResizeObserver(entries=>entries.forEach(({target,contentRect})=>{target.querySelector('iframe').style.transform=`scale(${contentRect.width/1000})`;}));
 function render(){
+ liveCleanup?.();liveCleanup=null;
+ if(!state.sample&&liveSession){
+  $('#mode-label').textContent='Your live project';$('#sample-toggle').textContent='Explore sample project';
+  $('#project-name').textContent='Your website';$('#project-state').textContent='Connected to project updates';
+  $('#stages').innerHTML='';$('#sample-controls').hidden=true;$('#surface').innerHTML='';
+  liveCleanup=mountLiveProject($('#surface'),liveSession);return;
+ }
+
  $('#project-name').textContent=(state.brief.project_mode==='existing'?state.brief.domain||state.brief.current_website_url:state.brief.business_name)||'A new beginning.';$('#project-state').textContent=stages[state.stage]+(state.stage===2?' · Your decision':state.stage===1&&!state.sample?' · Awaiting scope review':'');
  $('#mode-label').textContent=state.sample?'Sample project · Saved on this browser':'Your project draft · Saved on this browser';$('#sample-toggle').textContent=state.sample?'Return to my project':'Explore sample project';
  $('#stages').innerHTML=stages.map((name,i)=>`<button data-view="${i}" ${i>state.stage?'disabled':''} ${i===view?'aria-current="step"':''}><span>${i<state.stage?'✓':String(i+1).padStart(2,'0')}</span>${name}</button>`).join('');
@@ -60,7 +71,7 @@ async function sendBrief(event){
  event.preventDefault();if(busy||state.sample||state.receipt)return;
  const form=event.target,values=Object.fromEntries(new FormData(form));if(!(state.brief.project_mode==='existing'?state.brief.domain:values.domain)?.trim()||!values.contact_email?.trim())return notice('Add your domain and reply email before sending.');
  state.brief={...state.brief,...values};save();let payload;try{payload=briefPayload(state.brief);}catch(error){notice(error.message);return;}busy=true;const button=form.querySelector('button');button.disabled=true;button.textContent='Sending your brief…';
- try{const response=await fetch('https://stromation-production.up.railway.app/website-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(30000)});const result=await response.json();if(!response.ok||!result.ok){const details=Array.isArray(result.problems)?result.problems.join(' '):result.error;notice(typeof details==='string'?details.slice(0,600):'The service could not accept this brief. Please check your details and try again.');button.disabled=false;button.textContent='Send brief for scope review →';return;}if(!result.id)throw Error('unconfirmed');act({type:'receipt',id:String(result.id)});notice(result.duplicate?'An existing brief for this domain was found. Its receipt is shown above.':'Your brief was recorded. Nothing has been charged or started.');}
+ try{const response=await fetch('https://stromation-production.up.railway.app/website-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(30000)});const result=await response.json();if(!response.ok||!result.ok){const details=Array.isArray(result.problems)?result.problems.join(' '):result.error;notice(typeof details==='string'?details.slice(0,600):'The service could not accept this brief. Please check your details and try again.');button.disabled=false;button.textContent='Send brief for scope review →';return;}if(!result.id)throw Error('unconfirmed');if(result.project_token)liveSession=saveSession(result);act({type:'receipt',id:String(result.id)});notice(result.duplicate?'An existing brief for this domain was found. Its receipt is shown above.':'Your brief was recorded. Nothing has been charged or started.');}
  catch{notice('We couldn’t confirm the receipt. Your draft is saved here. The request may have arrived; retrying may return the existing brief.');button.disabled=false;button.textContent='Try sending again';}finally{busy=false;}
 }
 function download(name,body,type){const url=URL.createObjectURL(new Blob([body],{type}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
@@ -69,6 +80,6 @@ $('#sample-next').addEventListener('click',()=>{previewVersion=null;act({type:'s
 
 $('#sample-toggle').addEventListener('click',()=>{if(busy)return notice('Wait for the brief submission to finish.');projects[state.sample?'sample':'real']=state;state=projects[state.sample?'real':'sample'];view=state.stage;previewDirection=null;previewVersion=null;save();render();});
 $('#reset').addEventListener('click',()=>{if(busy)return notice('Wait for the brief submission to finish.');$('#reset-dialog').showModal();});
-$('#cancel-reset').addEventListener('click',()=>$('#reset-dialog').close());$('#confirm-reset').addEventListener('click',()=>{state=fresh(state.sample);view=0;previewDirection=null;previewVersion=null;save();$('#reset-dialog').close();render();});
+$('#cancel-reset').addEventListener('click',()=>$('#reset-dialog').close());$('#confirm-reset').addEventListener('click',()=>{if(!state.sample){clearSession();liveSession=null;}state=fresh(state.sample);view=0;previewDirection=null;previewVersion=null;save();$('#reset-dialog').close();render();});
 document.addEventListener('input',event=>{if(event.target.closest('#brief-form')){state.brief={...state.brief,...Object.fromEntries(new FormData($('#brief-form')))};save();}});
 render();
