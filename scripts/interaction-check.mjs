@@ -21,7 +21,7 @@ const plans=['launch','business','premium'].map(x=>element('plan-'+x));
 header.contains=x=>x===menu||groups.includes(x);
 const documentEvents={};
 const doc={querySelector:s=>({'.site-header':header,'.mobile-menu-button':menu,'#plan-needs':select,'#plan-match':output}[s]),querySelectorAll:s=>s==='.nav-group'?groups:s==='.plan'?plans:[],addEventListener:(n,cb)=>documentEvents[n]=cb};
-vm.runInNewContext(readFileSync(join(root,'site.js'),'utf8'),{document:doc});
+vm.runInNewContext(readFileSync(join(root,'site.js'),'utf8'),{document:doc,window:{matchMedia:()=>({matches:true})}});
 menu.dispatch('click');assert.equal(menu.attrs['aria-expanded'],'true');assert(header.classList.contains('menu-open'));
 groups[0].open=true;groups[1].open=true;groups[1].dispatch('toggle');assert.equal(groups[0].open,false);
 documentEvents.keydown({key:'Escape'});assert.equal(groups[1].open,false);assert(groups[1].summary.focused);

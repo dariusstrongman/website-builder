@@ -13,7 +13,9 @@ for(const name of htmlFiles){
   const noindex=/name="robots"[^>]+content="[^"]*noindex/i.test(html);
   if((html.match(/<h1(?:\s|>)/gi)||[]).length!==1) errors.push(`${name}: expected one h1`);
   if(name.startsWith('demo-')&&(!html.includes('href="demo-premium.css"')||!html.includes('src="demo-motion.js"'))) errors.push(`${name}: premium demo assets missing`);
-  if(name==='motion-lab.html'){
+  if(name==='project.html'){
+    if(!noindex||!html.includes('href="workspace/style.css"')||!html.includes('src="workspace/main.mjs"')||!html.includes('id="main"')) errors.push(`${name}: workspace assets or noindex missing`);
+  } else if(name==='motion-lab.html'){
     if(!noindex||!html.includes('href="motion-lab/style.css"')||!html.includes('src="motion-lab/main.mjs"')) errors.push(`${name}: isolated preview assets or noindex missing`);
   } else if(!name.startsWith('demo-')){
     if((html.match(/class="site-header"/g)||[]).length!==1) errors.push(`${name}: shared header missing or duplicated`);
