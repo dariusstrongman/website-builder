@@ -55,3 +55,39 @@ test('real draft screenshots are labeled pending and never become selectable cho
 test('expired access instructions do not send the customer back to the same expired link',async()=>{
  const h=harness(async()=>response({},401));await h.monitor.start();assert.match(h.errors[0].message,/fresh project access link/);assert.doesNotMatch(h.errors[0].message,/Reopen your saved/);h.monitor.stop();
 });
+
+const build='a'.repeat(64);
+test('delivery URL requires safe HTTPS and explicit server capability',()=>{
+ assert.equal(normalizeProject(project({download_url:'javascript:alert(1)',can_download:true})).download_url,'');
+ assert.equal(normalizeProject(project({download_url:'https://user:pass@files.example/website.zip'})).download_url,'');
+ assert.equal(normalizeProject(project({stage:'complete',download_url:'https://files.example/website.zip'})).can_download,false);
+ assert.equal(normalizeProject(project({download_url:'https://files.example/website.zip',can_download:true})).can_download,true);
+});
+test('review actions require explicit server permission and an exact build',async()=>{
+ const calls=[];let data=project({stage:'review',current_build_sha256:build});
+ const h=harness(async(u,o)=>{calls.push(o);return response(data);});
+ await h.monitor.start();assert.equal(await h.monitor.review('revise','Please make this header taller'),false);
+ assert.equal(await h.monitor.review('approve'),false);
+ data=project({can_revise:true,can_approve:true,current_build_sha256:'bad'});await h.monitor.refresh();
+ assert.equal(await h.monitor.review('approve'),false);assert.equal(calls.filter(c=>c.method==='POST').length,0);h.monitor.stop();
+});
+
+test('revision retry preserves request identity and original build binding',async()=>{
+ const posts=[];let reject=true;
+ const h=harness(async(u,o)=>{if(o.method==='POST'){posts.push(JSON.parse(o.body));return reject?response({ok:false,error:'This preview changed. Review the newest version.'},409):response({ok:true});}return response(project({can_revise:true,current_build_sha256:build}));});
+ await h.monitor.start();assert.equal(await h.monitor.review('revise','short'),false);assert.equal(posts.length,0);
+ assert.equal(await h.monitor.review('revise','  Make the heading larger please.  '),false);
+ await new Promise(resolve=>setImmediate(resolve));reject=false;
+ assert.equal(await h.monitor.review('revise','Make the heading larger please.'),true);
+ assert.deepEqual(posts[0],posts[1]);assert.match(posts[0].request_id,/^[A-Za-z0-9_-]{16,80}$/);
+ assert.equal(posts[0].expected_build_sha256,build);assert.equal(posts[0].feedback,'Make the heading larger please.');
+ assert.equal(h.errors.at(-1).operation,'revise');assert.match(h.errors.at(-1).message,/newest version/);h.monitor.stop();
+});
+
+test('approval has no feedback and changed submissions have distinct identity',async()=>{
+ const posts=[];const h=harness(async(u,o)=>{if(o.method==='POST'){posts.push(JSON.parse(o.body));return response({ok:true});}return response(project({can_revise:true,can_approve:true,current_build_sha256:build}));});
+ await h.monitor.start();assert.equal(await h.monitor.review('approve'),true);
+ await new Promise(resolve=>setImmediate(resolve));assert.equal(await h.monitor.review('revise','Please change the footer color.'),true);
+ assert.equal(posts[0].action,'approve');assert.equal('feedback' in posts[0],false);
+ assert.notEqual(posts[0].request_id,posts[1].request_id);h.monitor.stop();
+});
