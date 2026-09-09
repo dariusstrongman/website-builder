@@ -18,6 +18,17 @@ test('only real recognized service stages become project state',()=>{
  assert.deepEqual(normalizeProject(project()).choices,[]);
  assert.equal(normalizeProject(project({preview_url:'javascript:alert(1)'})).preview_url,'');
 });
+
+test('customer milestones accept only bounded recognized status rows',()=>{
+ const value=normalizeProject(project({milestones:[
+  {id:'brief',label:'Brief received',status:'complete'},
+  {id:'research',label:'Business researched',status:'active'},
+  {id:'bad',label:'Bad',status:'invented'},null
+ ],customer_decision_required:true,production_locked:true}));
+ assert.deepEqual(value.milestones.map(row=>row.status),['complete','active']);
+ assert.equal(value.customer_decision_required,true);
+ assert.equal(value.production_locked,true);
+});
 test('session stays in authorization header and polling does not run in hidden tab',async()=>{
  let visible=false;const calls=[];
  const h=harness(async(url,options)=>{calls.push({url,options});return response(project());},{visible:()=>visible});
