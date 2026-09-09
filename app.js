@@ -281,8 +281,3 @@ async function openLiveWorkspace(session){
   if(!surface){surface=document.createElement('div');surface.id='live-project';panel.appendChild(surface);}
   liveWorkspaceCleanup=mountLiveProject(surface,session);
 }
-if(orderForm){
-  import('./workspace/session.mjs').then(({loadSession,consumeSessionFragment})=>{
-    const session=consumeSessionFragment()||loadSession();if(session)return openLiveWorkspace(session);
-  }).catch(()=>{orderStatus.textContent='The project workspace could not load. Refresh to reconnect.';});
-}
