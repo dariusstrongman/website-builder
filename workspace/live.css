@@ -34,7 +34,7 @@
 @media(max-width:600px){.live-stage-devices{grid-column:2}.live-decision-media.mobile{height:620px;margin:18px auto}}
 
 /* The project surface must remain a single readable column on a phone. */
-.live-project,.live-project>*,.live-content,.live-content>*,.live-progress-shell,.live-build-track,.live-now,.live-decision,.live-decision-stage,.live-preview{min-width:0;max-width:100%}
+.live-project,.live-project>*,.live-content,.live-content>*,.live-progress-shell,.live-build-track,.live-now,.live-decision,.live-decision-stage,.live-preview{box-sizing:border-box;min-width:0;max-width:100%}
 .live-canvas-media img,.live-decision-media img{height:auto;min-height:0;object-fit:contain;object-position:top}
 @media(max-width:600px){
  .live-project{width:100%;max-width:100vw;padding:24px 16px;overflow-x:clip}
@@ -75,3 +75,18 @@
  .live-now small{max-width:195px}
  .live-decision>header h3{font-size:27px}
 }
+
+/* Focused concept study: sell the direction without presenting a rough full page as delivery. */
+.live-study-canvas{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(240px,.62fr);min-height:520px;background:#111827}
+.live-study-canvas .live-decision-media{height:520px;background:#080d17}
+.live-study-canvas .live-decision-media img{width:100%;height:100%;min-height:0;object-fit:cover;object-position:top}
+.live-study-guide{display:flex;flex-direction:column;padding:clamp(26px,3vw,42px);background:#172037;color:#fff}
+.live-study-guide>span{color:#aaa1ff;font:700 10px 'DM Mono',monospace;letter-spacing:.16em}
+.live-study-guide h4{max-width:8ch;margin:24px 0 18px;font-size:clamp(28px,2.5vw,38px);line-height:.98;letter-spacing:-.045em}
+.live-study-guide p{color:#c8ceda;font-size:13px;line-height:1.55}
+.live-study-guide dl{margin:auto 0 24px;border-top:1px solid #ffffff24}
+.live-study-guide dl div{display:grid;grid-template-columns:28px 1fr;gap:10px;padding:12px 0;border-bottom:1px solid #ffffff24}
+.live-study-guide dt{color:#aaa1ff;font:9px 'DM Mono',monospace}.live-study-guide dd{margin:0;font-size:12px}
+.live-study-guide small{color:#9da6ba;font-size:10px;line-height:1.5}
+@media(max-width:850px){.live-study-canvas{grid-template-columns:1fr;min-height:0}.live-study-canvas .live-decision-media{height:440px}.live-study-guide{min-height:300px}.live-study-guide h4{max-width:none}.live-study-guide dl{margin:20px 0}}
+@media(max-width:600px){.live-study-canvas{width:100%}.live-study-canvas .live-decision-media{height:260px}.live-study-canvas .live-decision-media.mobile{width:min(270px,calc(100% - 44px));height:460px;margin:22px auto}.live-study-guide{min-height:0;padding:26px 22px}.live-study-guide h4{font-size:29px;margin:18px 0 12px}.live-study-guide p{margin-bottom:4px}.live-study-guide dl{margin:16px 0}.live-study-guide small{font-size:11px}}

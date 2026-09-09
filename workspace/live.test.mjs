@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {safePreviewURL,normalizeProject,createProjectMonitor,renderDraftPreviews,previewIdentity,projectRoadmap,summarizeProjectActivity} from './live.mjs';
+import {safePreviewURL,normalizeProject,createProjectMonitor,renderDraftPreviews,previewIdentity,previewAssetIdentity,projectRoadmap,summarizeProjectActivity} from './live.mjs';
 const project=(extra={})=>({ok:true,stage:'research',message:'Reviewing the existing website',...extra});
 const response=(data,status=200)=>({ok:status<400,status,json:async()=>data});
 function harness(fetcher,extra={}){
@@ -30,6 +30,28 @@ test('preview identity changes when a new build is published at the same URL',()
  assert.equal(previewIdentity({preview_url:url,current_build_sha256:'a'.repeat(64)}),`${url}|${'a'.repeat(64)}`);
  assert.notEqual(previewIdentity({preview_url:url,current_build_sha256:'a'.repeat(64)}),previewIdentity({preview_url:url,current_build_sha256:'b'.repeat(64)}));
  assert.equal(previewIdentity({preview_url:'',current_build_sha256:'a'.repeat(64)}),'');
+});
+
+test('direction identity ignores signatures and cache-busting queries on the same capture',()=>{
+ assert.equal(previewAssetIdentity('https://preview.example/captures/math.png?token=one'),'https://preview.example/captures/math.png');
+ assert.equal(previewAssetIdentity('https://preview.example/captures/math.png?token=two#fresh'),'https://preview.example/captures/math.png');
+ assert.notEqual(previewAssetIdentity('https://preview.example/captures/math.png'),previewAssetIdentity('https://preview.example/captures/neon.png'));
+});
+
+test('selection stays locked until three distinct direction artifacts exist',()=>{
+ const repeated='https://preview.example/captures/shared.png';
+ const duplicate=normalizeProject(project({stage:'directions',can_select:true,choices:[
+  {id:'a',name:'The Math',featured_previews:[{url:`${repeated}?direction=a`}]},
+  {id:'b',name:'Beat the Bots',featured_previews:[{url:`${repeated}?direction=b`}]},
+  {id:'c',name:'The Badge',featured_previews:[{url:'https://preview.example/captures/badge.png'}]}
+ ]}));
+ assert.equal(duplicate.distinct_direction_count,2);assert.equal(duplicate.choices.length,2);assert.equal(duplicate.can_select,false);assert.equal(duplicate.choice_artifacts_ready,false);
+ const ready=normalizeProject(project({stage:'directions',can_select:true,choices:[
+  {id:'a',featured_previews:[{url:'https://preview.example/captures/math.png'}]},
+  {id:'b',featured_previews:[{url:'https://preview.example/captures/neon.png'}]},
+  {id:'c',featured_previews:[{url:'https://preview.example/captures/badge.png'}]}
+ ]}));
+ assert.equal(ready.distinct_direction_count,3);assert.equal(ready.choices.length,3);assert.equal(ready.can_select,true);assert.equal(ready.choice_artifacts_ready,true);
 });
 
 test('customer milestones accept only bounded recognized status rows',()=>{
@@ -89,7 +111,8 @@ test('authorization failure stops retrying and requests a restored session',asyn
  await h.monitor.start();await h.monitor.refresh();assert.equal(calls,1);assert.equal(h.errors[0].authFailed,true);assert.equal(h.timers.size,0);h.monitor.stop();
 });
 test('selection requires an available real choice and sends only scoped action',async()=>{
- const calls=[];const h=harness(async(url,options)=>{calls.push(options);return response(project({stage:options.method==='POST'?'building':'directions',can_select:options.method!=='POST',choices:[{id:'direction-a',name:'Direction A'}]}));});
+ const choices=['a','b','c'].map(id=>({id:`direction-${id}`,name:`Direction ${id.toUpperCase()}`,featured_previews:[{url:`https://preview.example/captures/${id}.png`}]}));
+ const calls=[];const h=harness(async(url,options)=>{calls.push(options);return response(project({stage:options.method==='POST'?'building':'directions',can_select:options.method!=='POST',choices}));});
  assert.equal(await h.monitor.select('direction-a'),false);await h.monitor.start();assert.equal(await h.monitor.select('forged-choice'),false);
  assert.equal(await h.monitor.select('direction-a'),true);
  const post=calls.find(c=>c.method==='POST');assert.deepEqual(JSON.parse(post.body),{action:'select',direction_id:'direction-a'});assert.equal(post.headers.Authorization,'Bearer private-session');h.monitor.stop();

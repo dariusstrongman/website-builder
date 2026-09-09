@@ -4,6 +4,22 @@ export function safePreviewURL(value) {
 }
 const titles = {received:'Your project is here.',review_required:'Your brief is being reviewed.',payment:'Authorize your project.',research:'Getting to know your business.',directions:'Choose your design direction.',building:'Your website is taking shape.',review:'Take a look around.',complete:'Your website is ready.',blocked:'Your project needs attention.'};
 const safeImages = value => (Array.isArray(value)?value:[]).filter(p=>p&&typeof p==='object').map(p=>({...p,url:safePreviewURL(p.url)})).filter(p=>p.url);
+export function previewAssetIdentity(value) {
+  const safe=safePreviewURL(value);
+  if(!safe)return '';
+  const url=new URL(safe);
+  // A renewed signature or cache-busting query does not make the same capture
+  // a different design direction. The service must publish a distinct path.
+  return `${url.origin}${url.pathname}`;
+}
+function uniquePreviewArtifacts(items,idKey){
+  const seen=new Set();
+  return items.filter(item=>item&&typeof item[idKey]==='string').map(item=>({...item,featured_previews:safeImages(item.featured_previews)})).filter(item=>{
+    const identity=previewAssetIdentity(item.featured_previews[0]?.url);
+    if(!identity||seen.has(identity))return false;
+    seen.add(identity);return true;
+  });
+}
 export function renderDraftPreviews(drafts) {
   if(!drafts.length)return '';
   const current=drafts.at(-1),image=current.featured_previews[0];
@@ -21,7 +37,11 @@ export function normalizeProject(data) {
   if(data?.stage==='purchase')data={...data,stage:'payment'};
   if (!data?.ok || !Object.hasOwn(titles, data.stage)) throw new Error('Project update was not recognized.');
   const milestones=(Array.isArray(data.milestones)?data.milestones:[]).filter(row=>row&&typeof row.id==='string'&&typeof row.label==='string'&&['complete','active','upcoming'].includes(row.status)).slice(0,8);
-  return {...data, message: String(data.message || ''),milestones,payment_required:data.payment_required===true,purchase_url:safePreviewURL(data.purchase_url),customer_decision_required:data.customer_decision_required===true,production_locked:data.production_locked!==false, choices: (Array.isArray(data.choices)?data.choices:[]).filter(c=>c && typeof c.id==='string').map(c=>({...c,featured_previews:safeImages(c.featured_previews)})),draft_previews:(Array.isArray(data.draft_previews)?data.draft_previews:[]).filter(d=>d&&typeof d.direction_id==='string').map(d=>({...d,featured_previews:safeImages(d.featured_previews)})).filter(d=>d.featured_previews.length),events:(Array.isArray(data.events)?data.events:[]).filter(e=>e && typeof e.label==='string'),preview_url:safePreviewURL(data.preview_url),download_url:safePreviewURL(data.download_url),can_download:data.can_download===true,can_select:data.can_select===true,current_build_sha256:/^[a-f0-9]{64}$/i.test(data.current_build_sha256||'')?data.current_build_sha256:'',can_revise:data.can_revise===true,can_approve:data.can_approve===true,revisions_remaining:Number.isInteger(data.revisions_remaining)&&data.revisions_remaining>=0?data.revisions_remaining:null};
+  const rawChoices=(Array.isArray(data.choices)?data.choices:[]).filter(c=>c&&typeof c.id==='string');
+  const choices=uniquePreviewArtifacts(rawChoices,'id');
+  const draftPreviews=uniquePreviewArtifacts(Array.isArray(data.draft_previews)?data.draft_previews:[],'direction_id');
+  const choiceArtifactsReady=choices.length===3&&rawChoices.length===3;
+  return {...data, message: String(data.message || ''),milestones,payment_required:data.payment_required===true,purchase_url:safePreviewURL(data.purchase_url),customer_decision_required:data.customer_decision_required===true,production_locked:data.production_locked!==false,choices,distinct_direction_count:choices.length,choice_artifacts_ready:choiceArtifactsReady,draft_previews:draftPreviews,events:(Array.isArray(data.events)?data.events:[]).filter(e=>e && typeof e.label==='string'),preview_url:safePreviewURL(data.preview_url),download_url:safePreviewURL(data.download_url),can_download:data.can_download===true,can_select:data.can_select===true&&choiceArtifactsReady,current_build_sha256:/^[a-f0-9]{64}$/i.test(data.current_build_sha256||'')?data.current_build_sha256:'',can_revise:data.can_revise===true,can_approve:data.can_approve===true,revisions_remaining:Number.isInteger(data.revisions_remaining)&&data.revisions_remaining>=0?data.revisions_remaining:null};
 }
 export function previewIdentity(data) {
   return data?.preview_url ? `${data.preview_url}|${data.current_build_sha256 || ''}` : '';
@@ -127,7 +147,8 @@ export function mountLiveProject(container,{token,endpoint,onChange=()=>{}}) {
     container.querySelector('h2').textContent=data.payment_required?'Authorize your project.':data.stage==='directions'&&!data.can_select?'Your design directions are taking shape.':titles[data.stage];
     container.querySelector('.live-message').textContent=data.message;
     const pulseCopy=[...(stagePulse[data.stage]||stagePulse.received)];
-    if(data.stage==='directions'&&data.can_select){pulseCopy[0]='Choose a direction';pulseCopy[1]='All checked directions are ready for your decision';}
+    if(data.stage==='directions'&&data.can_select){pulseCopy[0]='Choose a direction';pulseCopy[1]='Three distinct, checked directions are ready';}
+    else if(data.stage==='directions'&&data.distinct_direction_count){pulseCopy[0]='Preparing your decision';pulseCopy[1]=`${data.distinct_direction_count} of 3 distinct directions checked`;}
     now.classList.toggle('is-working',workingStages.has(data.stage));
     now.querySelector('b').textContent=pulseCopy[0];
     now.querySelector('small').textContent=pulseCopy[1];
@@ -145,7 +166,7 @@ export function mountLiveProject(container,{token,endpoint,onChange=()=>{}}) {
     const activity=summarizeProjectActivity(data.events);
     const drafts=data.choices.length?'':renderDraftPreviews(data.draft_previews);
     content.querySelector('.live-draft-slot').innerHTML=drafts;
-    content.querySelector('.live-choice-slot').innerHTML=choices?`<section class="live-decision"><header><span class="live-kicker">YOUR DECISION</span><h3>${data.can_select?'Three directions. One way forward.':'Checked directions'}</h3><p>${data.can_select?'Explore each real layout, then choose the starting point for the full build.':'The checked layouts are available here while the project prepares the next step.'}</p></header>${data.choices[0]?.featured_previews[0]?`<div class="live-decision-stage" data-active-artifact="0"><div class="live-canvas-chrome"><span><i></i><i></i><i></i></span><b data-live-stage-name>${escape(data.choices[0].name||'Design direction')}</b><div class="live-stage-devices"><button type="button" data-live-direction-device="desktop" aria-pressed="true">Desktop</button><button type="button" data-live-direction-device="mobile" aria-pressed="false">Mobile</button></div></div><div class="live-decision-media desktop"><img data-live-stage-image src="${escape(data.choices[0].featured_previews[0].url)}" alt="${escape(data.choices[0].name||'Design direction')} preview" referrerpolicy="no-referrer"></div></div>`:''}<div class="live-choices">${choices}</div></section>`:'';
+    content.querySelector('.live-choice-slot').innerHTML=choices?`<section class="live-decision"><header><span class="live-kicker">${data.can_select?'YOUR DECISION':'DIRECTION PROGRESS'}</span><h3>${data.can_select?'Three directions. One way forward.':`${data.distinct_direction_count} of 3 directions checked.`}</h3><p>${data.can_select?'Explore each real layout, then choose the starting point for the full build.':'Selection opens when three distinct design artifacts have passed review.'}</p></header>${data.choices[0]?.featured_previews[0]?`<div class="live-decision-stage" data-active-artifact="0"><div class="live-canvas-chrome"><span><i></i><i></i><i></i></span><b data-live-stage-name>${escape(data.choices[0].name||'Design direction')}</b><div class="live-stage-devices"><button type="button" data-live-direction-device="desktop" aria-pressed="true">Desktop</button><button type="button" data-live-direction-device="mobile" aria-pressed="false">Mobile</button></div></div><div class="live-study-canvas"><div class="live-decision-media desktop"><img data-live-stage-image src="${escape(data.choices[0].featured_previews[0].url)}" alt="${escape(data.choices[0].name||'Design direction')} preview" referrerpolicy="no-referrer"></div><aside class="live-study-guide"><span>DIRECTION STUDY</span><h4>A focused first impression.</h4><p>Use this opening-frame excerpt to judge the visual system and storytelling approach.</p><dl><div><dt>01</dt><dd>Visual hierarchy</dd></div><div><dt>02</dt><dd>Voice and pacing</dd></div><div><dt>03</dt><dd>Primary action</dd></div></dl><small>The complete responsive website is built after you choose.</small></aside></div></div>`:''}<div class="live-choices">${choices}</div></section>`:'';
     // Keep the actual browsing context (including its scroll position) alive
     // when only activity, choices or status change. Replace when either the
     // access URL is renewed or a newly published build arrives at that URL.
