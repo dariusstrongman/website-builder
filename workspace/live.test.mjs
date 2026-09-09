@@ -53,6 +53,15 @@ test('finite roadmap compresses eight service steps into four clear chapters',()
  assert.deepEqual(roadmap.chapters.map(row=>row.status),['complete','active','upcoming','upcoming']);
  assert.equal(roadmap.current,4);assert.equal(roadmap.total,8);assert.equal(roadmap.complete,3);
 });
+test('customer direction selection remains in Direction until the build starts',()=>{
+ const milestones=[
+  {id:'brief',label:'Brief',status:'complete'},{id:'authorization',label:'Authorization',status:'complete'},
+  {id:'research',label:'Research',status:'complete'},{id:'directions',label:'Directions',status:'complete'},
+  {id:'previews',label:'Previews',status:'complete'},{id:'choice',label:'Choice',status:'active'},
+  {id:'build',label:'Build',status:'upcoming'},{id:'delivery',label:'Delivery',status:'upcoming'}
+ ];
+ assert.deepEqual(projectRoadmap(milestones).chapters.map(row=>row.status),['complete','active','upcoming','upcoming']);
+});
 test('activity is grouped into bounded phases instead of an endless timestamp list',()=>{
  const summary=summarizeProjectActivity([
   {label:'Research updated'},{label:'Signal — design preview built'},{label:'Signal — design preview checked'},
@@ -92,7 +101,7 @@ test('cleanup aborts pending transport and never publishes a late response',asyn
 test('real draft screenshots are labeled pending and never become selectable choices',async()=>{
  const data=normalizeProject(project({draft_previews:[{direction_id:'draft-a',name:'<script>bad</script>',caption:'Not approved',featured_previews:[{viewport:'desktop',url:'https://preview.example/draft.png'}]},{direction_id:'unsafe',featured_previews:[{url:'javascript:alert(1)'}]}],can_select:true}));
  assert.equal(data.draft_previews.length,1);assert.deepEqual(data.choices,[]);
- const html=renderDraftPreviews(data.draft_previews);assert.match(html,/Work in progress — review pending/);assert.match(html,/&lt;script&gt;/);assert.doesNotMatch(html,/<script>|data-live-select|<button/);
+ const html=renderDraftPreviews(data.draft_previews);assert.match(html,/LIVE DESIGN CANVAS/);assert.match(html,/&lt;script&gt;/);assert.doesNotMatch(html,/<script>|data-live-select|<button/);
  const h=harness(async()=>response(data));await h.monitor.start();assert.equal(await h.monitor.select('draft-a'),false);h.monitor.stop();
 });
 test('expired access instructions do not send the customer back to the same expired link',async()=>{
