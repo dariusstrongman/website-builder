@@ -272,7 +272,7 @@ document.addEventListener('project-access-expired-reset',async()=>{
 });
 async function openLiveWorkspace(session){
   const panel=document.getElementById('order-panel');if(!panel)return;
-  const {mountLiveProject}=await import('./workspace/live.mjs');
+  const {mountLiveProject}=await import('./workspace/live.mjs?v=26abe96');
   liveWorkspaceCleanup?.();
   furthest=5;show('order');
   document.querySelector('.studio-shell .stepper').hidden=true;
