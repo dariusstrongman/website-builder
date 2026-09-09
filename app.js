@@ -1,11 +1,11 @@
 const motionBehavior=window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';
-const panels={brief:document.querySelector('#brief-panel'),directions:document.querySelector('#directions-panel'),build:document.querySelector('#build-panel'),delivery:document.querySelector('#delivery-panel'),order:document.querySelector('#order-panel')};
+const panels={brief:document.querySelector('#brief-panel'),directions:document.querySelector('#directions-panel'),order:document.querySelector('#order-panel')};
 const stepButtons=[...document.querySelectorAll('[data-step-target]')];let furthest=1;
-function show(step){if(!panels.brief)return;const order=['brief','directions','build','delivery','order'];const index=order.indexOf(step)+1;if(index>furthest)return;Object.entries(panels).forEach(([key,panel])=>panel?.classList.toggle('active',key===step));stepButtons.forEach((button,i)=>{button.classList.toggle('active',i===index-1);button.disabled=i+1>furthest;button.setAttribute('aria-pressed',String(i===index-1))});document.querySelector('.studio-shell')?.scrollIntoView({behavior:motionBehavior,block:'start'})}
+function show(step){if(!panels.brief)return;const order=['brief','directions','order'];const index=order.indexOf(step)+1;if(index>furthest)return;Object.entries(panels).forEach(([key,panel])=>panel?.classList.toggle('active',key===step));stepButtons.forEach((button,i)=>{button.classList.toggle('active',i===index-1);button.disabled=i+1>furthest;button.setAttribute('aria-pressed',String(i===index-1))});document.querySelector('.studio-shell')?.scrollIntoView({behavior:motionBehavior,block:'start'})}
 document.querySelectorAll('[data-scroll]').forEach(button=>button.addEventListener('click',()=>document.getElementById(button.dataset.scroll)?.scrollIntoView({behavior:motionBehavior})));stepButtons.forEach(button=>button.addEventListener('click',()=>show(button.dataset.stepTarget)));
-document.getElementById('brief-form')?.addEventListener('submit',async event=>{event.preventDefault();if(document.getElementById('project-mode')?.value==='existing'){await openRedesignIntake();return;}const business=document.getElementById('business').value.trim()||'your business';document.getElementById('company-label').textContent=business;furthest=Math.max(furthest,2);show('directions')});
+document.getElementById('brief-form')?.addEventListener('submit',async event=>{event.preventDefault();await renderFreeVision()});
 document.querySelectorAll('.direction-card').forEach(card=>card.querySelector('.choose')?.addEventListener('click',()=>{document.querySelectorAll('.direction-card').forEach(item=>{item.classList.remove('selected');item.querySelector('.choose').textContent='Choose'});card.classList.add('selected');card.querySelector('.choose').textContent='Selected ✓';document.getElementById('chosen-name').textContent=card.dataset.direction;window.setTimeout(()=>{furthest=Math.max(furthest,3);show('build')},450)}));
-document.getElementById('simulate-build')?.addEventListener('click',()=>{furthest=4;show('delivery')});document.getElementById('restart')?.addEventListener('click',()=>{furthest=1;document.getElementById('brief-form')?.reset();document.querySelectorAll('.direction-card').forEach(card=>{card.classList.remove('selected');card.querySelector('.choose').textContent='Choose'});show('brief')});
+document.getElementById('restart')?.addEventListener('click',()=>{furthest=1;document.getElementById('brief-form')?.reset();show('brief')});
 document.querySelectorAll('.faq-question').forEach(button=>button.addEventListener('click',()=>{const item=button.closest('.faq-item');const open=item.classList.toggle('open');button.setAttribute('aria-expanded',String(open))}));
 const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 if(!reduceMotion&&!document.body.classList.contains('premium-site')){
@@ -108,6 +108,52 @@ if(siteViewer){
   siteViewer.addEventListener('close',()=>{document.body.classList.remove('viewer-open');viewerFrame.src='about:blank';viewerOpener?.focus()});
 }
 
+async function renderFreeVision(){
+  const existing=document.getElementById('project-mode')?.value==='existing';
+  let website=document.getElementById('current-website-url')?.value||'';
+  const changeNotes=document.getElementById('change-notes')?.value||'';
+  if(existing){
+    try{
+      const {validateBrief}=await import('./workspace/intake.mjs?v=free-vision-1');
+      const brief=validateBrief({project_mode:'existing',current_website_url:website,change_notes:changeNotes,keep_notes:document.getElementById('keep-notes')?.value||''});
+      website=brief.current_website_url;document.getElementById('current-website-url').value=website;
+    }catch(error){
+      const field=!website.trim()?document.getElementById('current-website-url'):document.getElementById('change-notes');
+      field.setCustomValidity(error.message||'Review this field.');field.reportValidity();return;
+    }
+  }
+  const {createFreeVision}=await import('./workspace/free-vision.mjs?v=1');
+  const vision=createFreeVision({
+    projectMode:existing?'existing':'new',website,
+    changeNotes,business:document.getElementById('business')?.value||'',
+    industry:document.getElementById('industry')?.value||'',goal:document.getElementById('goal')?.value||'',
+    feelings:[...document.querySelectorAll('#feelings input:checked')].map(input=>input.value)
+  });
+  document.getElementById('company-label').textContent=vision.brand;
+  document.getElementById('vision-brand').textContent=vision.brand.toUpperCase();
+  document.getElementById('vision-domain').textContent=vision.domain;
+  document.getElementById('vision-headline').textContent=vision.headline;
+  document.getElementById('vision-summary').textContent=vision.summary;
+  document.getElementById('vision-request').textContent=vision.requested;
+  document.getElementById('vision-signals').replaceChildren(...vision.signals.map(signal=>{const li=document.createElement('li');li.textContent=signal;return li;}));
+  document.querySelector('.vision-browser').dataset.visionTheme=vision.theme;
+  furthest=Math.max(furthest,2);show('directions');
+}
+
+document.getElementById('vision-adjust')?.addEventListener('click',()=>show('brief'));
+document.getElementById('vision-continue')?.addEventListener('click',async()=>{
+  if(document.getElementById('project-mode')?.value==='existing'){await openRedesignIntake();return;}
+  const notes=document.getElementById('order-notes');
+  if(notes&&!notes.value.trim())notes.value=[document.getElementById('goal')?.value.trim(),document.getElementById('avoid')?.value.trim()&&('Avoid: '+document.getElementById('avoid').value.trim())].filter(Boolean).join('\n\n');
+  furthest=3;show('order');
+});
+document.querySelectorAll('[data-vision-device]').forEach(button=>button.addEventListener('click',()=>{
+  const mobile=button.dataset.visionDevice==='mobile';
+  document.querySelector('.free-vision-layout')?.classList.toggle('vision-mobile',mobile);
+  document.querySelector('.vision-canvas footer span:first-child').textContent=mobile?'MOBILE CONCEPT':'DESKTOP CONCEPT';
+  document.querySelectorAll('[data-vision-device]').forEach(item=>{const active=item===button;item.classList.toggle('active',active);item.setAttribute('aria-pressed',String(active));});
+}));
+
 /* ---- Real project intake -------------------------------------------------
    The sample journey above stays a sample. This is the only part that leaves
    the browser, and it sends exactly what the visitor typed: no claim, no
@@ -191,11 +237,11 @@ function setProjectMode(){
   toggleField('order-buyer','.field-grid');toggleField('order-action');toggleField('order-notes');
   const domain=document.getElementById('order-domain');domain.closest('label').hidden=existing;domain.disabled=existing;
   const summary=document.getElementById('redesign-summary');if(summary)summary.hidden=!existing;
-  document.querySelector('#order-form h3').textContent=existing?'Ready to open your project?':'The facts we cannot guess.';
-  document.querySelector('#order-form .form-heading + p').textContent=existing?'Your project opens here after submission. It shows recorded progress and available previews. Add your email for project contact.':'These specifics go into your brief for scope review.';
+  document.querySelector('#order-form h3').textContent='Open your private project.';
+  document.querySelector('#order-form .form-heading + p').textContent=existing?'Add your email to save the redesign brief. Research and design work begin only after project authorization.':'Confirm the business facts the final website cannot safely guess. Research and design work begin only after project authorization.';
 
-  document.getElementById('brief-continue').textContent=existing?'Continue with this website →':'Explore sample directions →';
-  document.getElementById('brief-mode-help').textContent=existing?'Next: review the redesign brief and add your reply email. Your current website is not changed.':'This sample stays in your browser. The directions are prepared examples.';
+  document.getElementById('brief-continue').textContent='See my free vision →';
+  document.getElementById('brief-mode-help').textContent='Your free vision is created instantly in this browser. No AI credits are used.';
   const business=document.getElementById('business');
   if(existing&&business.value==='Northline Studio'){business.value='';business.placeholder='Your business name';}
 }
@@ -210,11 +256,12 @@ async function openRedesignIntake(){
     summary.hidden=false;summary.textContent='Improve '+current.url+' — Change: '+document.getElementById('change-notes').value.trim()+(document.getElementById('keep-notes').value.trim()?' — Keep: '+document.getElementById('keep-notes').value.trim():'');
     const goal=document.getElementById('goal').value.trim(),avoid=document.getElementById('avoid').value.trim();
     document.getElementById('order-notes').value='';
-    furthest=5;show('order');
+    furthest=3;show('order');
   }catch(error){field.setCustomValidity(error.message||'Enter a valid public website URL.');field.reportValidity();}
 }
 document.getElementById('project-mode')?.addEventListener('change',setProjectMode);
 document.getElementById('current-website-url')?.addEventListener('input',event=>event.target.setCustomValidity(''));
+document.getElementById('change-notes')?.addEventListener('input',event=>event.target.setCustomValidity(''));
 document.getElementById('restart')?.addEventListener('click',setProjectMode);
 setProjectMode();
 
