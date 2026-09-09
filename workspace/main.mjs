@@ -1,4 +1,4 @@
-import {mountLiveProject} from './live.mjs?v=26abe96';
+import {mountLiveProject} from './live.mjs?v=livecanvas1';
 import {saveSession,loadSession,consumeSessionFragment,clearSession} from './session.mjs';
 import {stages,directions,fresh,transition} from './model.mjs';
 import {conceptHTML,escapeHTML as e} from './concepts.mjs';
