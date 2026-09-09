@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {safePreviewURL,normalizeProject,createProjectMonitor,renderDraftPreviews} from './live.mjs';
+import {safePreviewURL,normalizeProject,createProjectMonitor,renderDraftPreviews,previewIdentity} from './live.mjs';
 const project=(extra={})=>({ok:true,stage:'research',message:'Reviewing the existing website',...extra});
 const response=(data,status=200)=>({ok:status<400,status,json:async()=>data});
 function harness(fetcher,extra={}){
@@ -17,6 +17,19 @@ test('only real recognized service stages become project state',()=>{
  assert.equal(normalizeProject(project({stage:'scope_review'})).stage,'review_required');
  assert.deepEqual(normalizeProject(project()).choices,[]);
  assert.equal(normalizeProject(project({preview_url:'javascript:alert(1)'})).preview_url,'');
+});
+
+test('purchase is a resilient alias for the payment authorization stage',()=>{
+ const value=normalizeProject(project({stage:'purchase',payment_required:true,purchase_url:'https://checkout.example/session'}));
+ assert.equal(value.stage,'payment');assert.equal(value.payment_required,true);assert.equal(value.purchase_url,'https://checkout.example/session');
+ assert.equal(normalizeProject(project({stage:'payment',purchase_url:'javascript:alert(1)'})).purchase_url,'');
+});
+
+test('preview identity changes when a new build is published at the same URL',()=>{
+ const url='https://preview.example/project';
+ assert.equal(previewIdentity({preview_url:url,current_build_sha256:'a'.repeat(64)}),`${url}|${'a'.repeat(64)}`);
+ assert.notEqual(previewIdentity({preview_url:url,current_build_sha256:'a'.repeat(64)}),previewIdentity({preview_url:url,current_build_sha256:'b'.repeat(64)}));
+ assert.equal(previewIdentity({preview_url:'',current_build_sha256:'a'.repeat(64)}),'');
 });
 
 test('customer milestones accept only bounded recognized status rows',()=>{

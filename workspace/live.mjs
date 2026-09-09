@@ -2,7 +2,7 @@ const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp
 export function safePreviewURL(value) {
   try { const url = new URL(value); return url.protocol === 'https:' && !url.username && !url.password ? url.href : ''; } catch { return ''; }
 }
-const titles = {received:'Your project is here.',review_required:'Your brief is being reviewed.',research:'Getting to know your business.',directions:'Choose your design direction.',building:'Your website is taking shape.',review:'Take a look around.',complete:'Your website is ready.',blocked:'Your project needs attention.'};
+const titles = {received:'Your project is here.',review_required:'Your brief is being reviewed.',payment:'Authorize your project.',research:'Getting to know your business.',directions:'Choose your design direction.',building:'Your website is taking shape.',review:'Take a look around.',complete:'Your website is ready.',blocked:'Your project needs attention.'};
 const safeImages = value => (Array.isArray(value)?value:[]).filter(p=>p&&typeof p==='object').map(p=>({...p,url:safePreviewURL(p.url)})).filter(p=>p.url);
 export function renderDraftPreviews(drafts) {
   if(!drafts.length)return '';
@@ -10,9 +10,13 @@ export function renderDraftPreviews(drafts) {
 }
 export function normalizeProject(data) {
   if(data?.stage==='scope_review')data={...data,stage:'review_required'};
+  if(data?.stage==='purchase')data={...data,stage:'payment'};
   if (!data?.ok || !Object.hasOwn(titles, data.stage)) throw new Error('Project update was not recognized.');
   const milestones=(Array.isArray(data.milestones)?data.milestones:[]).filter(row=>row&&typeof row.id==='string'&&typeof row.label==='string'&&['complete','active','upcoming'].includes(row.status)).slice(0,8);
-  return {...data, message: String(data.message || ''),milestones,customer_decision_required:data.customer_decision_required===true,production_locked:data.production_locked!==false, choices: (Array.isArray(data.choices)?data.choices:[]).filter(c=>c && typeof c.id==='string').map(c=>({...c,featured_previews:safeImages(c.featured_previews)})),draft_previews:(Array.isArray(data.draft_previews)?data.draft_previews:[]).filter(d=>d&&typeof d.direction_id==='string').map(d=>({...d,featured_previews:safeImages(d.featured_previews)})).filter(d=>d.featured_previews.length),events:(Array.isArray(data.events)?data.events:[]).filter(e=>e && typeof e.label==='string'),preview_url:safePreviewURL(data.preview_url),download_url:safePreviewURL(data.download_url),can_download:data.can_download===true,can_select:data.can_select===true,current_build_sha256:/^[a-f0-9]{64}$/i.test(data.current_build_sha256||'')?data.current_build_sha256:'',can_revise:data.can_revise===true,can_approve:data.can_approve===true,revisions_remaining:Number.isInteger(data.revisions_remaining)&&data.revisions_remaining>=0?data.revisions_remaining:null};
+  return {...data, message: String(data.message || ''),milestones,payment_required:data.payment_required===true,purchase_url:safePreviewURL(data.purchase_url),customer_decision_required:data.customer_decision_required===true,production_locked:data.production_locked!==false, choices: (Array.isArray(data.choices)?data.choices:[]).filter(c=>c && typeof c.id==='string').map(c=>({...c,featured_previews:safeImages(c.featured_previews)})),draft_previews:(Array.isArray(data.draft_previews)?data.draft_previews:[]).filter(d=>d&&typeof d.direction_id==='string').map(d=>({...d,featured_previews:safeImages(d.featured_previews)})).filter(d=>d.featured_previews.length),events:(Array.isArray(data.events)?data.events:[]).filter(e=>e && typeof e.label==='string'),preview_url:safePreviewURL(data.preview_url),download_url:safePreviewURL(data.download_url),can_download:data.can_download===true,can_select:data.can_select===true,current_build_sha256:/^[a-f0-9]{64}$/i.test(data.current_build_sha256||'')?data.current_build_sha256:'',can_revise:data.can_revise===true,can_approve:data.can_approve===true,revisions_remaining:Number.isInteger(data.revisions_remaining)&&data.revisions_remaining>=0?data.revisions_remaining:null};
+}
+export function previewIdentity(data) {
+  return data?.preview_url ? `${data.preview_url}|${data.current_build_sha256 || ''}` : '';
 }
 // The monitor owns transport only. All milestones come from the project service.
 export function createProjectMonitor({token,endpoint,fetcher=globalThis.fetch,visible=()=>true,schedule=setTimeout,cancel=clearTimeout,onUpdate=()=>{},onError=()=>{}}) {
@@ -69,10 +73,10 @@ export function mountLiveProject(container,{token,endpoint,onChange=()=>{}}) {
   container.innerHTML='<header class="live-heading"><p class="live-eyebrow">YOUR WEBSITE / LIVE PROJECT</p><h2>Opening your project.</h2><p class="live-message" role="status">Connecting to your saved brief…</p><div class="live-pulse" aria-live="polite"><span class="live-pulse-mark" aria-hidden="true"><i></i><i></i><i></i></span><span><b>Connecting</b><small>Checking for the latest project update…</small></span><time>just now</time></div></header><p class="live-connection" role="status"></p><div class="live-build-track" aria-label="Website creation progress"></div><div class="live-content"><div class="live-draft-slot"></div><div class="live-choice-slot"></div><div class="live-preview-slot"></div><div class="live-download-slot"></div><div class="live-wait-slot"></div><div class="live-activity-slot"></div></div><section class="live-review-controls" hidden><h3>Your feedback</h3><form class="live-revision-form" hidden><label for="live-revision-feedback">What would you like changed?</label><textarea id="live-revision-feedback" name="feedback" rows="4" minlength="10" maxlength="2000" required placeholder="Tell us which part to change and what you want instead."></textarea><p class="live-revisions-remaining"></p><button type="submit">Request changes</button></form><button type="button" data-live-approve hidden>Approve this website</button><p class="live-review-status" role="status" aria-live="polite"></p></section>';
   const content=container.querySelector('.live-content'),connection=container.querySelector('.live-connection');
   const reviewControls=container.querySelector('.live-review-controls'),revisionForm=container.querySelector('.live-revision-form'),feedbackInput=revisionForm.querySelector('textarea'),approveButton=container.querySelector('[data-live-approve]'),reviewStatus=container.querySelector('.live-review-status');
-  let signature='',selecting=false,device='desktop',reviewBusy=false,latest=null,currentPreviewURL='',lastSeen=Date.now();
+  let signature='',selecting=false,device='desktop',reviewBusy=false,latest=null,currentPreviewIdentity='',lastSeen=Date.now();
   const pulse=container.querySelector('.live-pulse');
   const workingStages=new Set(['received','review_required','research','building']);
-  const stagePulse={received:['Brief received','Preparing the project record'],review_required:['Reviewing your brief','Checking scope and available business facts'],research:['Research in progress','Studying your business and preparing three design directions'],directions:['Your input is ready','Compare the three design directions below'],building:['Building your website','Turning the approved direction into responsive pages'],review:['Your preview is ready','Review the website and request changes or approve it'],complete:['Project complete','Your approved website files are ready'],blocked:['Action needed','Check the project message below']};
+  const stagePulse={received:['Brief received','Preparing the project record'],review_required:['Reviewing your brief','Checking scope and available business facts'],payment:['Authorization needed','No research or generation will run until the project is authorized'],research:['Research in progress','Studying your business and preparing three design directions'],directions:['Your input is ready','Compare the three design directions below'],building:['Building your website','Turning the approved direction into responsive pages'],review:['Your preview is ready','Review the website and request changes or approve it'],complete:['Project complete','Your approved website files are ready'],blocked:['Action needed','Check the project message below']};
   const pulseClock=setInterval(()=>{const seconds=Math.max(0,Math.floor((Date.now()-lastSeen)/1000));pulse.querySelector('time').textContent=seconds<5?'updated now':seconds<60?`updated ${seconds}s ago`:`updated ${Math.floor(seconds/60)}m ago`;},1000);
   function updateReviewControls(data){
     latest=data;
@@ -88,14 +92,14 @@ export function mountLiveProject(container,{token,endpoint,onChange=()=>{}}) {
     lastSeen=Date.now();
     connection.textContent='';
     updateReviewControls(data);
-    container.querySelector('h2').textContent=data.stage==='directions'&&!data.can_select?'Your design directions are taking shape.':titles[data.stage];
+    container.querySelector('h2').textContent=data.payment_required?'Authorize your project.':data.stage==='directions'&&!data.can_select?'Your design directions are taking shape.':titles[data.stage];
     container.querySelector('.live-message').textContent=data.message;
     const pulseCopy=stagePulse[data.stage]||stagePulse.received;
     pulse.classList.toggle('is-working',workingStages.has(data.stage));
     pulse.querySelector('b').textContent=pulseCopy[0];
     pulse.querySelector('small').textContent=pulseCopy[1];
     pulse.querySelector('time').textContent='updated now';
-    const next=JSON.stringify([data.stage,data.milestones,data.customer_decision_required,data.choices,data.draft_previews,data.preview_url,data.events,data.can_select,data.download_url,data.can_download]);
+    const next=JSON.stringify([data.stage,data.milestones,data.payment_required,data.purchase_url,data.customer_decision_required,data.choices,data.draft_previews,data.preview_url,data.current_build_sha256,data.events,data.can_select,data.download_url,data.can_download]);
     if(next!==signature){signature=next;render(data);}
     onChange(data);
   },onError(message,{authFailed,operation}){if(operation&&!authFailed){reviewStatus.textContent=message;reviewControls.hidden=false;return;}connection.textContent=authFailed?message:`Connection interrupted. Your last update is still here. Reconnecting… ${message}`;if(authFailed){const reset=document.createElement('button');reset.type='button';reset.dataset.liveReset='';reset.textContent='Close this expired session';connection.appendChild(reset);}}});
@@ -108,15 +112,18 @@ export function mountLiveProject(container,{token,endpoint,onChange=()=>{}}) {
     content.querySelector('.live-draft-slot').innerHTML=drafts;
     content.querySelector('.live-choice-slot').innerHTML=choices?`<div class="live-choices">${choices}</div>`:'';
     // Keep the actual browsing context (including its scroll position) alive
-    // when only activity, choices or status change. Replace on URL renewal.
-    if(data.preview_url!==currentPreviewURL){
-      currentPreviewURL=data.preview_url;
+    // when only activity, choices or status change. Replace when either the
+    // access URL is renewed or a newly published build arrives at that URL.
+    const nextPreviewIdentity=previewIdentity(data);
+    if(nextPreviewIdentity!==currentPreviewIdentity){
+      currentPreviewIdentity=nextPreviewIdentity;
       content.querySelector('.live-preview-slot').innerHTML=preview;
     }
     content.querySelector('.live-download-slot').innerHTML=data.can_download&&data.download_url?`<section class="live-download"><h3>Your website files</h3><p>Download the completed source ZIP. Hosting is a separate step.</p><a href="${escape(data.download_url)}" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Download website files ↗</a></section>`:'';
-    const waitingTitle=data.stage==='research'?'We’re learning what makes the business credible.':data.stage==='directions'?'Your concepts are being built in front of you.':data.stage==='building'?'Your chosen website is taking shape.':'This is your project workspace.';
-    const waitingCopy=data.stage==='research'?'Research findings will move into three distinct visual directions. Each checked preview appears here as soon as it is ready.':data.stage==='directions'?'Each preview appears independently. You choose the direction; the full website never starts from an internal recommendation alone.':data.stage==='building'?'Working previews appear here during production, followed by desktop and mobile review.':'Research, design choices and previews will appear here as they become available.';
-    content.querySelector('.live-wait-slot').innerHTML=!drafts&&!choices&&!preview&&!(data.can_download&&data.download_url)?`<div class="live-wait"><span class="live-presence" aria-hidden="true"></span><h3>${waitingTitle}</h3><p>${waitingCopy}</p></div>`:'';
+    const waitingTitle=data.payment_required||data.stage==='payment'?'Authorize your project.':data.stage==='research'?'We’re learning what makes the business credible.':data.stage==='directions'?'Your concepts are being built in front of you.':data.stage==='building'?'Your chosen website is taking shape.':'This is your project workspace.';
+    const waitingCopy=data.payment_required||data.stage==='payment'?'Your brief is saved. No research, design generation, or charge has run yet. Authorize the project when you are ready to begin.':data.stage==='research'?'Research findings will move into three distinct visual directions. Each checked preview appears here as soon as it is ready.':data.stage==='directions'?'Each preview appears independently. You choose the direction; the full website never starts from an internal recommendation alone.':data.stage==='building'?'Working previews appear here during production, followed by desktop and mobile review.':'Research, design choices and previews will appear here as they become available.';
+    const authorization=data.purchase_url?`<a class="live-authorize" href="${escape(data.purchase_url)}" rel="noopener noreferrer">Authorize your project <span aria-hidden="true">↗</span></a>`:'';
+    content.querySelector('.live-wait-slot').innerHTML=!drafts&&!choices&&!preview&&!(data.can_download&&data.download_url)?`<div class="live-wait"><span class="live-presence" aria-hidden="true"></span><h3>${waitingTitle}</h3><p>${waitingCopy}</p>${data.payment_required||data.stage==='payment'?authorization:''}</div>`:'';
     content.querySelector('.live-activity-slot').innerHTML=events?`<aside class="live-activity"><h3>Project activity</h3><ol>${events}</ol></aside>`:'';
   }
   async function submitReview(action){
