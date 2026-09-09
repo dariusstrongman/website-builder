@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {safePreviewURL,normalizeProject,createProjectMonitor,renderDraftPreviews,previewIdentity} from './live.mjs';
+import {safePreviewURL,normalizeProject,createProjectMonitor,renderDraftPreviews,previewIdentity,projectRoadmap,summarizeProjectActivity} from './live.mjs';
 const project=(extra={})=>({ok:true,stage:'research',message:'Reviewing the existing website',...extra});
 const response=(data,status=200)=>({ok:status<400,status,json:async()=>data});
 function harness(fetcher,extra={}){
@@ -41,6 +41,25 @@ test('customer milestones accept only bounded recognized status rows',()=>{
  assert.deepEqual(value.milestones.map(row=>row.status),['complete','active']);
  assert.equal(value.customer_decision_required,true);
  assert.equal(value.production_locked,true);
+});
+test('finite roadmap compresses eight service steps into four clear chapters',()=>{
+ const milestones=[
+  {id:'brief',label:'Brief received',status:'complete'},{id:'authorization',label:'Authorized',status:'complete'},
+  {id:'research',label:'Research',status:'complete'},{id:'directions',label:'Directions',status:'active'},
+  {id:'previews',label:'Previews',status:'upcoming'},{id:'choice',label:'Choice',status:'upcoming'},
+  {id:'build',label:'Build',status:'upcoming'},{id:'delivery',label:'Delivery',status:'upcoming'}
+ ];
+ const roadmap=projectRoadmap(milestones);
+ assert.deepEqual(roadmap.chapters.map(row=>row.status),['complete','active','upcoming','upcoming']);
+ assert.equal(roadmap.current,4);assert.equal(roadmap.total,8);assert.equal(roadmap.complete,3);
+});
+test('activity is grouped into bounded phases instead of an endless timestamp list',()=>{
+ const summary=summarizeProjectActivity([
+  {label:'Research updated'},{label:'Signal — design preview built'},{label:'Signal — design preview checked'},
+  {label:'Current — design preview built'},{label:'Website build updated'},{label:'Website checked'},{label:'Package prepared'}
+ ]);
+ assert.deepEqual(summary.map(row=>[row.label,row.count]),[['Discovery',1],['Design exploration',3],['Website production',2],['Review and delivery',1]]);
+ assert.ok(summary.length<=4);
 });
 test('session stays in authorization header and polling does not run in hidden tab',async()=>{
  let visible=false;const calls=[];

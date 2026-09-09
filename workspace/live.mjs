@@ -18,6 +18,32 @@ export function normalizeProject(data) {
 export function previewIdentity(data) {
   return data?.preview_url ? `${data.preview_url}|${data.current_build_sha256 || ''}` : '';
 }
+const roadmapChapters=[
+  {id:'foundation',label:'Foundation',description:'Brief and authorization',steps:['brief','authorization']},
+  {id:'direction',label:'Direction',description:'Research and concepts',steps:['research','directions','previews']},
+  {id:'production',label:'Production',description:'Your choice and build',steps:['choice','build']},
+  {id:'delivery',label:'Delivery',description:'Review and handoff',steps:['delivery']}
+];
+export function projectRoadmap(milestones=[]){
+  const byId=new Map(milestones.map(step=>[step.id,step]));
+  const chapters=roadmapChapters.map(chapter=>{
+    const steps=chapter.steps.map(id=>byId.get(id)).filter(Boolean);
+    const status=steps.length&&steps.every(step=>step.status==='complete')?'complete':steps.some(step=>step.status==='active')||steps.some(step=>step.status==='complete')?'active':'upcoming';
+    return {...chapter,status};
+  });
+  const complete=milestones.filter(step=>step.status==='complete').length;
+  const current=Math.min(milestones.length,Math.max(1,milestones.findIndex(step=>step.status==='active')+1||complete+1));
+  return {chapters,complete,total:milestones.length,current};
+}
+export function summarizeProjectActivity(events=[]){
+  const groups=new Map();
+  for(const event of events){
+    const label=String(event?.label||'');
+    const key=/research|brief/i.test(label)?'Discovery':/direction|preview/i.test(label)?'Design exploration':/website|build/i.test(label)?'Website production':/review|change|package|selected/i.test(label)?'Review and delivery':'Project setup';
+    const row=groups.get(key)||{label:key,count:0,latest:''};row.count+=1;row.latest=label;groups.set(key,row);
+  }
+  return [...groups.values()].slice(0,4);
+}
 // The monitor owns transport only. All milestones come from the project service.
 export function createProjectMonitor({token,endpoint,fetcher=globalThis.fetch,visible=()=>true,schedule=setTimeout,cancel=clearTimeout,onUpdate=()=>{},onError=()=>{}}) {
   let stopped=false,timer=null,controller=null,busy=false,last=null,authFailed=false;
@@ -70,14 +96,13 @@ export function createProjectMonitor({token,endpoint,fetcher=globalThis.fetch,vi
 export function mountLiveProject(container,{token,endpoint,onChange=()=>{}}) {
   if(!container||!token||!safePreviewURL(endpoint))throw new Error('A secure project connection is required.');
   container.classList.add('live-project');
-  container.innerHTML='<header class="live-heading"><p class="live-eyebrow">YOUR WEBSITE / LIVE PROJECT</p><h2>Opening your project.</h2><p class="live-message" role="status">Connecting to your saved brief…</p><div class="live-pulse" aria-live="polite"><span class="live-pulse-mark" aria-hidden="true"><i></i><i></i><i></i></span><span><b>Connecting</b><small>Checking for the latest project update…</small></span><time>just now</time></div></header><p class="live-connection" role="status"></p><div class="live-build-track" aria-label="Website creation progress"></div><div class="live-content"><div class="live-draft-slot"></div><div class="live-choice-slot"></div><div class="live-preview-slot"></div><div class="live-download-slot"></div><div class="live-wait-slot"></div><div class="live-activity-slot"></div></div><section class="live-review-controls" hidden><h3>Your feedback</h3><form class="live-revision-form" hidden><label for="live-revision-feedback">What would you like changed?</label><textarea id="live-revision-feedback" name="feedback" rows="4" minlength="10" maxlength="2000" required placeholder="Tell us which part to change and what you want instead."></textarea><p class="live-revisions-remaining"></p><button type="submit">Request changes</button></form><button type="button" data-live-approve hidden>Approve this website</button><p class="live-review-status" role="status" aria-live="polite"></p></section>';
+  container.innerHTML='<header class="live-heading"><div class="live-heading-top"><p class="live-eyebrow">YOUR WEBSITE / PRIVATE WORKSPACE</p><span class="live-status"><i aria-hidden="true"></i> Live project</span></div><h2>Opening your project.</h2><p class="live-message" role="status">Connecting to your saved brief…</p></header><p class="live-connection" role="status"></p><section class="live-progress-shell" aria-label="Website creation progress"><div class="live-build-track"></div><div class="live-now" aria-live="polite"><div><span class="live-now-label">NOW</span><b>Connecting</b><small>Checking your latest project state</small></div><div class="live-progress-value"><strong>—</strong><span>of 8</span></div></div></section><div class="live-content"><div class="live-draft-slot"></div><div class="live-choice-slot"></div><div class="live-preview-slot"></div><div class="live-download-slot"></div><div class="live-wait-slot"></div><div class="live-activity-slot"></div></div><section class="live-review-controls" hidden><h3>Your feedback</h3><form class="live-revision-form" hidden><label for="live-revision-feedback">What would you like changed?</label><textarea id="live-revision-feedback" name="feedback" rows="4" minlength="10" maxlength="2000" required placeholder="Tell us which part to change and what you want instead."></textarea><p class="live-revisions-remaining"></p><button type="submit">Request changes</button></form><button type="button" data-live-approve hidden>Approve this website</button><p class="live-review-status" role="status" aria-live="polite"></p></section>';
   const content=container.querySelector('.live-content'),connection=container.querySelector('.live-connection');
   const reviewControls=container.querySelector('.live-review-controls'),revisionForm=container.querySelector('.live-revision-form'),feedbackInput=revisionForm.querySelector('textarea'),approveButton=container.querySelector('[data-live-approve]'),reviewStatus=container.querySelector('.live-review-status');
-  let signature='',selecting=false,device='desktop',reviewBusy=false,latest=null,currentPreviewIdentity='',lastSeen=Date.now();
-  const pulse=container.querySelector('.live-pulse');
+  let signature='',selecting=false,device='desktop',reviewBusy=false,latest=null,currentPreviewIdentity='';
+  const now=container.querySelector('.live-now');
   const workingStages=new Set(['received','review_required','research','building']);
   const stagePulse={received:['Brief received','Preparing the project record'],review_required:['Reviewing your brief','Checking scope and available business facts'],payment:['Authorization needed','No research or generation will run until the project is authorized'],research:['Research in progress','Studying your business and preparing three design directions'],directions:['Your input is ready','Compare the three design directions below'],building:['Building your website','Turning the approved direction into responsive pages'],review:['Your preview is ready','Review the website and request changes or approve it'],complete:['Project complete','Your approved website files are ready'],blocked:['Action needed','Check the project message below']};
-  const pulseClock=setInterval(()=>{const seconds=Math.max(0,Math.floor((Date.now()-lastSeen)/1000));pulse.querySelector('time').textContent=seconds<5?'updated now':seconds<60?`updated ${seconds}s ago`:`updated ${Math.floor(seconds/60)}m ago`;},1000);
   function updateReviewControls(data){
     latest=data;
     const valid=Boolean(data.current_build_sha256);
@@ -89,25 +114,26 @@ export function mountLiveProject(container,{token,endpoint,onChange=()=>{}}) {
     revisionForm.querySelector('.live-revisions-remaining').textContent=data.revisions_remaining===null?'':`${data.revisions_remaining} revision${data.revisions_remaining===1?'':'s'} remaining`;
   }
   const monitor=createProjectMonitor({token,endpoint,visible:()=>!document.hidden,onUpdate(data){
-    lastSeen=Date.now();
     connection.textContent='';
     updateReviewControls(data);
     container.querySelector('h2').textContent=data.payment_required?'Authorize your project.':data.stage==='directions'&&!data.can_select?'Your design directions are taking shape.':titles[data.stage];
     container.querySelector('.live-message').textContent=data.message;
     const pulseCopy=stagePulse[data.stage]||stagePulse.received;
-    pulse.classList.toggle('is-working',workingStages.has(data.stage));
-    pulse.querySelector('b').textContent=pulseCopy[0];
-    pulse.querySelector('small').textContent=pulseCopy[1];
-    pulse.querySelector('time').textContent='updated now';
+    now.classList.toggle('is-working',workingStages.has(data.stage));
+    now.querySelector('b').textContent=pulseCopy[0];
+    now.querySelector('small').textContent=pulseCopy[1];
     const next=JSON.stringify([data.stage,data.milestones,data.payment_required,data.purchase_url,data.customer_decision_required,data.choices,data.draft_previews,data.preview_url,data.current_build_sha256,data.events,data.can_select,data.download_url,data.can_download]);
     if(next!==signature){signature=next;render(data);}
     onChange(data);
   },onError(message,{authFailed,operation}){if(operation&&!authFailed){reviewStatus.textContent=message;reviewControls.hidden=false;return;}connection.textContent=authFailed?message:`Connection interrupted. Your last update is still here. Reconnecting… ${message}`;if(authFailed){const reset=document.createElement('button');reset.type='button';reset.dataset.liveReset='';reset.textContent='Close this expired session';connection.appendChild(reset);}}});
   function render(data){
-    container.querySelector('.live-build-track').innerHTML=data.milestones.length?data.milestones.map((step,index)=>`<div class="live-build-step ${escape(step.status)}"><span>${step.status==='complete'?'✓':String(index+1).padStart(2,'0')}</span><b>${escape(step.label)}</b>${step.status==='active'?'<small>In progress</small>':''}</div>`).join(''):'';
+    const roadmap=projectRoadmap(data.milestones);
+    container.querySelector('.live-build-track').innerHTML=roadmap.chapters.map((chapter,index)=>`<div class="live-build-step ${escape(chapter.status)}"><span>${chapter.status==='complete'?'✓':String(index+1).padStart(2,'0')}</span><div><b>${escape(chapter.label)}</b><small>${escape(chapter.description)}</small></div></div>`).join('');
+    container.querySelector('.live-progress-value strong').textContent=String(roadmap.current).padStart(2,'0');
+    container.querySelector('.live-progress-value span').textContent=`of ${roadmap.total||8}`;
     const choices=data.choices.map(choice=>`<article class="live-choice">${choice.featured_previews[0]?`<img src="${escape(choice.featured_previews[0].url)}" alt="${escape(choice.name||'Design direction')} preview" loading="lazy" referrerpolicy="no-referrer">`:''}<div class="live-choice-copy"><h3>${escape(choice.name||'Design direction')}</h3><p>${escape(choice.description)}</p>${data.can_select?`<button type="button" data-live-select="${escape(choice.id)}">Choose this direction <span aria-hidden="true">↗</span></button>`:''}</div></article>`).join('');
     const preview=data.preview_url?`<section class="live-preview"><div class="live-preview-bar"><span>Your website preview</span><div><button type="button" data-live-device="desktop" aria-pressed="${device==='desktop'}">Desktop</button><button type="button" data-live-device="mobile" aria-pressed="${device==='mobile'}">Mobile</button><a href="${escape(data.preview_url)}" target="_blank" rel="noopener noreferrer">Open preview ↗</a></div></div><div class="live-preview-frame ${device}"><iframe src="${escape(data.preview_url)}" title="Your website in progress" sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe></div></section>`:'';
-    const events=data.events.map(event=>`<li><span>${escape(event.label)}</span>${event.at&&Number.isFinite(Date.parse(event.at))?`<time datetime="${escape(event.at)}">${escape(new Date(event.at).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}))}</time>`:''}</li>`).join('');
+    const activity=summarizeProjectActivity(data.events);
     const drafts=renderDraftPreviews(data.draft_previews);
     content.querySelector('.live-draft-slot').innerHTML=drafts;
     content.querySelector('.live-choice-slot').innerHTML=choices?`<div class="live-choices">${choices}</div>`:'';
@@ -124,7 +150,7 @@ export function mountLiveProject(container,{token,endpoint,onChange=()=>{}}) {
     const waitingCopy=data.payment_required||data.stage==='payment'?'Your brief is saved. No research, design generation, or charge has run yet. Authorize the project when you are ready to begin.':data.stage==='research'?'Research findings will move into three distinct visual directions. Each checked preview appears here as soon as it is ready.':data.stage==='directions'?'Each preview appears independently. You choose the direction; the full website never starts from an internal recommendation alone.':data.stage==='building'?'Working previews appear here during production, followed by desktop and mobile review.':'Research, design choices and previews will appear here as they become available.';
     const authorization=data.purchase_url?`<a class="live-authorize" href="${escape(data.purchase_url)}" rel="noopener noreferrer">Authorize your project <span aria-hidden="true">↗</span></a>`:'';
     content.querySelector('.live-wait-slot').innerHTML=!drafts&&!choices&&!preview&&!(data.can_download&&data.download_url)?`<div class="live-wait"><span class="live-presence" aria-hidden="true"></span><h3>${waitingTitle}</h3><p>${waitingCopy}</p>${data.payment_required||data.stage==='payment'?authorization:''}</div>`:'';
-    content.querySelector('.live-activity-slot').innerHTML=events?`<aside class="live-activity"><h3>Project activity</h3><ol>${events}</ol></aside>`:'';
+    content.querySelector('.live-activity-slot').innerHTML=activity.length?`<details class="live-activity"><summary><span><b>Production record</b><small>Verified work, grouped by phase</small></span><em>View details</em></summary><ol>${activity.map(group=>`<li><span><b>${escape(group.label)}</b><small>${escape(group.latest)}</small></span><strong>${group.count} ${group.count===1?'update':'updates'}</strong></li>`).join('')}</ol></details>`:'';
   }
   async function submitReview(action){
     if(reviewBusy)return;
@@ -141,6 +167,8 @@ export function mountLiveProject(container,{token,endpoint,onChange=()=>{}}) {
   }
   const submit=event=>{event.preventDefault();if(revisionForm.reportValidity())void submitReview('revise');};
   async function click(event){
+    const record=event.target.closest('.live-activity summary');
+    if(record&&container.contains(record))setTimeout(()=>{record.querySelector('em').textContent=record.parentElement.open?'Hide details':'View details';},0);
     if(event.target.closest('[data-live-approve]')&&container.contains(event.target)){void submitReview('approve');return;}
     const reset=event.target.closest('[data-live-reset]');
     if(reset&&container.contains(reset)){monitor.stop();container.dispatchEvent(new CustomEvent('project-access-expired-reset',{bubbles:true}));return;}
@@ -151,5 +179,5 @@ export function mountLiveProject(container,{token,endpoint,onChange=()=>{}}) {
   }
   const visibility=()=>{if(!document.hidden)void monitor.refresh();};
   revisionForm.addEventListener('submit',submit);container.addEventListener('click',click);document.addEventListener('visibilitychange',visibility);void monitor.start();
-  return ()=>{monitor.stop();clearInterval(pulseClock);revisionForm.removeEventListener('submit',submit);container.removeEventListener('click',click);document.removeEventListener('visibilitychange',visibility);};
+  return ()=>{monitor.stop();revisionForm.removeEventListener('submit',submit);container.removeEventListener('click',click);document.removeEventListener('visibilitychange',visibility);};
 }
