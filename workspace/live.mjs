@@ -65,10 +65,14 @@ export function createProjectMonitor({token,endpoint,fetcher=globalThis.fetch,vi
 export function mountLiveProject(container,{token,endpoint,onChange=()=>{}}) {
   if(!container||!token||!safePreviewURL(endpoint))throw new Error('A secure project connection is required.');
   container.classList.add('live-project');
-  container.innerHTML='<header class="live-heading"><p class="live-eyebrow">YOUR WEBSITE / LIVE PROJECT</p><h2>Opening your project.</h2><p class="live-message" role="status">Connecting to your saved brief…</p></header><p class="live-connection" role="status"></p><div class="live-content"><div class="live-draft-slot"></div><div class="live-choice-slot"></div><div class="live-preview-slot"></div><div class="live-download-slot"></div><div class="live-wait-slot"></div><div class="live-activity-slot"></div></div><section class="live-review-controls" hidden><h3>Your feedback</h3><form class="live-revision-form" hidden><label for="live-revision-feedback">What would you like changed?</label><textarea id="live-revision-feedback" name="feedback" rows="4" minlength="10" maxlength="2000" required placeholder="Tell us which part to change and what you want instead."></textarea><p class="live-revisions-remaining"></p><button type="submit">Request changes</button></form><button type="button" data-live-approve hidden>Approve this website</button><p class="live-review-status" role="status" aria-live="polite"></p></section>';
+  container.innerHTML='<header class="live-heading"><p class="live-eyebrow">YOUR WEBSITE / LIVE PROJECT</p><h2>Opening your project.</h2><p class="live-message" role="status">Connecting to your saved brief…</p><div class="live-pulse" aria-live="polite"><span class="live-pulse-mark" aria-hidden="true"><i></i><i></i><i></i></span><span><b>Connecting</b><small>Checking for the latest project update…</small></span><time>just now</time></div></header><p class="live-connection" role="status"></p><div class="live-content"><div class="live-draft-slot"></div><div class="live-choice-slot"></div><div class="live-preview-slot"></div><div class="live-download-slot"></div><div class="live-wait-slot"></div><div class="live-activity-slot"></div></div><section class="live-review-controls" hidden><h3>Your feedback</h3><form class="live-revision-form" hidden><label for="live-revision-feedback">What would you like changed?</label><textarea id="live-revision-feedback" name="feedback" rows="4" minlength="10" maxlength="2000" required placeholder="Tell us which part to change and what you want instead."></textarea><p class="live-revisions-remaining"></p><button type="submit">Request changes</button></form><button type="button" data-live-approve hidden>Approve this website</button><p class="live-review-status" role="status" aria-live="polite"></p></section>';
   const content=container.querySelector('.live-content'),connection=container.querySelector('.live-connection');
   const reviewControls=container.querySelector('.live-review-controls'),revisionForm=container.querySelector('.live-revision-form'),feedbackInput=revisionForm.querySelector('textarea'),approveButton=container.querySelector('[data-live-approve]'),reviewStatus=container.querySelector('.live-review-status');
-  let signature='',selecting=false,device='desktop',reviewBusy=false,latest=null,currentPreviewURL='';
+  let signature='',selecting=false,device='desktop',reviewBusy=false,latest=null,currentPreviewURL='',lastSeen=Date.now();
+  const pulse=container.querySelector('.live-pulse');
+  const workingStages=new Set(['received','review_required','research','building']);
+  const stagePulse={received:['Brief received','Preparing the project record'],review_required:['Reviewing your brief','Checking scope and available business facts'],research:['Research in progress','Studying your business and preparing three design directions'],directions:['Your input is ready','Compare the three design directions below'],building:['Building your website','Turning the approved direction into responsive pages'],review:['Your preview is ready','Review the website and request changes or approve it'],complete:['Project complete','Your approved website files are ready'],blocked:['Action needed','Check the project message below']};
+  const pulseClock=setInterval(()=>{const seconds=Math.max(0,Math.floor((Date.now()-lastSeen)/1000));pulse.querySelector('time').textContent=seconds<5?'updated now':seconds<60?`updated ${seconds}s ago`:`updated ${Math.floor(seconds/60)}m ago`;},1000);
   function updateReviewControls(data){
     latest=data;
     const valid=Boolean(data.current_build_sha256);
@@ -80,10 +84,16 @@ export function mountLiveProject(container,{token,endpoint,onChange=()=>{}}) {
     revisionForm.querySelector('.live-revisions-remaining').textContent=data.revisions_remaining===null?'':`${data.revisions_remaining} revision${data.revisions_remaining===1?'':'s'} remaining`;
   }
   const monitor=createProjectMonitor({token,endpoint,visible:()=>!document.hidden,onUpdate(data){
+    lastSeen=Date.now();
     connection.textContent='';
     updateReviewControls(data);
     container.querySelector('h2').textContent=data.stage==='directions'&&!data.can_select?'Your design directions are taking shape.':titles[data.stage];
     container.querySelector('.live-message').textContent=data.message;
+    const pulseCopy=stagePulse[data.stage]||stagePulse.received;
+    pulse.classList.toggle('is-working',workingStages.has(data.stage));
+    pulse.querySelector('b').textContent=pulseCopy[0];
+    pulse.querySelector('small').textContent=pulseCopy[1];
+    pulse.querySelector('time').textContent='updated now';
     const next=JSON.stringify([data.stage,data.choices,data.draft_previews,data.preview_url,data.events,data.can_select,data.download_url,data.can_download]);
     if(next!==signature){signature=next;render(data);}
     onChange(data);
@@ -130,5 +140,5 @@ export function mountLiveProject(container,{token,endpoint,onChange=()=>{}}) {
   }
   const visibility=()=>{if(!document.hidden)void monitor.refresh();};
   revisionForm.addEventListener('submit',submit);container.addEventListener('click',click);document.addEventListener('visibilitychange',visibility);void monitor.start();
-  return ()=>{monitor.stop();revisionForm.removeEventListener('submit',submit);container.removeEventListener('click',click);document.removeEventListener('visibilitychange',visibility);};
+  return ()=>{monitor.stop();clearInterval(pulseClock);revisionForm.removeEventListener('submit',submit);container.removeEventListener('click',click);document.removeEventListener('visibilitychange',visibility);};
 }
