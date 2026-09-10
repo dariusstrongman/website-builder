@@ -70,3 +70,6 @@
 @keyframes arcBreathe{to{transform:scale(1.035)}}@keyframes formStride{to{transform:translateX(5vw)}}@keyframes forgeSignal{70%,100%{box-shadow:0 0 0 12px transparent}}@keyframes forgeRoute{from{transform:scaleX(.15);opacity:.45}to{transform:scaleX(1);opacity:1}}
 @media(prefers-reduced-motion:reduce){.demo-site *,.demo-site *:before,.demo-site *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 @media(max-width:950px){.demo-site>header{margin-bottom:45px}.demo-site>header nav{display:flex!important;position:absolute;top:100%;left:0;right:0;gap:24px!important;overflow:auto;padding:12px 18px;background:inherit;border-bottom:1px solid color-mix(in srgb,currentColor 28%,transparent);white-space:nowrap}}
+
+/* Keep mobile subpage value visible in embedded previews. */
+@media(max-width:620px){.subpage-manifesto{min-height:420px;justify-content:center;padding-block:56px}.subpage-manifesto h1{margin:32px 0;font-size:52px}}

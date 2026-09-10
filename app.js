@@ -56,12 +56,15 @@ stepButtons.forEach((button,i)=>{button.disabled=i>0;button.setAttribute('aria-p
 
 const workButtons=[...document.querySelectorAll('[data-work-route]')];
 const workPanels=[...document.querySelectorAll('[data-work-panel]')];
-function showWork(route,moveFocus=false){
-  workButtons.forEach(button=>{const active=button.dataset.workRoute===route;button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active))});
-  workPanels.forEach(panel=>{const active=panel.dataset.workPanel===route;panel.hidden=!active;if(active&&moveFocus)panel.focus({preventScroll:true})});
+function showWork(route,{focus=false,updateURL=false}={}){
+  document.documentElement.dataset.workRoute=route;
+  workButtons.forEach(button=>{const active=button.dataset.workRoute===route;button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active));button.tabIndex=active?0:-1});
+  workPanels.forEach(panel=>{const active=panel.dataset.workPanel===route;panel.hidden=!active;if(active&&focus)panel.focus({preventScroll:true})});
+  if(updateURL&&location.hash!==`#${route}`)history.replaceState(null,'',`#${route}`);
 }
-workButtons.forEach(button=>button.addEventListener('click',()=>showWork(button.dataset.workRoute,true)));
-workButtons.forEach((button,index)=>button.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight'].includes(event.key))return;event.preventDefault();const next=(index+(event.key==='ArrowRight'?1:-1)+workButtons.length)%workButtons.length;workButtons[next].focus();showWork(workButtons[next].dataset.workRoute)}));
+workPanels.flatMap(panel=>[...panel.querySelectorAll('img')]).forEach(image=>{if(!image.complete)image.decode?.().catch(()=>{})});
+workButtons.forEach(button=>button.addEventListener('click',()=>showWork(button.dataset.workRoute,{updateURL:true})));
+workButtons.forEach((button,index)=>button.addEventListener('keydown',event=>{const keys=['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'];if(!keys.includes(event.key))return;event.preventDefault();let next=index;if(event.key==='Home')next=0;else if(event.key==='End')next=workButtons.length-1;else next=(index+(['ArrowRight','ArrowDown'].includes(event.key)?1:-1)+workButtons.length)%workButtons.length;workButtons[next].focus();showWork(workButtons[next].dataset.workRoute,{updateURL:true})}));
 if(workButtons.length){const requested=location.hash.replace('#','');showWork(workButtons.some(button=>button.dataset.workRoute===requested)?requested:'architecture')}
 
 const siteViewer=document.querySelector('#site-viewer');
@@ -79,14 +82,21 @@ if(siteViewer){
   let activeSite='architecture';
   let activePage=0;
   let viewerOpener;
+  let viewerRequest=0;
   const renderViewer=()=>{
+    const request=++viewerRequest;
     const site=previewSites[activeSite];
     const url=site.urls[activePage];
+    const frameShell=viewerFrame.closest('.viewer-frame');
     viewerTitle.textContent=site.title;
     viewerFrame.title=`${site.title}, ${site.labels[activePage]} page preview`;
-    viewerFrame.src=url;
     viewerLink.href=url;
     viewerPages.forEach((button,index)=>{button.textContent=site.labels[index];button.classList.toggle('active',index===activePage);button.setAttribute('aria-pressed',String(index===activePage))});
+    if(viewerFrame.getAttribute('src')===url&&!frameShell.classList.contains('is-loading'))return;
+    frameShell.classList.add('is-loading');frameShell.setAttribute('aria-busy','true');
+    const ready=()=>{if(request!==viewerRequest)return;requestAnimationFrame(()=>requestAnimationFrame(()=>{frameShell.classList.remove('is-loading');frameShell.setAttribute('aria-busy','false')}))};
+    viewerFrame.onload=()=>{try{Promise.all([[...viewerFrame.contentDocument.images].map(image=>image.decode?.().catch(()=>{})),viewerFrame.contentDocument.fonts?.ready].flat()).finally(ready)}catch{ready()}};
+    viewerFrame.src=url;
   };
   document.querySelectorAll('[data-preview-site]').forEach(button=>button.addEventListener('click',()=>{
     activeSite=button.dataset.previewSite;
@@ -105,7 +115,7 @@ if(siteViewer){
   const closeViewer=()=>siteViewer.close();
   siteViewer.querySelector('.viewer-close').addEventListener('click',closeViewer);
   siteViewer.addEventListener('click',event=>{if(event.target===siteViewer)closeViewer()});
-  siteViewer.addEventListener('close',()=>{document.body.classList.remove('viewer-open');viewerFrame.src='about:blank';viewerOpener?.focus()});
+  siteViewer.addEventListener('close',()=>{document.body.classList.remove('viewer-open');viewerRequest++;viewerFrame.src='about:blank';const shell=viewerFrame.closest('.viewer-frame');shell.classList.remove('is-loading');shell.setAttribute('aria-busy','false');viewerOpener?.focus()});
 }
 
 async function renderFreeVision(){
@@ -122,7 +132,7 @@ async function renderFreeVision(){
       field.setCustomValidity(error.message||'Review this field.');field.reportValidity();return;
     }
   }
-  const {createFreeVision}=await import('./workspace/free-vision.mjs?v=1');
+  const {createFreeVision}=await import('./workspace/free-vision.mjs?v=polish1');
   const vision=createFreeVision({
     projectMode:existing?'existing':'new',website,
     changeNotes,business:document.getElementById('business')?.value||'',
@@ -241,7 +251,7 @@ function setProjectMode(){
   document.querySelector('#order-form .form-heading + p').textContent=existing?'Add your email to save the redesign brief. Research and design work begin only after project authorization.':'Confirm the business facts the final website cannot safely guess. Research and design work begin only after project authorization.';
 
   document.getElementById('brief-continue').textContent='See my free vision →';
-  document.getElementById('brief-mode-help').textContent='Your free vision is created instantly in this browser. No AI credits are used.';
+  document.getElementById('brief-mode-help').textContent='Your first look will be ready in a few seconds.';
   const business=document.getElementById('business');
   if(existing&&business.value==='Northline Studio'){business.value='';business.placeholder='Your business name';}
 }
@@ -272,7 +282,7 @@ document.addEventListener('project-access-expired-reset',async()=>{
 });
 async function openLiveWorkspace(session){
   const panel=document.getElementById('order-panel');if(!panel)return;
-  const {mountLiveProject}=await import('./workspace/live.mjs?v=26abe96');
+  const {mountLiveProject}=await import('./workspace/live.mjs?v=polish1');
   liveWorkspaceCleanup?.();
   furthest=5;show('order');
   document.querySelector('.studio-shell .stepper').hidden=true;

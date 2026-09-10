@@ -12,14 +12,14 @@ for(const name of htmlFiles){
   const html=readFileSync(join(root,name),'utf8');
   const noindex=/name="robots"[^>]+content="[^"]*noindex/i.test(html);
   if((html.match(/<h1(?:\s|>)/gi)||[]).length!==1) errors.push(`${name}: expected one h1`);
-  if(name.startsWith('demo-')&&(!html.includes('href="demo-premium.css"')||!html.includes('src="demo-motion.js"'))) errors.push(`${name}: premium demo assets missing`);
+  if(name.startsWith('demo-')&&(!/href="demo-premium\.css(?:\?[^\"]*)?"/i.test(html)||!/src="demo-motion\.js(?:\?[^\"]*)?"/i.test(html))) errors.push(`${name}: premium demo assets missing`);
   if(name==='project.html'){
-    if(!noindex||!html.includes('href="workspace/style.css"')||!html.includes('src="workspace/main.mjs"')||!html.includes('id="main"')) errors.push(`${name}: workspace assets or noindex missing`);
+    if(!noindex||!/<link[^>]+href="workspace\/style\.css(?:\?[^\"]*)?"/i.test(html)||!/<script[^>]+src="workspace\/main\.mjs(?:\?[^\"]*)?"/i.test(html)||!html.includes('id="main"')) errors.push(`${name}: workspace assets or noindex missing`);
   } else if(name==='motion-lab.html'){
     if(!noindex||!html.includes('href="motion-lab/style.css"')||!html.includes('src="motion-lab/main.mjs"')) errors.push(`${name}: isolated preview assets or noindex missing`);
   } else if(!name.startsWith('demo-')){
     if((html.match(/class="site-header"/g)||[]).length!==1) errors.push(`${name}: shared header missing or duplicated`);
-    if(!html.includes('href="premium.css"')||!html.includes('src="site.js"')) errors.push(`${name}: shared design assets missing`);
+    if(!/href="premium\.css(?:\?[^\"]*)?"/i.test(html)||!/src="site\.js(?:\?[^\"]*)?"/i.test(html)) errors.push(`${name}: shared design assets missing`);
     if(!html.includes('id="main"')) errors.push(`${name}: skip link target missing`);
   }
   const title=html.match(/<title>([^<]+)<\/title>/i)?.[1];
@@ -34,7 +34,7 @@ for(const name of htmlFiles){
   for(const match of html.matchAll(/href="([^"]+)"/g)){
     const href=match[1];
     if(href==='#') errors.push(`${name}: empty hash link`);
-    const target=href.split('#')[0];
+    const target=href.split(/[?#]/)[0];
     if(target&&!/^(https?:|mailto:|tel:)/.test(target)&&!existsSync(join(root,target))) errors.push(`${name}: missing link target ${target}`);
     const fragment=href.split('#')[1];
     if(fragment&&!/^(https?:|mailto:|tel:)/.test(href)){
@@ -44,7 +44,8 @@ for(const name of htmlFiles){
   }
   for(const match of html.matchAll(/src="([^"]+)"/g)){
     const src=match[1];
-    if(src&&!/^https?:/.test(src)&&!existsSync(join(root,src))) errors.push(`${name}: missing source ${src}`);
+    const sourceTarget=src.split(/[?#]/)[0];
+    if(sourceTarget&&!/^https?:/.test(sourceTarget)&&!existsSync(join(root,sourceTarget))) errors.push(`${name}: missing source ${src}`);
   }
 }
 

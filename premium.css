@@ -75,3 +75,17 @@
 @media(max-width:900px){.free-vision-layout{grid-template-columns:1fr}.vision-detail{padding-top:6px}.vision-boundary{margin-top:10px}.vision-actions{grid-template-columns:1fr 1fr}}
 @media(max-width:620px){.vision-canvas{min-height:420px;padding:22px 18px}.vision-message{max-width:100%}.vision-message h4{font-size:44px}.vision-canvas nav span{display:none}.vision-actions{grid-template-columns:1fr}.vision-browser>header b{display:none}.vision-browser>header{grid-template-columns:42px 1fr}.free-vision-layout{gap:24px}}
 .vision-canvas footer{padding:16px 0 0;background:transparent;border-bottom:0;align-items:center}
+/* Stable examples navigation and viewer loading states. */
+html[data-work-route="wellness"] #architecture,
+html[data-work-route="industrial"] #architecture{display:none!important}
+html[data-work-route="wellness"] #wellness[hidden],
+html[data-work-route="industrial"] #industrial[hidden]{display:grid!important}
+.viewer-frame{position:relative;background:#0d1119;transition:border-radius .25s ease!important}
+.viewer-frame iframe{background:#0d1119;transition:opacity .18s ease}
+.viewer-frame.is-loading iframe{opacity:0}
+.viewer-loading{position:absolute;inset:0;display:none;place-items:center;align-content:center;gap:14px;background:linear-gradient(145deg,#111622,#080b11);color:#fff;text-align:center}
+.viewer-frame.is-loading .viewer-loading{display:grid}
+.viewer-loading span{width:28px;height:28px;border:2px solid #ffffff35;border-top-color:#fff;border-radius:50%;animation:viewerSpin .7s linear infinite}
+.viewer-loading b{font-size:13px;letter-spacing:.01em}
+@keyframes viewerSpin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.viewer-frame iframe{transition:none}.viewer-loading span{animation:none;border-color:#fff}}

@@ -25,3 +25,11 @@ test('keeps customer text compact for the preview surface',()=>{
   const vision=createFreeVision({business:'A'.repeat(80),goal:'x'.repeat(300)});
   assert.ok(vision.brand.length<=40);assert.ok(vision.requested.length<=150);
 });
+
+test('different briefs produce different visible arguments',()=>{
+  const booking=createFreeVision({business:'Halo Dental',industry:'Health and wellness',goal:'Help patients book an appointment',feelings:['Warm']});
+  const sales=createFreeVision({business:'Forge Supply',industry:'Technology product',goal:'Sell equipment to plant managers',feelings:['Technical']});
+  assert.notDeepEqual([booking.headline,booking.summary,booking.signals],[sales.headline,sales.summary,sales.signals]);
+  assert.match(booking.signals.join(' '),/booking/i);
+  assert.match(sales.signals.join(' '),/purchase/i);
+});

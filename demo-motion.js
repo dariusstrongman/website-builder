@@ -38,8 +38,8 @@ document.querySelectorAll('[data-forge-step]').forEach(button=>button.addEventLi
 
 if(!reducedMotion){
   import('https://cdn.jsdelivr.net/npm/motion@11.11.13/+esm').then(({animate,inView,scroll})=>{
-    document.querySelectorAll('[data-motion-item]').forEach(item=>animate(item,{opacity:[0,1],y:[24,0]},{duration:.8,ease:[.22,1,.36,1]}));
-    document.querySelectorAll('[data-motion-image]').forEach(item=>animate(item,{opacity:[0,1],scale:[1.025,1]},{duration:1.1,ease:[.22,1,.36,1]}));
+    document.querySelectorAll('[data-motion-item]').forEach(item=>animate(item,{y:[14,0]},{duration:.8,ease:[.22,1,.36,1]}));
+    document.querySelectorAll('[data-motion-image]').forEach(item=>animate(item,{scale:[1.012,1]},{duration:1.1,ease:[.22,1,.36,1]}));
     inView('.arc-selector-head, .form-method>header, .forge-system>header',element=>{animate(element,{opacity:[.45,1],y:[28,0]},{duration:.72,ease:[.22,1,.36,1]})},{margin:'0px 0px -12% 0px'});
     const arcImage=document.querySelector('.arc-feature img');
     const formWordmark=document.querySelector('.form-wordmark');

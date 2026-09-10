@@ -30,8 +30,8 @@ menu.dispatch('click');documentEvents.click({target:{}});assert.equal(menu.attrs
 for(const name of ['launch','business','premium','']){select.value=name;select.dispatch('change');assert.equal(plans.filter(p=>p.classList.contains('selected-plan')).length,name?1:0);if(name)assert(output.textContent.toLowerCase().includes(name));}
 const previewButtons=['desktop','mobile'].map(mode=>{const b=element();b.dataset.previewMode=mode;return b;});
 const frames=Array.from({length:3},()=>{const f=element();f.clientWidth=1230;f.iframe=element();f.iframe.contentDocument={body:element()};f.querySelector=s=>s==='iframe'?f.iframe:{getBoundingClientRect:()=>({height:42})};return f;});
-const showcases=element(),description=element();const previewDoc={body:element(),querySelector:s=>s==='.live-showcases'?showcases:null,querySelectorAll:s=>s==='[data-preview-mode]'?previewButtons:s==='.demo-browser'?frames:[],getElementById:s=>s==='preview-description'?description:null};
-vm.runInNewContext(readFileSync(join(root,'app.js'),'utf8'),{document:previewDoc,window:{matchMedia:()=>({matches:true}),addEventListener(){},setTimeout:fn=>fn()},location:{}});
+const showcases=element(),description=element();const previewDoc={body:element(),documentElement:element(),querySelector:s=>s==='.live-showcases'?showcases:null,querySelectorAll:s=>s==='[data-preview-mode]'?previewButtons:s==='.demo-browser'?frames:[],getElementById:s=>s==='preview-description'?description:null,addEventListener(){}};
+vm.runInNewContext(readFileSync(join(root,'app.js'),'utf8'),{document:previewDoc,window:{matchMedia:()=>({matches:true}),addEventListener(){},setTimeout:fn=>fn()},location:{hash:''},history:{replaceState(){}},requestAnimationFrame:fn=>fn()});
 frames.forEach(f=>{assert.equal(f.iframe.style.width,'1440px');assert.equal(f.style.height,'657px');assert.equal(f.iframe.style.transform,'scale(0.8541666666666666)');});
 frames.forEach(f=>f.clientWidth=390);previewButtons[1].dispatch('click');
 frames.forEach(f=>{assert.equal(f.iframe.style.width,'390px');assert.equal(f.iframe.style.transform,'scale(1)');assert.equal(f.style.height,'802px');});

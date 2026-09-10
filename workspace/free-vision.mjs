@@ -8,13 +8,13 @@ export function brandFromWebsite(value){
   }catch{return 'Your business';}
 }
 
-const directions={
-  bold:{theme:'kinetic',headline:'Make your value impossible to miss.',summary:'A confident opening, decisive type and one obvious next step.'},
-  technical:{theme:'system',headline:'Complex work. Made clear.',summary:'A precise structure that turns expertise into evidence.'},
-  warm:{theme:'editorial',headline:'A clearer welcome to what you do.',summary:'Human pacing, warmer detail and a more inviting path forward.'},
-  editorial:{theme:'editorial',headline:'A sharper point of view.',summary:'Measured typography and intentional space give the work authority.'},
-  minimal:{theme:'editorial',headline:'Less noise. More meaning.',summary:'A restrained composition keeps attention on the offer.'},
-  confident:{theme:'system',headline:'Built to make the next move clear.',summary:'Stronger hierarchy and direct calls to action create confidence.'}
+const feelingProfiles={
+  bold:{theme:'kinetic',tone:'direct',density:'high-impact'},
+  technical:{theme:'system',tone:'precise',density:'evidence-led'},
+  warm:{theme:'editorial',tone:'welcoming',density:'story-led'},
+  editorial:{theme:'editorial',tone:'considered',density:'spacious'},
+  minimal:{theme:'editorial',tone:'restrained',density:'focused'},
+  confident:{theme:'system',tone:'assured',density:'structured'}
 };
 
 function compact(value,max=120){
@@ -26,19 +26,26 @@ export function createFreeVision(input={}){
   const feelings=Array.isArray(input.feelings)?input.feelings.map(value=>clean(value).toLowerCase()):[];
   const key=['bold','technical','warm','editorial','minimal','confident'].find(name=>feelings.includes(name))
     ||(['Technology product','Home and construction'].includes(clean(input.industry))?'technical':'confident');
-  const direction=directions[key];
+  const direction=feelingProfiles[key];
   const existing=input.projectMode==='existing';
   const brand=compact(clean(input.business)||brandFromWebsite(input.website),40);
   const requested=compact(existing?input.changeNotes:input.goal,150);
+  const industry=clean(input.industry)||'your category';
+  const goal=requested||'help the right visitor understand the offer and take the next step';
+  const action=goal.match(/\b(book|schedule|reserve)\b/i)?'Make booking the clearest next step'
+    :goal.match(/\b(quote|estimate|contact|call|lead)\b/i)?'Turn interest into a qualified conversation'
+    :goal.match(/\b(buy|shop|sell|order)\b/i)?'Move buyers from value to purchase with less friction'
+    :'Give every visitor one clear next step';
+  const headline=existing?`${brand}, made clearer.`:`A ${direction.tone} new presence for ${brand}.`;
   return {
     brand,
     domain:existing?clean(input.website).replace(/^https?:\/\//i,'').replace(/\/$/,''):'A first look',
     theme:direction.theme,
-    headline:direction.headline,
-    summary:direction.summary,
-    requested:requested||'Create a clearer, more confident website experience.',
+    headline,
+    summary:`A ${direction.density} composition for ${industry.toLowerCase()}, built around the outcome you described.`,
+    requested:goal,
     signals:existing
-      ?['A stronger opening message','A clearer visitor path','A composition designed for mobile']
-      :['A distinct first impression','A clear explanation of the offer','One focused visitor action']
+      ?[`Lead with the change you requested`,action,'Recompose the priority content for mobile']
+      :[`Make ${brand} recognizable from the first screen`,action,`Use a ${direction.tone} voice across desktop and mobile`]
   };
 }
