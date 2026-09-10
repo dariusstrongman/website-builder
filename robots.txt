@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
-
+Disallow: /project.html
+Disallow: /workspace/
+Disallow: /preview/
 Sitemap: https://dariusstrongman.github.io/website-builder/sitemap.xml

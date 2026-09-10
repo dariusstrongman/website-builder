@@ -33,3 +33,20 @@ test('different briefs produce different visible arguments',()=>{
   assert.match(booking.signals.join(' '),/booking/i);
   assert.match(sales.signals.join(' '),/purchase/i);
 });
+
+test('uses the actual offer without repeating it as supporting copy',()=>{
+  const offer='Residential architecture for coastal homes';
+  const vision=createFreeVision({offer});
+  assert.equal(vision.headline,offer+'.');
+  assert.notEqual(vision.summary,offer);
+  assert.equal(vision.layout,'gallery');
+  assert.equal(vision.theme,'editorial');
+});
+
+test('skincare and software get appropriate distinct structures without requiring a category field',()=>{
+  const skincare=createFreeVision({offer:'Botanical skincare for everyday rituals'});
+  const software=createFreeVision({offer:'Workflow automation for small businesses'});
+  assert.equal(skincare.layout,'collection');assert.equal(software.layout,'product');
+  assert.notDeepEqual(skincare.sections,software.sections);
+  assert.notDeepEqual(skincare.nav,software.nav);
+});
