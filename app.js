@@ -132,10 +132,10 @@ async function renderFreeVision(){
       field.setCustomValidity(error.message||'Review this field.');field.reportValidity();return;
     }
   }
-  const {createFreeVision}=await import('./workspace/free-vision.mjs?v=polish1');
+  const {createFreeVision}=await import('./workspace/free-vision.mjs?v=studio5');
   const vision=createFreeVision({
     projectMode:existing?'existing':'new',website,
-    changeNotes,business:document.getElementById('business')?.value||'',
+    offer:existing?(document.getElementById('vision-offer')?.value||''):'',changeNotes,business:document.getElementById('business')?.value||'',
     industry:document.getElementById('industry')?.value||'',goal:document.getElementById('goal')?.value||'',
     feelings:[...document.querySelectorAll('#feelings input:checked')].map(input=>input.value)
   });
@@ -147,6 +147,19 @@ async function renderFreeVision(){
   document.getElementById('vision-request').textContent=vision.requested;
   document.getElementById('vision-signals').replaceChildren(...vision.signals.map(signal=>{const li=document.createElement('li');li.textContent=signal;return li;}));
   document.querySelector('.vision-browser').dataset.visionTheme=vision.theme;
+  document.querySelector('.vision-browser').dataset.visionLayout=vision.layout;
+  document.querySelector('.vision-browser').dataset.visionSector=vision.sector;
+  const accent=vision.sector==='technology'?'#17465b':vision.sector==='shop'?'#ffe8cd':'#ddd6c1';document.querySelector('.vision-canvas').style.setProperty('--concept-accent',accent);document.querySelector('.vision-message>a').style.color=vision.sector==='technology'?'#ffffff':'#182010';document.getElementById('vision-accent').value=accent;
+  const mini=document.querySelector('.vision-mini-content');
+  if(mini){mini.replaceChildren();const heading=document.createElement('h5');heading.className='vision-section-heading';heading.textContent=vision.title;mini.append(heading);vision.sections.forEach(([title,description],i)=>{const article=document.createElement('article');const number=document.createElement('span');number.textContent='0'+(i+1);const h=document.createElement('h5');h.textContent=title;const p=document.createElement('p');p.textContent=description;article.append(number,h,p);mini.append(article)});const close=document.createElement('div');close.className='vision-closing';const text=document.createElement('h5');text.textContent=vision.closing;const action=document.createElement('a');action.href='#vision-detail';action.textContent=vision.cta+' ↗';close.append(text,action);mini.append(close)}
+  const previewNav=document.querySelector('.vision-canvas nav>span');if(previewNav){previewNav.replaceChildren(...vision.nav.map(label=>{const link=document.createElement('a');link.href='#vision-detail';link.textContent=label;return link}))}
+  document.querySelectorAll('[data-concept-style]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.conceptStyle===vision.theme)));
+  const photo=document.querySelector('.vision-media');if(photo){photo.hidden=!vision.image;if(vision.image)photo.src=vision.image;else photo.removeAttribute('src');document.querySelector('.vision-canvas').classList.toggle('has-vision-photo',Boolean(vision.image));}
+  document.querySelector('.vision-message>a').firstChild.textContent=vision.cta+' ';
+  const custom=document.getElementById('vision-custom-headline');if(custom)custom.value=vision.headline;
+  document.querySelector('.vision-message>small').textContent=vision.eyebrow;
+  document.getElementById('vision-support').textContent=vision.support;
+  document.querySelector('.vision-canvas').classList.remove('concept-enter');requestAnimationFrame(()=>document.querySelector('.vision-canvas').classList.add('concept-enter'));
   furthest=Math.max(furthest,2);show('directions');
 }
 
@@ -197,9 +210,9 @@ orderForm?.addEventListener('submit',async event=>{
     domain:document.getElementById('order-domain').value.trim(),
     contact_email:document.getElementById('order-email').value.trim(),
     buyer:document.getElementById('order-buyer').value.trim(),
-    offer:document.getElementById('order-offer').value.trim(),
+    offer:document.getElementById('project-mode')?.value==='existing'?(document.getElementById('vision-offer')?.value.trim()||''):document.getElementById('order-offer').value.trim(),
     primary_action:document.getElementById('order-action').value.trim(),
-    reference_notes:document.getElementById('order-notes').value.trim(),
+    reference_notes:[document.getElementById('order-notes').value.trim(),document.getElementById('selected-plan')?.hidden===false?document.getElementById('selected-plan').textContent:'',document.getElementById('vision-custom-headline')?.value.trim()?'First-look headline preference: '+document.getElementById('vision-custom-headline').value.trim():''].filter(Boolean).join('\n'),
     source:'website-builder/index.html'
   };
   try{
@@ -248,9 +261,9 @@ function setProjectMode(){
   const domain=document.getElementById('order-domain');domain.closest('label').hidden=existing;domain.disabled=existing;
   const summary=document.getElementById('redesign-summary');if(summary)summary.hidden=!existing;
   document.querySelector('#order-form h3').textContent='Open your private project.';
-  document.querySelector('#order-form .form-heading + p').textContent=existing?'Add your email to save the redesign brief. Research and design work begin only after project authorization.':'Confirm the business facts the final website cannot safely guess. Research and design work begin only after project authorization.';
+  document.querySelector('#order-form .form-heading + p').textContent=existing?'Add your email to save the redesign brief. We confirm scope, timing and payment before production.':'Confirm the business facts for your website. We confirm scope, timing and payment before production.';
 
-  document.getElementById('brief-continue').textContent='See my free vision →';
+  document.getElementById('brief-continue').textContent='Open my first look →';
   document.getElementById('brief-mode-help').textContent='Your first look will be ready in a few seconds.';
   const business=document.getElementById('business');
   if(existing&&business.value==='Northline Studio'){business.value='';business.placeholder='Your business name';}
@@ -282,7 +295,7 @@ document.addEventListener('project-access-expired-reset',async()=>{
 });
 async function openLiveWorkspace(session){
   const panel=document.getElementById('order-panel');if(!panel)return;
-  const {mountLiveProject}=await import('./workspace/live.mjs?v=polish1');
+  const {mountLiveProject}=await import('./workspace/live.mjs?v=cinema3');
   liveWorkspaceCleanup?.();
   furthest=5;show('order');
   document.querySelector('.studio-shell .stepper').hidden=true;

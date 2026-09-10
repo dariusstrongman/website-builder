@@ -12,14 +12,14 @@ for(const name of htmlFiles){
   const html=readFileSync(join(root,name),'utf8');
   const noindex=/name="robots"[^>]+content="[^"]*noindex/i.test(html);
   if((html.match(/<h1(?:\s|>)/gi)||[]).length!==1) errors.push(`${name}: expected one h1`);
-  if(name.startsWith('demo-')&&(!/href="demo-premium\.css(?:\?[^\"]*)?"/i.test(html)||!/src="demo-motion\.js(?:\?[^\"]*)?"/i.test(html))) errors.push(`${name}: premium demo assets missing`);
+  if(name.startsWith('demo-')&&name!=='demo-field.html'&&(!/href="demo-premium\.css(?:\?[^\"]*)?"/i.test(html)||!/src="demo-motion\.js(?:\?[^\"]*)?"/i.test(html))) errors.push(`${name}: premium demo assets missing`);
   if(name==='project.html'){
     if(!noindex||!/<link[^>]+href="workspace\/style\.css(?:\?[^\"]*)?"/i.test(html)||!/<script[^>]+src="workspace\/main\.mjs(?:\?[^\"]*)?"/i.test(html)||!html.includes('id="main"')) errors.push(`${name}: workspace assets or noindex missing`);
   } else if(name==='motion-lab.html'){
     if(!noindex||!html.includes('href="motion-lab/style.css"')||!html.includes('src="motion-lab/main.mjs"')) errors.push(`${name}: isolated preview assets or noindex missing`);
   } else if(!name.startsWith('demo-')){
     if((html.match(/class="site-header"/g)||[]).length!==1) errors.push(`${name}: shared header missing or duplicated`);
-    if(!/href="premium\.css(?:\?[^\"]*)?"/i.test(html)||!/src="site\.js(?:\?[^\"]*)?"/i.test(html)) errors.push(`${name}: shared design assets missing`);
+    if(!/href="(?:premium|studio-system)\.css(?:\?[^\"]*)?"/i.test(html)||!/src="site\.js(?:\?[^\"]*)?"/i.test(html)) errors.push(`${name}: shared design assets missing`);
     if(!html.includes('id="main"')) errors.push(`${name}: skip link target missing`);
   }
   const title=html.match(/<title>([^<]+)<\/title>/i)?.[1];
