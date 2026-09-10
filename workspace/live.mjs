@@ -2,6 +2,16 @@ const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp
 export function safePreviewURL(value) {
   try { const url = new URL(value); return url.protocol === 'https:' && !url.username && !url.password ? url.href : ''; } catch { return ''; }
 }
+export function safeCheckoutURL(value) {
+  const safe=safePreviewURL(value);
+  return safe&&new URL(safe).hostname==='checkout.stripe.com'?safe:'';
+}
+export function renderQuote(data) {
+  const q=data.quote;
+  if(!q||!Number.isInteger(q.amount_minor)||q.amount_minor<=0||q.currency!=='usd'||!Array.isArray(q.routes)||q.routes.length>15||q.routes.some(r=>!r||typeof r.path!=='string'||typeof r.purpose!=='string'))return '';
+  const price=new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(q.amount_minor/100);
+  return `<section class="live-quote"><span class="live-kicker">${q.sandbox===true?'TEST CHECKOUT — NO REAL CHARGE':'YOUR AGREED SCOPE'}</span><h3>Your website, clearly defined.</h3><p>${escape(q.summary)}</p><ul>${q.routes.map(r=>`<li><b>${escape(r.path==='index.html'?'Homepage':r.path.replace(/\.html$/,'').replaceAll('-',' '))}</b><span>${escape(r.purpose)}</span></li>`).join('')}</ul><p>${Number.isInteger(q.revision_limit)?`${q.revision_limit} revision ${q.revision_limit===1?'round':'rounds'} included.`:''}</p><div class="live-quote-total"><strong>${price}</strong><span>${q.sandbox===true?'Test payment only':'One-time website payment'}</span></div>${data.can_checkout===true?'<button type="button" class="live-authorize" data-live-checkout>Continue to secure checkout ↗</button>':'<p>Checkout will open once your project is ready to start.</p>'}<p data-checkout-status role="status"></p></section>`;
+}
 const titles = {received:'Your project is here.',review_required:'Your brief is being reviewed.',payment:'Authorize your project.',research:'Getting to know your business.',directions:'Choose your design direction.',building:'Your website is taking shape.',review:'Take a look around.',complete:'Your website is ready.',blocked:'Your project needs attention.'};
 const safeImages = value => (Array.isArray(value)?value:[]).filter(p=>p&&typeof p==='object').map(p=>({...p,url:safePreviewURL(p.url)})).filter(p=>p.url);
 export function previewAssetIdentity(value) {
@@ -118,7 +128,21 @@ export function createProjectMonitor({token,endpoint,fetcher=globalThis.fetch,vi
     }catch(error){if(!stopped)onError(error.message,{authFailed,last,operation:action});return false;}
     finally{busy=false;if(!stopped)void refresh();}
   }
-  return {start:refresh,refresh,select,review,stop(){stopped=true;cancel(timer);controller?.abort();}};
+  async function checkout() {
+    if(stopped||busy||authFailed||last?.can_checkout!==true)return '';
+    if(timer!==null){cancel(timer);timer=null;}busy=true;
+    try{const data=await request('POST',{action:'checkout'});const url=safeCheckoutURL(data.checkout_url);if(!url)throw new Error('Secure checkout is unavailable. Please try again.');return stopped?'':url;}
+    catch(error){if(!stopped)onError(error.message,{authFailed,last,operation:'checkout'});return '';}
+    finally{busy=false;if(!stopped)queue();}
+  }
+  async function recover() {
+    if(stopped||busy||!authFailed)return '';
+    busy=true;
+    try { const data=await request('POST',{action:'recover'}); return stopped?'':data.message||'Check the email on your brief for your fresh project access link.'; }
+    catch(error){if(!stopped)onError(error.message,{authFailed,last,operation:'recover'});return '';}
+    finally{busy=false;}
+  }
+  return {start:refresh,refresh,select,review,checkout,recover,stop(){stopped=true;cancel(timer);controller?.abort();}};
 }
 
 export function mountLiveProject(container,{token,endpoint,onChange=()=>{}}) {
@@ -152,10 +176,10 @@ export function mountLiveProject(container,{token,endpoint,onChange=()=>{}}) {
     now.classList.toggle('is-working',workingStages.has(data.stage));
     now.querySelector('b').textContent=pulseCopy[0];
     now.querySelector('small').textContent=pulseCopy[1];
-    const next=JSON.stringify([data.stage,data.milestones,data.payment_required,data.purchase_url,data.customer_decision_required,data.choices,data.draft_previews,data.preview_url,data.current_build_sha256,data.events,data.can_select,data.download_url,data.can_download]);
+    const next=JSON.stringify([data.stage,data.milestones,data.payment_required,data.purchase_url,data.quote,data.can_checkout,data.customer_decision_required,data.choices,data.draft_previews,data.preview_url,data.current_build_sha256,data.events,data.can_select,data.download_url,data.can_download]);
     if(next!==signature){signature=next;render(data);}
     onChange(data);
-  },onError(message,{authFailed,operation}){if(operation&&!authFailed){reviewStatus.textContent=message;reviewControls.hidden=false;return;}connection.textContent=authFailed?message:`Connection interrupted. Your last update is still here. Reconnecting… ${message}`;if(authFailed){const reset=document.createElement('button');reset.type='button';reset.dataset.liveReset='';reset.textContent='Close this expired session';connection.appendChild(reset);}}});
+  },onError(message,{authFailed,operation}){if(operation&&!authFailed){reviewStatus.textContent=message;reviewControls.hidden=false;return;}connection.textContent=authFailed?message:`Connection interrupted. Your last update is still here. Reconnecting… ${message}`;if(authFailed){container.querySelector('.live-heading h2').textContent='Reconnect to your project.';container.querySelector('.live-message').textContent='Your project is saved. Request a fresh access link to continue.';container.querySelector('.live-status').textContent='Access expired';container.querySelector('.live-progress-shell').hidden=true;const recover=document.createElement('button');recover.type='button';recover.dataset.liveRecover='';recover.textContent='Email me a fresh access link';connection.appendChild(recover);const reset=document.createElement('button');reset.type='button';reset.dataset.liveReset='';reset.textContent='Close this expired session';connection.appendChild(reset);}}});
   function render(data){
     const roadmap=projectRoadmap(data.milestones);
     container.querySelector('.live-build-track').innerHTML=roadmap.chapters.map((chapter,index)=>`<div class="live-build-step ${escape(chapter.status)}"><span>${chapter.status==='complete'?'✓':String(index+1).padStart(2,'0')}</span><div><b>${escape(chapter.label)}</b><small>${escape(chapter.description)}</small></div></div>`).join('');
@@ -179,7 +203,7 @@ export function mountLiveProject(container,{token,endpoint,onChange=()=>{}}) {
     const waitingTitle=data.payment_required||data.stage==='payment'?'Authorize your project.':data.stage==='research'?'We’re learning what makes the business credible.':data.stage==='directions'?'Your first design direction will appear here.':data.stage==='building'?'The first working page will appear here.':'This is your project workspace.';
     const waitingCopy=data.payment_required||data.stage==='payment'?'Your brief is saved. Nothing has been charged and production has not started. Authorize the project when you are ready to begin.':data.stage==='research'?'Nothing visual has been produced yet. The canvas opens when the first design direction is ready.':data.stage==='directions'?'Each direction appears as soon as it is ready for you. You choose the direction for the full build.':data.stage==='building'?'The canvas opens with the first working preview and updates as new pages arrive.':'Research, design choices and previews will appear here as they become available.';
     const authorization=data.purchase_url?`<a class="live-authorize" href="${escape(data.purchase_url)}" rel="noopener noreferrer">Authorize your project <span aria-hidden="true">↗</span></a>`:'';
-    content.querySelector('.live-wait-slot').innerHTML=!drafts&&!choices&&!preview&&!(data.can_download&&data.download_url)?`<div class="live-wait"><span class="live-presence" aria-hidden="true"></span><h3>${waitingTitle}</h3><p>${waitingCopy}</p>${data.payment_required||data.stage==='payment'?authorization:''}</div>`:'';
+    content.querySelector('.live-wait-slot').innerHTML=!drafts&&!choices&&!preview&&!(data.can_download&&data.download_url)?(renderQuote(data)||`<div class="live-wait"><span class="live-presence" aria-hidden="true"></span><h3>${waitingTitle}</h3><p>${waitingCopy}</p>${data.payment_required||data.stage==='payment'?authorization:''}</div>`):'';
     content.querySelector('.live-activity-slot').innerHTML=activity.length?`<details class="live-activity"><summary><span><b>Project highlights</b><small>Verified work, grouped by phase</small></span><em>View details</em></summary><ol>${activity.map(group=>`<li><span><b>${escape(group.label)}</b><small>${escape(group.latest)}</small></span><strong>${group.count} ${group.count===1?'update':'updates'}</strong></li>`).join('')}</ol></details>`:'';
   }
   async function submitReview(action){
@@ -197,6 +221,10 @@ export function mountLiveProject(container,{token,endpoint,onChange=()=>{}}) {
   }
   const submit=event=>{event.preventDefault();if(revisionForm.reportValidity())void submitReview('revise');};
   async function click(event){
+    const recovery=event.target.closest('[data-live-recover]');
+    if(recovery&&container.contains(recovery)&&!recovery.disabled){recovery.disabled=true;recovery.textContent='Requesting your link…';const message=await monitor.recover();if(message){connection.textContent=message;container.querySelector('.live-heading h2').textContent='Check your email.';}else if(recovery.isConnected){recovery.disabled=false;recovery.textContent='Email me a fresh access link';}return;}
+    const checkout=event.target.closest('[data-live-checkout]');
+    if(checkout&&container.contains(checkout)&&!checkout.disabled){checkout.disabled=true;checkout.textContent='Opening secure checkout…';const url=await monitor.checkout();if(url){location.assign(url);}else{checkout.disabled=false;checkout.textContent='Continue to secure checkout ↗';}return;}
     const record=event.target.closest('.live-activity summary');
     if(record&&container.contains(record))setTimeout(()=>{record.querySelector('em').textContent=record.parentElement.open?'Hide details':'View details';},0);
     if(event.target.closest('[data-live-approve]')&&container.contains(event.target)){void submitReview('approve');return;}

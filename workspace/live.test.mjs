@@ -1,8 +1,40 @@
 import test from 'node:test';
+import {safeCheckoutURL,renderQuote} from './live.mjs';
 import assert from 'node:assert/strict';
 import {safePreviewURL,normalizeProject,createProjectMonitor,renderDraftPreviews,previewIdentity,previewAssetIdentity,projectRoadmap,summarizeProjectActivity} from './live.mjs';
 const project=(extra={})=>({ok:true,stage:'research',message:'Reviewing the existing website',...extra});
 const response=(data,status=200)=>({ok:status<400,status,json:async()=>data});
+test('checkout accepts only hosted Stripe URLs',()=>{
+ for(const url of ['https://checkout.stripe.com.evil.test/pay','https://evil.test/checkout','javascript:alert(1)','https://user@checkout.stripe.com/pay'])assert.equal(safeCheckoutURL(url),'');
+ assert.equal(safeCheckoutURL('https://checkout.stripe.com/c/pay/one'),'https://checkout.stripe.com/c/pay/one');
+});
+test('quote shows the exact agreed price and escapes customer scope',()=>{
+ const html=renderQuote({can_checkout:true,quote:{amount_minor:50000,currency:'usd',summary:'<script>bad</script>',revision_limit:2,routes:[{path:'index.html',purpose:'Contact the business'}]}});
+ assert.match(html,/\$500\.00/);assert.match(html,/Homepage/);assert.match(html,/2 revision rounds/);assert.match(html,/data-live-checkout/);assert.ok(!html.includes('<script>'));
+ assert.equal(renderQuote({quote:{amount_minor:500,currency:'usd',routes:[null]}}),'');
+});
+test('checkout posts no client price or order substitution',async()=>{
+ const requests=[];
+ const h=harness(async(url,opts)=>{requests.push(opts);return response(opts.method==='POST'?{ok:true,checkout_url:'https://checkout.stripe.com/c/pay/one'}:project({stage:'purchase',can_checkout:true}));});
+ await h.monitor.start();assert.equal(await h.monitor.checkout(),'https://checkout.stripe.com/c/pay/one');
+ assert.deepEqual(JSON.parse(requests[1].body),{action:'checkout'});h.monitor.stop();
+});
+
+test('sandbox quote cannot be mistaken for a real charge',()=>{
+ const html=renderQuote({quote:{sandbox:true,amount_minor:50000,currency:'usd',routes:[]}});
+ assert.match(html,/TEST CHECKOUT — NO REAL CHARGE/);
+ assert.match(html,/Test payment only/);
+});
+
+test('expired session requests email recovery without changing its bearer or sending a recipient',async()=>{
+ const calls=[];
+ const h=harness(async(url,options)=>{calls.push(options);return options.method==='POST'?response({ok:true,message:'Fresh link requested.'}):response({},401);});
+ assert.equal(await h.monitor.recover(),'');await h.monitor.start();
+ assert.equal(await h.monitor.recover(),'Fresh link requested.');
+ assert.deepEqual(JSON.parse(calls[1].body),{action:'recover'});
+ assert.equal(calls[1].headers.Authorization,'Bearer private-session');
+ assert.equal(h.timers.size,0);h.monitor.stop();
+});
 function harness(fetcher,extra={}){
  const timers=new Map(),updates=[],errors=[];let id=0;
  const monitor=createProjectMonitor({token:'private-session',endpoint:'https://service.example/website-project',fetcher,schedule:(fn,ms)=>{timers.set(++id,{fn,ms});return id;},cancel:key=>timers.delete(key),onUpdate:p=>updates.push(p),onError:(message,meta)=>errors.push({message,...meta}),...extra});
